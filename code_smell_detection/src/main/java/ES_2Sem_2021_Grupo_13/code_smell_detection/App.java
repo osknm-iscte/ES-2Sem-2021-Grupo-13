@@ -131,7 +131,8 @@ public class App {
 
 	}
 
-	private static LinkedList<String> readFile() throws IOException { //reads .xlsx file and writes to LinkedList<String>
+	private static LinkedList<String> readFile() throws IOException { // implemented, but needs adjustments - what will
+																		// it print to??
 
 		LinkedList<String> data = new LinkedList<String>();
 
@@ -148,9 +149,8 @@ public class App {
 
 			while (cellIterator.hasNext()) {
 				Cell cell = cellIterator.next();
-//				System.out.print(cell.getStringCellValue());
-//				System.out.print(" - ");
-				
+				System.out.print(cell.getStringCellValue());
+				System.out.print(" - ");
 
 				data.add(cell.getStringCellValue());
 
