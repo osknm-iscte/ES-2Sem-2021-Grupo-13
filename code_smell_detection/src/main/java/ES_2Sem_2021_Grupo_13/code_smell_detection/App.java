@@ -148,8 +148,9 @@ public class App {
 
 			while (cellIterator.hasNext()) {
 				Cell cell = cellIterator.next();
-				System.out.print(cell.getStringCellValue());
-				System.out.print(" - ");
+//				System.out.print(cell.getStringCellValue());
+//				System.out.print(" - ");
+				
 
 				data.add(cell.getStringCellValue());
 
