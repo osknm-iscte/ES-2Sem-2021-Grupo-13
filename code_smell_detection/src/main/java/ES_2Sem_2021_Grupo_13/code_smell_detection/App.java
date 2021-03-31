@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 import java.util.TreeSet;
 
 import com.github.javaparser.JavaParser;
@@ -56,20 +57,22 @@ public class App {
 		LexicalPreservingPrinter.setup(compunit);
 		for (ClassOrInterfaceDeclaration c : classes) {
 
-			int classLOC = getLOC(LexicalPreservingPrinter.print(c));
+			int LOC_class = getLOC(LexicalPreservingPrinter.print(c));
 			List<MethodDeclaration> classMethods = c.findAll(MethodDeclaration.class);
-			writeOutClassMetrics(c.getName().toString(), classLOC, classMethods.size(), classMethods);
+			writeOutClassMetrics(c.getName().toString(), classMethods.size(), LOC_class, classMethods);
 
 		}
 	}
 
-	private void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<MethodDeclaration> methods) {
+	private void writeOutClassMetrics(String className, int NOM_class, int LOC_class, List<MethodDeclaration> methods) {
 
 		for (MethodDeclaration m : methods) {
 			LexicalPreservingPrinter.setup(m);
-			int method_LOC = getLOC(LexicalPreservingPrinter.print(m));
-			System.out.println("class name: " + className + " " + "classLOC: " + classLOC + " " + "NOM_class: "
-					+ NOM_class + " method name: " + " " + m.getName() + " " + "method LOC: " + method_LOC);
+			int LOC_method = getLOC(LexicalPreservingPrinter.print(m));
+			int CYCLO_method = getCYCLO(LexicalPreservingPrinter.print(m));
+			int WMC_class = NOM_class;
+			System.out.println("class name: " + className + " " + "NOM_class: " + NOM_class + " " + "LOC_class: "
+					+ LOC_class + " " + "WMC_class: " + WMC_class + " method name: " + " " + m.getName() + " " + "LOC_method: " + LOC_method + " " + "CYCLO_method: " + CYCLO_method);
 		}
 
 	}
@@ -101,7 +104,24 @@ public class App {
 
 		
 	}
-
+	
+	private int getCYCLO(String NodeString) {
+		
+		Scanner s = new Scanner (NodeString);
+		
+		String[] items = {"for", "while"};
+		int counter = 0;
+		while(s.hasNext()) {
+			for (String item : items) {
+			       if (s.next().contains(item)) {
+			    	   counter++;
+			       }
+			}
+		}
+		s.close();
+		return counter;
+	}
+		
 	public static void main(String[] args) {
 
 		try {
