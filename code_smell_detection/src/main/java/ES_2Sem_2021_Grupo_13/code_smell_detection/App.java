@@ -49,10 +49,12 @@ public class App {
 		}
 	}
 
+//	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/MongoWorker.java";
+
 	private static final String FILE_PATH = "C:\\Users\\maria\\Desktop\\App.java";
 	private static final String WRITEPATH = "C:\\Users\\maria\\Documents\\Code_Smells.xlsx";// will vary between
 																							// computers
-	private static final String TESTREAD = "C:\\Users\\maria\\Documents\\TESTREAD.xlsx";
+//	private static final String TESTREAD = "C:\\Users\\maria\\Documents\\TESTREAD.xlsx";
 
 //	private static final LinkedList<String> DATA = dataSimulator();
 	private static LinkedList<String> realTest = new LinkedList<String>();
