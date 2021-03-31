@@ -54,6 +54,7 @@ public class App {
 	private static final String FILE_PATH = "C:\\Users\\maria\\Desktop\\App.java";
 	private static final String WRITEPATH = "C:\\Users\\maria\\Documents\\Code_Smells.xlsx";// will vary between
 																							// computers
+	private int countMethod = 1;
 //	private static final String TESTREAD = "C:\\Users\\maria\\Documents\\TESTREAD.xlsx";
 
 //	private static final LinkedList<String> DATA = dataSimulator();
@@ -85,7 +86,7 @@ public class App {
 
 	private void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<MethodDeclaration> methods) {
 
-		int count = 1;
+//		int count = 1;
 		for (MethodDeclaration m : methods) {
 			LexicalPreservingPrinter.setup(m);
 			int method_LOC = getLOC(LexicalPreservingPrinter.print(m));
@@ -93,7 +94,7 @@ public class App {
 					+ NOM_class + " method name: " + "   " + m.getName() + "   " + "  method LOC: " + method_LOC);
 
 //			"NOM_class", "LOC_class", "WMC_class", "is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method"
-			realTest.add(String.valueOf(count));
+			realTest.add(String.valueOf(countMethod));
 			realTest.add("placeholder package");
 			realTest.add(className);
 			realTest.add(String.valueOf(m.getName()));
@@ -106,7 +107,7 @@ public class App {
 			realTest.add("placeholder cyclo_method");
 			realTest.add("");// islongmethod
 
-			count++;
+			countMethod++;
 
 		}
 
