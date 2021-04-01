@@ -30,15 +30,7 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
  *
  */
 public class App {
-	private static class MethodNameCollector extends VoidVisitorAdapter<List<Comment>> {
-		
-		 public void visit(CompilationUnit md, List<Comment> collector) {
-		 super.visit(md, collector);
-		 collector.addAll( md.getAllComments());
-		 }
-	 }
-
-	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/MongoWorker.java";
+	private static final String FILE_PATH = "C:/Users/Utilizador/Documents/LEI/Aulas Práticas/Semanas.java";
 
 	private CompilationUnit compunit;
 	private List<MethodDeclaration> methods;
@@ -59,18 +51,19 @@ public class App {
 
 			int LOC_class = getLOC(LexicalPreservingPrinter.print(c));
 			List<MethodDeclaration> classMethods = c.findAll(MethodDeclaration.class);
-			writeOutClassMetrics(c.getName().toString(), classMethods.size(), LOC_class, classMethods);
+			int WMC_class = historicCYCLO(classMethods.size(), classMethods);
+			writeOutClassMetrics(c.getName().toString(), classMethods.size(), LOC_class, WMC_class, classMethods);
 
 		}
 	}
 
-	private void writeOutClassMetrics(String className, int NOM_class, int LOC_class, List<MethodDeclaration> methods) {
+	private void writeOutClassMetrics(String className, int NOM_class, int LOC_class, int WMC, List<MethodDeclaration> methods) {
 
 		for (MethodDeclaration m : methods) {
 			LexicalPreservingPrinter.setup(m);
 			int LOC_method = getLOC(LexicalPreservingPrinter.print(m));
-			int CYCLO_method = getCYCLO(LexicalPreservingPrinter.print(m));
-			int WMC_class = NOM_class;
+			int CYCLO_method = getCYCLO(LOC_method, LexicalPreservingPrinter.print(m));
+			int WMC_class = WMC;
 			System.out.println("class name: " + className + " " + "NOM_class: " + NOM_class + " " + "LOC_class: "
 					+ LOC_class + " " + "WMC_class: " + WMC_class + " method name: " + " " + m.getName() + " " + "LOC_method: " + LOC_method + " " + "CYCLO_method: " + CYCLO_method);
 		}
@@ -105,23 +98,50 @@ public class App {
 		
 	}
 	
-	private int getCYCLO(String NodeString) {
+	private int getCYCLO(int N, String NodeString) {
 		
-		Scanner s = new Scanner (NodeString);
+		String zip = NodeString.replaceAll("(?m)^[ \t]*\r?\n", "");
+		Scanner s = new Scanner (zip);
 		
-		String[] items = {"for", "while"};
-		int counter = 0;
+		String[] items = {"for", "while", "else"};
+		int E = 0;
 		while(s.hasNext()) {
 			for (String item : items) {
 			       if (s.next().contains(item)) {
-			    	   counter++;
+			    	   E=N+1;
 			       }
 			}
 		}
 		s.close();
-		return counter;
-	}
 		
+		if(E==0) {
+			E= 1;
+		}
+		return (E - N + 2);
+	}
+	
+	private int historicCYCLO(int NOM_class, List<MethodDeclaration> methods) {
+		
+		int WMC_class = 0;
+		int tempWMC = 0;
+		for (MethodDeclaration m : methods) {
+			LexicalPreservingPrinter.setup(m);
+			int LOC_method = getLOC(LexicalPreservingPrinter.print(m));
+			int CYCLO_method = getCYCLO(LOC_method, LexicalPreservingPrinter.print(m));
+			tempWMC = tempWMC + CYCLO_method;
+			
+			if(CYCLO_method > 1) {
+				
+				WMC_class = tempWMC;
+			
+			} else {
+				
+				WMC_class = NOM_class;
+			}
+		}
+		return WMC_class;
+	}
+			
 	public static void main(String[] args) {
 
 		try {
