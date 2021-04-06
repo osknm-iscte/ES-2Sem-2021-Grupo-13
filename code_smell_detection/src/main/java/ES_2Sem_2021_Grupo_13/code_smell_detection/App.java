@@ -48,7 +48,6 @@ public class App {
 			collector.addAll(md.getAllComments());
 		}
 	}
-
 	
 //	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/MongoWorker.java";
 
