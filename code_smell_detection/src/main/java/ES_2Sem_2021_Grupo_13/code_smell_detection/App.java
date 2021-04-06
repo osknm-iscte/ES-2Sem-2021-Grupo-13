@@ -14,6 +14,12 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.script.Bindings;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParseStart;
@@ -40,6 +46,8 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.printer.PrettyPrinterConfiguration;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
+
+
 
 /**
  * Hello world!
@@ -210,8 +218,21 @@ public class App {
 			// getMethodCYCLO(new JavaParser().parse(new
 			// File(FILE_PATH_TEST)).getResult().get()
 			// .findFirst(MethodDeclaration.class).get());
-
-		} catch (IOException e) {
+			boolean long_method=false;
+			boolean long_class=false;
+			int LOC_method=60;
+			int CYCLO_method=40;
+			ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+			ScriptEngine engine= scriptEngineManager.getEngineByName("graal.js");
+			Bindings bindings = engine.createBindings();
+			bindings.put("long_method", long_method);
+			bindings.put("long_class", long_class);
+			bindings.put("LOC_method", LOC_method);
+			bindings.put("CYCLO_method", CYCLO_method);
+			String script= "if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false";
+			long_method=(boolean) engine.eval(script, bindings);
+			System.out.println("and now: "+long_method);
+		} catch (IOException | ScriptException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
