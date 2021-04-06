@@ -28,8 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 
-
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -51,15 +51,12 @@ public class App {
 
 //	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/MongoWorker.java";
 
-	private static final String FILE_PATH = "C:\\Users\\maria\\Desktop\\App.java";
+	private static final String FILE_PATH = "C:\\Users\\maria\\Desktop\\App.java"; // file to analyse, debug
 	private static final String WRITEPATH = "C:\\Users\\maria\\Documents\\Code_Smells.xlsx";// will vary between
-																							// computers
-	private int countMethod = 1;
-//	private static final String TESTREAD = "C:\\Users\\maria\\Documents\\TESTREAD.xlsx";
+																							// computers, code_smells.xlsx destination, debug
+	private int countMethod = 1; //will count the number of methods, did not work inside the method writeOutClassMetrics 
 
-//	private static final LinkedList<String> DATA = dataSimulator();
-	private static LinkedList<String> realTest = new LinkedList<String>();
-
+	private static LinkedList<String> realTest = new LinkedList<String>(); //will be used in writeOutClassMetrics to store the data to write to the .xlsx file
 	private CompilationUnit compunit;
 	private List<MethodDeclaration> methods;
 	private List<ClassOrInterfaceDeclaration> classes;
@@ -84,14 +81,14 @@ public class App {
 		}
 	}
 
-	private void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<MethodDeclaration> methods) {
+	private void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<MethodDeclaration> methods) { //writes to a linkedList<String> the values to then write the .xlsx
 
-//		int count = 1;
+
 		for (MethodDeclaration m : methods) {
 			LexicalPreservingPrinter.setup(m);
 			int method_LOC = getLOC(LexicalPreservingPrinter.print(m));
 			System.out.println("class name: " + className + "   " + "classLOC:   " + classLOC + "   " + "NOM_class: "
-					+ NOM_class + " method name: " + "   " + m.getName() + "   " + "  method LOC: " + method_LOC);
+					+ NOM_class + " method name: " + "   " + m.getName() + "   " + "  method LOC: " + method_LOC); //test
 
 //			"NOM_class", "LOC_class", "WMC_class", "is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method"
 			realTest.add(String.valueOf(countMethod));
@@ -102,10 +99,10 @@ public class App {
 			realTest.add(String.valueOf(NOM_class));
 			realTest.add(String.valueOf(classLOC));
 			realTest.add("placeholder wmc_class");
-			realTest.add("");// isgodclass
+//			realTest.add("");// isgodclass
 			realTest.add(String.valueOf(method_LOC));
 			realTest.add("placeholder cyclo_method");
-			realTest.add("");// islongmethod
+//			realTest.add("");// islongmethod
 
 			countMethod++;
 
@@ -135,8 +132,7 @@ public class App {
 
 	}
 
-	private static LinkedList<String> readFile() throws IOException { // implemented, but needs adjustments - what will
-																		// it print to??
+	private static LinkedList<String> readFile() throws IOException { //reads the .xlsx file and puts its content on a linkedList
 
 		LinkedList<String> data = new LinkedList<String>();
 
@@ -144,59 +140,57 @@ public class App {
 		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
 
 		Workbook workbook = new XSSFWorkbook(inputStream);
-		Sheet firstSheet = workbook.getSheetAt(0);
-		Iterator<Row> iterator = firstSheet.iterator();
+		Sheet firstSheet = workbook.getSheetAt(0); //reads only the first sheet
+		Iterator<Row> iterator = firstSheet.iterator(); //creates an iterator to read the sheet
 
 		while (iterator.hasNext()) {
-			Row nextRow = iterator.next();
-			Iterator<Cell> cellIterator = nextRow.cellIterator();
+			Row nextRow = iterator.next(); //reads next row
+			Iterator<Cell> cellIterator = nextRow.cellIterator(); //will read the cells in each row
 
 			while (cellIterator.hasNext()) {
-				Cell cell = cellIterator.next();
-				System.out.print(cell.getStringCellValue());
-				System.out.print(" - ");
-
-				data.add(cell.getStringCellValue());
+				Cell cell = cellIterator.next(); //goes to the next cell
+				if (cell.getCellType() != CellType.BLANK) { //if the cell is empty don't create a new position on the linkedList
+					System.out.print(cell.getStringCellValue()); //test
+					System.out.print(" - "); //test
+	
+					data.add(cell.getStringCellValue()); // adds the value, if not empty, to the linkedList
+				}
 
 			}
 			System.out.println();
 		}
 
+		
 		workbook.close();
-		inputStream.close();
+		inputStream.close(); //closes reading
+		
+//		testeToLinkedList(data);	//debug
+		
 
-		return data;
+		return data; //returns linkedList
 
 	}
+	
+	private static void testeToLinkedList(LinkedList<String> data) { //prints all the values of the linkedList data, for debug
+		for(int i = 0; i < data.size(); i++)
+			
+			System.out.println("\n" + data.get(i));
+			
+		}
+		
 
-//	private static LinkedList<String> dataSimulator() { // will be replaced by the actual data generator in the final
-//														// version, just for testing
-//		LinkedList<String> data = new LinkedList<String>();
-//
-//		int numberLines = 2;
-//		int numberColumns = 7;
-//		int count = 0;
-//
-//		for (int i = 0; i < numberLines; i++) {
-//			for (int j = 0; j < numberColumns; j++) {
-//
-//				data.add(count, String.valueOf(count + 1));
-//				System.out.println("\n " + data);
-//				count++;
-//			}
-//		}
-//		return data;
-//	}
 
-	private static void writeFile(String path) { // to use you can't have the file opened anywhere else
+
+
+	private static void writeFile(String path) { // to use you can't have the file opened anywhere else or else it will give errors on the console
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
-		XSSFSheet sheet = workbook.createSheet("Code Smells");
+		XSSFSheet sheet = workbook.createSheet("Code Smells"); // creates the .xlsx file
 
-		Object[][] datatypes = dataFormater(realTest); // gets the formated data, will probably be passed as an argument
+		Object[][] datatypes = dataFormater(realTest); // gets the formated data, will realTest probably be passed as an argument
 														// in the final version
 
-		int rowNum = 0; // creates the .xlsx file
+		int rowNum = 0; //will count the rows
 		System.out.println("Creating excel");
 
 		for (Object[] datatype : datatypes) {
@@ -204,35 +198,35 @@ public class App {
 			int colNum = 0;
 			for (Object field : datatype) {
 				Cell cell = row.createCell(colNum++);
-				if (field instanceof String) {
+				if (field instanceof String) { //writes the string, i dont think the next condition will ever be used since the linkedList has Strings only
 					cell.setCellValue((String) field);
-				} else if (field instanceof Integer) {
-					cell.setCellValue((Integer) field);
+//				} else if (field instanceof Integer) {
+//					cell.setCellValue((Integer) field);
 				}
 			}
 		}
 
 		try {
 			FileOutputStream outputStream = new FileOutputStream(path);
-			workbook.write(outputStream);
-			workbook.close();
+			workbook.write(outputStream);//writes file
+			workbook.close();//closes file
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		System.out.println("Done");
+		System.out.println("Done"); //debug
 	}
 
 	private static String[][] dataFormater(LinkedList<String> data) { // formats the data so it can be put in a .xlsx,
-																		// receives a LinkedList<String>
-		int numberOfParameters = 11;
+																		// receives a LinkedList<String> and transforms into String [][]
+		int numberOfParameters = 9;
 
 		String[][] formatedData = new String[data.size() / numberOfParameters + numberOfParameters][numberOfParameters
-				+ 1]; // creates the array
+				+ 1]; // creates the array with the size required
 		String[] predefinido = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class",
-				"is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method" }; // 1st line
+				"LOC_method", "CYCLO_method" }; // 1st line, titles
 
 		int nrLines = data.size() / numberOfParameters; // number of lines the final table will have (does not account
 														// for the 1st)
@@ -242,14 +236,14 @@ public class App {
 			for (int j = 1; j < numberOfParameters + 1; j++) { // columns
 
 				if (i == 1) {
-					formatedData[i - 1][j - 1] = predefinido[i * j - 1]; // writes 1st line
+					formatedData[i - 1][j - 1] = predefinido[i * j - 1]; // writes the 1st line
 				} else {
-					formatedData[i - 1][j - 1] = data.get(count); // writes the rest
+					formatedData[i - 1][j - 1] = data.get(count); // writes the rest of the content
 					count++;
 				}
 			}
 		}
-		return formatedData;
+		return formatedData; // returns the data, now as String [][]
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -274,7 +268,6 @@ public class App {
 			writeFile(WRITEPATH);
 			readFile();
 
-//			writeFile(TESTREAD);
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
