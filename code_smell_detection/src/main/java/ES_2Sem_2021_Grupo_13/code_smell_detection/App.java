@@ -28,8 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 
-
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -55,9 +55,7 @@ public class App {
 	private static final String WRITEPATH = "C:\\Users\\maria\\Documents\\Code_Smells.xlsx";// will vary between
 																							// computers
 	private int countMethod = 1;
-//	private static final String TESTREAD = "C:\\Users\\maria\\Documents\\TESTREAD.xlsx";
 
-//	private static final LinkedList<String> DATA = dataSimulator();
 	private static LinkedList<String> realTest = new LinkedList<String>();
 
 	private CompilationUnit compunit;
@@ -86,7 +84,6 @@ public class App {
 
 	private void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<MethodDeclaration> methods) {
 
-//		int count = 1;
 		for (MethodDeclaration m : methods) {
 			LexicalPreservingPrinter.setup(m);
 			int method_LOC = getLOC(LexicalPreservingPrinter.print(m));
@@ -102,10 +99,10 @@ public class App {
 			realTest.add(String.valueOf(NOM_class));
 			realTest.add(String.valueOf(classLOC));
 			realTest.add("placeholder wmc_class");
-			realTest.add("");// isgodclass
+//			realTest.add("");// isgodclass
 			realTest.add(String.valueOf(method_LOC));
 			realTest.add("placeholder cyclo_method");
-			realTest.add("");// islongmethod
+//			realTest.add("");// islongmethod
 
 			countMethod++;
 
@@ -153,21 +150,37 @@ public class App {
 
 			while (cellIterator.hasNext()) {
 				Cell cell = cellIterator.next();
-				System.out.print(cell.getStringCellValue());
-				System.out.print(" - ");
-
-				data.add(cell.getStringCellValue());
+//				System.out.println(cell.getCellType());
+				if (cell.getCellType() != CellType.BLANK) {
+					System.out.print(cell.getStringCellValue());
+					System.out.print(" - ");
+	
+					data.add(cell.getStringCellValue());
+				}
 
 			}
 			System.out.println();
 		}
 
+		
 		workbook.close();
 		inputStream.close();
+		
+		testeToLinkedList(data);	
+		
 
 		return data;
 
 	}
+	
+	private static void testeToLinkedList(LinkedList<String> data) {
+		for(int i = 0; i < data.size(); i++)
+			
+			System.out.println("\n" + data.get(i));
+			
+		}
+		
+
 
 //	private static LinkedList<String> dataSimulator() { // will be replaced by the actual data generator in the final
 //														// version, just for testing
@@ -227,12 +240,12 @@ public class App {
 
 	private static String[][] dataFormater(LinkedList<String> data) { // formats the data so it can be put in a .xlsx,
 																		// receives a LinkedList<String>
-		int numberOfParameters = 11;
+		int numberOfParameters = 9;
 
 		String[][] formatedData = new String[data.size() / numberOfParameters + numberOfParameters][numberOfParameters
 				+ 1]; // creates the array
 		String[] predefinido = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class",
-				"is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method" }; // 1st line
+				"LOC_method", "CYCLO_method" }; // 1st line
 
 		int nrLines = data.size() / numberOfParameters; // number of lines the final table will have (does not account
 														// for the 1st)
@@ -273,6 +286,7 @@ public class App {
 
 			writeFile(WRITEPATH);
 			readFile();
+			
 
 //			writeFile(TESTREAD);
 
