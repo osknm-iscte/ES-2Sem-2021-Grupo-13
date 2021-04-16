@@ -54,6 +54,13 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
  *
  */
 public class App {
+	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/";
+	private static final String FILE_PATH_TEST = "C:/Users/omely/OneDrive/Ambiente de Trabalho/DataMining/testCYCLO.java";
+	private CompilationUnit compunit;
+	private List<MethodDeclaration> methods;
+	private List<ClassOrInterfaceDeclaration> classes;
+	private PackageDeclaration pack;
+
 
 	private static class ConditionalStatementExplorer extends VoidVisitorAdapter<methodComplexityInfo> {
 
@@ -105,13 +112,7 @@ public class App {
 		}
 	}
 
-	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/";
-	private static final String FILE_PATH_TEST = "C:/Users/omely/OneDrive/Ambiente de Trabalho/DataMining/testCYCLO.java";
-	private CompilationUnit compunit;
-	private List<MethodDeclaration> methods;
-	private List<ClassOrInterfaceDeclaration> classes;
-	private PackageDeclaration pack;
-
+	
 	public App(CompilationUnit compunit) {
 
 		this.compunit = compunit;
