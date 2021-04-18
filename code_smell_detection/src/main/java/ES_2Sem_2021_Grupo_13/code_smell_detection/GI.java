@@ -24,6 +24,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -35,6 +36,8 @@ import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+
 import org.apache.poi.xssf.usermodel.*;
 
 import com.github.javaparser.JavaParser;
@@ -46,11 +49,14 @@ public class GI {
 
 	private File javaFile;
 	private File excelFile;
+	private File excelDir;
 	private String regra;
 	private boolean predefinido=false;
 	private JFrame frame;
 	
 	public GI() {
+		
+		excelDir = new File(System.getProperty("user.dir"));
 		addFrameContent();
 		
 	}
@@ -66,107 +72,95 @@ public class GI {
 	
 	    JMenuBar mb = new JMenuBar();
 	    JMenu m1 = new JMenu("Ficheiro");
-	    
 	    JMenu m2 = new JMenu("Metricas");
 	    
 	    mb.add(m1);
 	    mb.add(m2);
+	    
 	    JPanel panelCenter = new JPanel();
 	    JPanel panel = new JPanel();
 	    frame.getContentPane().add(BorderLayout.SOUTH, panel);
 	    frame.getContentPane().add(BorderLayout.NORTH, mb);
 	    frame.getContentPane().add(BorderLayout.CENTER, panelCenter);
 	    
-	    
+	    JScrollPane scrollPane = new JScrollPane();
+	    scrollPane.createVerticalScrollBar();
 	    JMenuItem m11 = new JMenuItem("Escolher diretoria de projecto");
 	    
 	    m11.addActionListener(new ActionListener() {
 	    	   public void actionPerformed(ActionEvent ae) {
 	    	      
-	    		  
 	    		  JFileChooser fileChooser = new JFileChooser(defaultFile);
 	    	      fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	    	      fileChooser.setAcceptAllFileFilterUsed(false);
 	    	      int returnValue = fileChooser.showSaveDialog(null);
 	    	      if (returnValue == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile().isDirectory()) {
-	    	    	  		javaFile = fileChooser.getSelectedFile();
-	    	    	  		try {
-	    	    				Path path = Paths.get(javaFile.getAbsolutePath());
-	    	    				List<String> paths = App.listFiles(path);
-	    	    				System.out.println("------------------------------");
-	    	    				paths.forEach(x -> System.out.println(x));
-	    	    				System.out.println("------------------------------");
-	    	    				ParserConfiguration configuration = new ParserConfiguration();
-	    	    				configuration.setLexicalPreservationEnabled(true);
-	    	    				JavaParser javaParser = new JavaParser(configuration);
-	    	    				ArrayList<App>appList=new ArrayList<App>();
-	    	    				for (String s : paths) {
-	    	    					CompilationUnit compunit = javaParser.parse(new File(s)).getResult().get();
-	    	    					App app = new App(compunit);
-	    	    					appList.add(app);
-	    	    					app.getMetrics();
-
-	    	    				}
-	    	    				LinkedList<String> list=new LinkedList<String>();
-	    	    				for(App p: appList) {
-	    	    					list.addAll(p.getParsedFileStats());
-	    	    				}
-	    	    				for(String s:list) {
-	    	    					System.out.println(s);
-	    	    				}
-	    	    				
-	    	    				App.writeFile(null, list);
-	    	    				System.out.println(System.getProperty("user.dir")+"/"+"Code_Smells.xlsx");
-	    	    				
-	    	    				String[] column = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class",
-	    	    						"is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method" }; // 1st line
-	    	    				  String[][] rows=App.dataFormater(list);
-	    	    				 JTable jt=new JTable(rows,column) {
-	    	    			         public boolean editCellAt(int row, int column, java.util.EventObject e) {
-	    	    			             return false;
-	    	    			          }
-	    	    			       };;
-	    	    				JScrollPane scrollPane = new JScrollPane(jt);
-	    	    				jt.setFillsViewportHeight(true);
-	    	    				panelCenter.add(scrollPane);
-	    	    				panelCenter.revalidate();
-	    	    				panelCenter.repaint();
-	    	    				
-	    	    				
-	    	    	  		}
-	    	    				catch (IOException e) {
-	    	    					// TODO Auto-generated catch block
-	    	    					e.printStackTrace();
-	    	    				}
-	    	    	  		
-		    	        	dealWithJavaFile();
+	    	  		javaFile = fileChooser.getSelectedFile();
+	    	  		
+	    				
+    				 String[][] rows=App.readyFileForGUI(Paths.get(javaFile.getAbsolutePath()), excelDir.getAbsolutePath());
+    				 String[] column = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class",
+	    						"is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method" }; // 1st line
+    				 DefaultTableModel dtm = new DefaultTableModel(rows,column);	 
+    				 JTable jt=new JTable(dtm) {
+    			         public boolean editCellAt(int row, int column, java.util.EventObject e) {
+    			             return false;
+    			          }
+    			       };
+    			    ((DefaultTableModel)jt.getModel()).removeRow(0);
+    				scrollPane.setViewportView(jt);
+    				jt.setFillsViewportHeight(true);
+    				panelCenter.add(scrollPane);
+    				
+    				parametrosResumo(panelCenter);
+    				
+    				panelCenter.revalidate();
+    				panelCenter.repaint();
+	    				
 	    	      }
 	    	      else {
-	    	    	  JOptionPane.showMessageDialog(frame, "Não foi encontrado a pasta!");
+	    	    	  JOptionPane.showMessageDialog(frame, "Não foi encontrada a pasta!");
 	    	      }
 	    	   }
 	    	});
 	  
-	    JMenuItem m12 = new JMenuItem("Importar excel"); //TODO!!!!!!!!!! TABELA
+	    JMenuItem m12 = new JMenuItem("Importar excel");
 	    
 	    m12.addActionListener(new ActionListener() {
 	    	   public void actionPerformed(ActionEvent ae) {
 	    		   
 	    		   try {
-	 		    		  JFileChooser fileChooser = new JFileChooser(defaultFile);
-	 		    	      fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-	 		    	      int returnValue = fileChooser.showSaveDialog(null);
-	 		    	     
-	 		    	      if (returnValue == JFileChooser.APPROVE_OPTION && getFileExtension(fileChooser.getSelectedFile().getName()).equals("xlsx")) {
-	 		    	    	  
-	 	    	        		excelFile = fileChooser.getSelectedFile();
-	 		    	        	dealWithExcelFile();
-	 		    	        	
-	 		    	        	JOptionPane.showMessageDialog(frame, "Foi importado o ficheiro " + fileChooser.getSelectedFile().getCanonicalPath());
-	 		    	      }
-	 		    	      else {
-	 		    	    	  JOptionPane.showMessageDialog(frame, "Não foi encontrado o ficheiro. Deve ter formato xlsx");
-	 		    	      }
+ 		    		  JFileChooser fileChooser = new JFileChooser(defaultFile);
+ 		    	      fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+ 		    	      int returnValue = fileChooser.showSaveDialog(null);
+ 		    	     
+ 		    	      if (returnValue == JFileChooser.APPROVE_OPTION && App.getFileExtension(fileChooser.getSelectedFile().getName()).equals("xlsx")) {
+ 		    	    	  
+ 	    	        		excelFile = fileChooser.getSelectedFile();
+ 	    	        		
+ 	    	        		String[] column = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class",
+ 		    						"is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method" }; // 1st line
+ 	    	        		
+ 	    	        		String[][] rows=App.readyExcelForGUI(excelFile);
+ 	    	        		
+ 	    	        	 DefaultTableModel dtm = new DefaultTableModel(rows,column);	 
+ 	      				 JTable jt=new JTable(dtm) {
+ 	      			         public boolean editCellAt(int row, int column, java.util.EventObject e) {
+ 	      			             return false;
+ 	      			          }
+ 	      			       };
+ 	      			    ((DefaultTableModel)jt.getModel()).removeRow(0);
+ 	    	        	scrollPane.setViewportView(jt);
+ 	       				jt.setFillsViewportHeight(true);
+ 	       				panelCenter.add(scrollPane);
+ 	       				panelCenter.revalidate();
+ 	       				panelCenter.repaint();
+ 		    	        	
+ 		    	        	JOptionPane.showMessageDialog(frame, "Foi importado o ficheiro " + fileChooser.getSelectedFile().getCanonicalPath());
+ 		    	      }
+ 		    	      else {
+ 		    	    	  JOptionPane.showMessageDialog(frame, "Não foi encontrado o ficheiro. Deve ter formato xlsx");
+ 		    	      }
 	 				} catch (HeadlessException e) {
 	 					e.printStackTrace();
 	 				} catch (IOException e) {
@@ -175,6 +169,22 @@ public class GI {
 	 				}
 	    	   }
 	    	});
+	    
+	    JMenuItem m13 = new JMenuItem("Directoria p/ gravar Excel");
+	    m13.addActionListener(new ActionListener() {
+	    	   public void actionPerformed(ActionEvent ae) {
+	    	      
+	    		  JFileChooser fileChooser = new JFileChooser(defaultFile);
+	    	      fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	    	      fileChooser.setAcceptAllFileFilterUsed(false);
+	    	      int returnValue = fileChooser.showSaveDialog(null);
+	    	      if (returnValue == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile().isDirectory()) {
+	    	  		excelDir = fileChooser.getSelectedFile();
+	    	   
+	    	      }
+	    	   }
+	    });
+	    	   
 	    
 	    final JDialog regrasFrame = new JDialog(frame, "Metricas");
 	    regrasFrame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -255,7 +265,7 @@ public class GI {
 	    	      fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	    	      int returnValue = fileChooser.showSaveDialog(null);
 	    	     
-	    	      if (returnValue == JFileChooser.APPROVE_OPTION && getFileExtension(fileChooser.getSelectedFile().getName()).equals("txt")) {
+	    	      if (returnValue == JFileChooser.APPROVE_OPTION && App.getFileExtension(fileChooser.getSelectedFile().getName()).equals("txt")) {
 	    	    	  
 	    	    	  try {
 		    			   FileReader reader = new FileReader(fileChooser.getSelectedFile());
@@ -281,6 +291,7 @@ public class GI {
 	    
 	    m1.add(m11);
 	    m1.add(m12);
+	    m1.add(m13);
 	    m2.add(m21);
 	    m2.add(m22);
 	
@@ -302,56 +313,6 @@ public class GI {
 	    	   }
 	    	});
 	    
-	    JButton gravarExcel = new JButton("Gravar Excel");//TODO!!!!!!!!!!!!! GRAVAR FICHEIRO XLSX
-	    gravarExcel.addActionListener(new ActionListener() {
-    	   public void actionPerformed(ActionEvent ae) {
-    		   try {
-	    		   if(excelFile!=null) {
-	    			   XSSFWorkbook workbook;
-	    			   
-	    			   String fileDictName = "";
-	    			   JFileChooser fileChooser = new JFileChooser();
-	    			   FileFilter filter = new FileNameExtensionFilter("Files", ".xlsx");
-	    			   fileChooser.addChoosableFileFilter(filter);
-	    			   fileChooser.setAcceptAllFileFilterUsed(false);
-	    			   fileChooser.setSelectedFile(new File(fileDictName));
-	    			   int userSelection = fileChooser.showSaveDialog(fileChooser);
-	    			   
-	    			   if (userSelection == JFileChooser.APPROVE_OPTION) {
-	    			      
-	    				   fileDictName = fileChooser.getSelectedFile().getAbsolutePath();
-	    			       File file = new File(fileDictName);
-	    			        
-	    			       if (file.exists() == false) {
-	    			            workbook = new XSSFWorkbook();
-	    			            XSSFSheet exampleSheet = workbook.createSheet("1");
-	    			            XSSFRow firstRow = exampleSheet.createRow(1);
-	    			            XSSFCell cell = firstRow.createCell(0);
-	    			            cell.setCellValue("value");
-
-	    			            FileOutputStream out = new FileOutputStream(file);
-	    			            workbook.write(out);
-	    			            
-	    			        } else {
-	    			        	 JOptionPane.showMessageDialog(frame, "Excel já existe!");
-	    			        }
-	    			        JOptionPane.showMessageDialog(frame, "Excel guardado em " + fileChooser.getSelectedFile().getCanonicalPath());
-	    			   }
-	    		   }
-	    		   else {
-	    			   JOptionPane.showMessageDialog(frame, "Excel em falta!");
-	    		   }
-				} catch (HeadlessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(frame, "Erro IO na gravação do ficheiro!");
-					e.printStackTrace();
-				}
-    		   }   
-    	});
-	    
-	    panel.add(gravarExcel);
 	    panel.add(send);
 	
 	
@@ -363,28 +324,30 @@ public class GI {
 	    
 	}
 	
-	private void dealWithJavaFile() {
-		System.out.println("Enviar para java parser e voltar para aqui para mostrar tabela atraves do excel.");
+	private void parametrosResumo(JPanel panelCenter) {
+		
+		JLabel pack = new JLabel("Número total de packages: " + "X");
+		JLabel classes = new JLabel("Número total de classes: " + "X");
+		JLabel method = new JLabel("Número total de métodos: " + "X");
+		JLabel lines = new JLabel("Número total de linhas de código: " + "X");
+		
+		panelCenter.add(pack);
+		panelCenter.add(classes);
+		panelCenter.add(method);
+		panelCenter.add(lines);
 		
 	}
 	
-	private void dealWithExcelFile() throws FileNotFoundException, IOException {
-		
-		
-		
-		
-		System.out.println("Mostrar tabela através do excel");
-	}
 	
 	private void dealWithCodeSmell() {
 		System.out.println("Code smell e mostrar na GUI");
 	}
 	
-	private String getFileExtension(String fullName) {
-	    String fileName = new File(fullName).getName();
-	    int dotIndex = fileName.lastIndexOf('.');
-	    return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
-	}
+//	private String getFileExtension(String fullName) {
+//	    String fileName = new File(fullName).getName();
+//	    int dotIndex = fileName.lastIndexOf('.');
+//	    return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
+//	}
 	
 
 	public void open() {

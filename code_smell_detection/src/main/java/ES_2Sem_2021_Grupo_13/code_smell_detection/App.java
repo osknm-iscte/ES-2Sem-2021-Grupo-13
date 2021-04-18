@@ -228,6 +228,51 @@ public LinkedList<String> getParsedFileStats() {
 		return cyclo_info.getNodes() + 1;
 
 	}
+	
+	public static String[][] readyExcelForGUI(File excelFile) throws IOException {
+		
+		return dataFormater(readFile(excelFile));
+
+	}
+	
+	public static String[][] readyFileForGUI(Path path, String excelDir) {
+		List<String> paths;
+		LinkedList<String> list=new LinkedList<String>();
+		try {
+			paths = listFiles(path);
+		
+		System.out.println("------------------------------");
+		paths.forEach(x -> System.out.println(x));
+		System.out.println("------------------------------");
+		ParserConfiguration configuration = new ParserConfiguration();
+		configuration.setLexicalPreservationEnabled(true);
+		JavaParser javaParser = new JavaParser(configuration);
+		ArrayList<App>appList=new ArrayList<App>();
+		for (String s : paths) {
+			CompilationUnit compunit = javaParser.parse(new File(s)).getResult().get();
+			App app = new App(compunit);
+			appList.add(app);
+			app.getMetrics();
+
+		}
+		
+		for(App p: appList) {
+			list.addAll(p.getParsedFileStats());
+		}
+		for(String s:list) {
+			System.out.println(s);
+		}
+		
+		writeFile(null, list, excelDir);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		 String[][] rows=dataFormater(list);
+		
+		return rows;
+	}
 
 	public static void main(String[] args) {
 
@@ -287,16 +332,15 @@ public LinkedList<String> getParsedFileStats() {
 		return result;
 	}
 
-	private static LinkedList<String> readFile() throws IOException { // implemented, but needs adjustments - what will
+	private static LinkedList<String> readFile(File excelFile) throws IOException { // implemented, but needs adjustments - what will
 		// it print to??
 
 		LinkedList<String> data = new LinkedList<String>();
 
-		String excelFilePath = WRITEPATH;
-		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+		FileInputStream inputStream = new FileInputStream(excelFile);
 
 		Workbook workbook = new XSSFWorkbook(inputStream);
-		Sheet firstSheet = (Sheet) workbook.getSheetAt(0);
+		Sheet firstSheet = workbook.getSheetAt(0);
 		Iterator<Row> iterator = firstSheet.iterator();
 
 		while (iterator.hasNext()) {
@@ -321,7 +365,7 @@ public LinkedList<String> getParsedFileStats() {
 
 	}
 
-	public static void writeFile(String path, LinkedList<String>data) { // to use you can't have the file opened anywhere else
+	public static void writeFile(String path, LinkedList<String>data, String dir) { // to use you can't have the file opened anywhere else
 		
 
 		XSSFWorkbook workbook =  new XSSFWorkbook();
@@ -350,9 +394,9 @@ public LinkedList<String> getParsedFileStats() {
 		try {
 			FileOutputStream outputStream=null;
 			if(path==null) {
-				 outputStream = new FileOutputStream(System.getProperty("user.dir")+"/"+"Code_Smells.xlsx");
+				 outputStream = new FileOutputStream(getNewFileName(dir+"/"+"Code_Smells.xlsx"));
 			}
-			else  outputStream = new FileOutputStream(path); 
+			else  outputStream = new FileOutputStream(getNewFileName(path)); 
 			
 			workbook.write(outputStream);
 			workbook.close();
@@ -365,6 +409,56 @@ public LinkedList<String> getParsedFileStats() {
 		System.out.println("Done");
 	}
 
+	public static String getFileExtension(String fullName) {
+	    String fileName = new File(fullName).getName();
+	    int dotIndex = fileName.lastIndexOf('.');
+	    return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
+	}
+	
+    private static String getFileNameWithoutExtension(File file) {
+        String fileName = "";
+ 
+        try {
+            if (file != null && file.exists()) {
+                String name = file.getName();
+                fileName = name.replaceFirst("[.][^.]+$", "");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fileName = "";
+        }
+ 
+        return fileName;
+ 
+    }
+	
+	private static String getNewFileName(String filename) throws IOException {
+	    
+		File aFile = new File(filename);
+	    int fileNo = 0;
+	    String newFileName = "";
+	    String extension=getFileExtension(filename);
+	    String nameWithoutExtension = getFileNameWithoutExtension(aFile);
+	    
+	    if (aFile.exists() && !aFile.isDirectory()) {
+
+
+	        //newFileName = filename.replaceAll(getFileExtension(filename), "(" + fileNo + ")" + getFileExtension(filename));
+
+	        while(aFile.exists()){
+	            fileNo++;
+	            aFile = new File(nameWithoutExtension + "(" + fileNo + ")."+extension);
+	            newFileName = nameWithoutExtension + "(" + fileNo + ")."+extension;
+	        }
+
+
+	    } else if (!aFile.exists()) {
+	        
+	        newFileName = filename;
+	    }
+	    return newFileName;
+	}
+	
 public static String[][] dataFormater(LinkedList<String> data) { // formats the data so it can be put in a .xlsx,
 		// receives a LinkedList<String>
 	int numberOfParameters = 11;
