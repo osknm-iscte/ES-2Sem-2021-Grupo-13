@@ -150,6 +150,7 @@ public class App {
 		Sheet firstSheet = workbook.getSheetAt(0); //reads only the first sheet
 		Iterator<Row> iterator = firstSheet.iterator(); //creates an iterator to read the sheet
 
+		
 		while (iterator.hasNext()) {
 			Row nextRow = iterator.next(); //reads next row
 			Iterator<Cell> cellIterator = nextRow.cellIterator(); //will read the cells in each row
@@ -160,9 +161,9 @@ public class App {
 					System.out.print(cell.getStringCellValue()); //test
 					System.out.print(" - "); //test
 					
-					
-	
-					data.add(cell.getStringCellValue()); // adds the value, if not empty, to the linkedList
+					if (nextRow.getRowNum() != 0) { //if its not the columns names then print
+						data.add(cell.getStringCellValue()); // adds the value, if not empty, to the linkedList
+					}
 				}
 
 			}
@@ -177,6 +178,8 @@ public class App {
 		
 
 		return data; //returns linkedList
+		
+		
 
 	}
 	
@@ -195,13 +198,12 @@ public class App {
 
 
 
-	private static void writeFile(String path) { // to use you can't have the file opened anywhere else or else it will give errors on the console
+	private static void writeFile(String path, LinkedList<String> dataset) { // to use you can't have the file opened anywhere else or else it will give errors on the console
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Code Smells"); // creates the .xlsx file
 
-		Object[][] datatypes = dataFormater(realTest); // gets the formated data, will realTest probably be passed as an argument
-														// in the final version
+		Object[][] datatypes = dataFormater(dataset); // gets the formated data
 
 		int rowNum = 0; //will count the rows
 		System.out.println("Creating excel");
@@ -267,7 +269,7 @@ public class App {
 	
 	
 
-	public static void main(String[] args) throws IOException, ParserConfigurationException, TransformerException {
+	public static void main(String[] args) throws IOException  {
 
 		try {
 
@@ -286,8 +288,10 @@ public class App {
 			App app = new App(compunit);
 			app.getMetrics();
 
-			writeFile(WRITEPATH);
-			readFile();
+			writeFile(WRITEPATH, realTest);
+			LinkedList <String> dataset = readFile();
+			writeFile("C:\\Users\\maria\\Desktop\\after_read.xlsx", dataset);
+			
 			
 
 
