@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,6 +70,7 @@ public class App {
 	private List<MethodDeclaration> methods;
 	private List<ClassOrInterfaceDeclaration> classes;
 	private PackageDeclaration pack;
+	
 	
 	
 	private int countMethod = 1;
@@ -130,7 +132,16 @@ public class App {
 		this.compunit = compunit;
 		methods = compunit.findAll(MethodDeclaration.class);
 		classes = compunit.findAll(ClassOrInterfaceDeclaration.class);
-		pack = compunit.getPackageDeclaration().get();
+		Optional<PackageDeclaration> packteste =compunit.getPackageDeclaration();
+		packteste.ifPresentOrElse(
+                (value)
+                    -> { pack=value; },
+                ()
+                    -> { pack=null; });
+		
+		
+		
+		codeSmellRuleInterpreter ruleInterpreter=new codeSmellRuleInterpreter("if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false");
 
 	}
 
@@ -163,11 +174,12 @@ public LinkedList<String> getParsedFileStats() {
 			int methodComplexity = getMethodCYCLO(m);
 			complexitySum += methodComplexity;
 
-			System.out.println("class package: " + pack.getNameAsString() + "class name: " + className + " "
-					+ "classLOC: " + classLOC + " " + "NOM_class: " + NOM_class + " method name: " + " " + m.getName()
-					+ " " + "method LOC: " + method_LOC + "  method CYCLO: " + method_CYCLO);
+			//System.out.println("class package: " + pack.getNameAsString() + "class name: " + className + " "
+				//	+ "classLOC: " + classLOC + " " + "NOM_class: " + NOM_class + " method name: " + " " + m.getName()
+					//+ " " + "method LOC: " + method_LOC + "  method CYCLO: " + method_CYCLO);
 			realTest.add(String.valueOf(countMethod));
-			realTest.add(pack.toString());
+			if(pack==null)realTest.add("");
+			else realTest.add(pack.toString());
 			realTest.add(className);
 			realTest.add(String.valueOf(m.getName()));
 			realTest.add(String.valueOf(NOM_class));
@@ -193,8 +205,8 @@ public LinkedList<String> getParsedFileStats() {
 
 	// Extrai linhas de código das classes e dos métodos
 	private int getLOC(String NodeString) {
-		// retira todas as linhas vazias dentro da String
-		String curr_class = NodeString.replaceAll("(?m)^[ \t]*\r?\n", "");
+		
+		String curr_class = NodeString.replaceAll("(?m)^[ \t]*\r?\n", ""); // retira todas as linhas vazias dentro da String
 		int classWithoutEmptyLines = curr_class.split("\n").length;
 		ParserConfiguration configuration = new ParserConfiguration();
 		configuration.setLexicalPreservationEnabled(true);
@@ -261,8 +273,13 @@ public LinkedList<String> getParsedFileStats() {
 			bindings.put("LOC_method", LOC_method);
 			bindings.put("CYCLO_method", CYCLO_method);
 			String script = "if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false";
-			long_method = (boolean) engine.eval(script, bindings);
-			System.out.println("and now: " + long_method);
+			Object obj = engine.eval(script, bindings);
+			codeSmellRuleInterpreter interpreter=new codeSmellRuleInterpreter("if(LOC_method>50 && CYCLO_method>10){long_method=true;god_class=true;} else"
+			+ " long_method=false;");
+			HashMap<String,Boolean>testing=interpreter.getCodeSmellFlags(3, 100, 10, 52, 16);
+			
+			System.out.println("and now: " + testing.get("long_method"));
+			System.out.println("and now: " + testing.get("god_class"));
 		} catch (IOException | ScriptException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
