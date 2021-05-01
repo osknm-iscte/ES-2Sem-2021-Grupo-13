@@ -1,0 +1,18 @@
+<codeSmellRulesDefinitions>
+<rule id="something">
+<name>rule 1</name>
+<definition>
+if(LOC_method>10)long_method=true;
+if(LOC_class>10)god_class=true;
+</definition>
+</rule>
+
+<rule id="2">
+<name>rule 2</name>
+<definition>
+if(LOC_method>10)long_method=true;
+if(LOC_class>10)god_class=true;
+</definition>
+</rule>
+
+</codeSmellRulesDefinitions>
