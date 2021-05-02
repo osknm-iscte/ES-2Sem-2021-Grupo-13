@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
@@ -110,7 +111,7 @@ public class App {
 	private CompilationUnit compunit;
 	private List<MethodDeclaration> methods;
 	private List<ClassOrInterfaceDeclaration> classes;
-	private PackageDeclaration pack;
+	private static PackageDeclaration pack;
 
 	public App(CompilationUnit compunit) {
 
@@ -135,7 +136,7 @@ public class App {
 		}
 	}
 
-	private void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<MethodDeclaration> methods) {
+	static void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<MethodDeclaration> methods) {
 
 		System.out.println("------------------------------");
 		int complexitySum = 0;
@@ -145,6 +146,8 @@ public class App {
 			int method_CYCLO = getMethodCYCLO(m);
 			int methodComplexity = getMethodCYCLO(m);
 			complexitySum += methodComplexity;
+			
+
 
 			System.out.println("class package: " + pack.getNameAsString() + "class name: " + className + " "
 					+ "classLOC: " + classLOC + " " + "NOM_class: " + NOM_class + " method name: " + " " + m.getName()
@@ -156,7 +159,7 @@ public class App {
 	}
 
 	// Extrai linhas de código das classes e dos métodos
-	private int getLOC(String NodeString) {
+	private static int getLOC(String NodeString) {
 		// retira todas as linhas vazias dentro da String
 		String curr_class = NodeString.replaceAll("(?m)^[ \t]*\r?\n", "");
 		int classWithoutEmptyLines = curr_class.split("\n").length;
@@ -184,7 +187,7 @@ public class App {
 	 * VoidVIsitor que vai percorrer todos os ifs,whiles,swtich statement cases,
 	 * TryCatch clauses, dentro do método e extrair a complexidade.
 	 */
-	private int getMethodCYCLO(MethodDeclaration method) {
+	private static int getMethodCYCLO(MethodDeclaration method) {
 
 		VoidVisitor<methodComplexityInfo> method_cyclo_info = new ConditionalStatementExplorer();
 		JavaParser javaParser = new JavaParser();
