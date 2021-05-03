@@ -180,7 +180,8 @@ public LinkedList<String> getParsedFileStats() {
 			if(pack==null)realTest.add("");
 			else realTest.add(pack.toString());
 			realTest.add(className);
-			realTest.add(String.valueOf(m.getName()));
+			String [] splitedMethodDeclaration=m.getDeclarationAsString(false, false, true).split(" ");
+			realTest.add(splitedMethodDeclaration[splitedMethodDeclaration.length-1]);
 			realTest.add(String.valueOf(NOM_class));
 			realTest.add(String.valueOf(classLOC));
 			realTest.add("placeholder wmc_class");
