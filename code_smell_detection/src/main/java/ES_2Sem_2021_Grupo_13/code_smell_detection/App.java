@@ -136,8 +136,7 @@ public class App {
 		packteste.ifPresentOrElse(
                 (value)
                     -> { pack=value; },
-                ()
-                    -> { pack=null; });
+                ()-> { pack=null; });
 		
 		
 		
@@ -247,7 +246,7 @@ public LinkedList<String> getParsedFileStats() {
 
 	}
 	
-	public static String[][] readyFileForGUI(Path path, String excelDir) {
+	/*public static String[][] readyFileForGUI(Path path, String excelDir) {
 		List<String> paths;
 		LinkedList<String> list=new LinkedList<String>();
 		try {
@@ -285,6 +284,7 @@ public LinkedList<String> getParsedFileStats() {
 		
 		return rows;
 	}
+	*/
 
 	public static void main(String[] args) {
 
@@ -382,7 +382,7 @@ public LinkedList<String> getParsedFileStats() {
 
 	}
 
-	public static void writeFile(String path, LinkedList<String>data, String dir) { // to use you can't have the file opened anywhere else
+public static void writeFile(String path, LinkedList<String>data) { // to use you can't have the file opened anywhere else
 		
 
 		XSSFWorkbook workbook =  new XSSFWorkbook();
@@ -411,9 +411,9 @@ public LinkedList<String> getParsedFileStats() {
 		try {
 			FileOutputStream outputStream=null;
 			if(path==null) {
-				 outputStream = new FileOutputStream(getNewFileName(dir+"/"+"Code_Smells.xlsx"));
+				 outputStream = new FileOutputStream(System.getProperty("user.dir")+"/"+"Code_Smells.xlsx");
 			}
-			else  outputStream = new FileOutputStream(getNewFileName(path)); 
+			else  outputStream = new FileOutputStream(path); 
 			
 			workbook.write(outputStream);
 			workbook.close();
@@ -425,7 +425,6 @@ public LinkedList<String> getParsedFileStats() {
 
 		System.out.println("Done");
 	}
-
 	public static String getFileExtension(String fullName) {
 	    String fileName = new File(fullName).getName();
 	    int dotIndex = fileName.lastIndexOf('.');

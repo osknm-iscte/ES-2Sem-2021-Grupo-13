@@ -1,8 +1,8 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
-
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -10,7 +10,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Label;
-
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,13 +27,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.script.ScriptException;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -50,12 +52,17 @@ import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.poi.xssf.usermodel.*;
 import org.graalvm.polyglot.PolyglotException;
+import org.xml.sax.SAXException;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
@@ -77,6 +84,24 @@ public class GI {
 	private JPanel rules_card;
 	private JPanel cards;
 	private projectParser selectedProjectParser;
+	private HashMap<String,Component> JComponentMap=new HashMap<String,Component>();
+	private static class MyDocumentListener implements DocumentListener {
+	    
+		JButton saveButton;
+		MyDocumentListener(JButton saveButton){
+			this.saveButton=saveButton;
+		}
+	 
+	    public void insertUpdate(DocumentEvent e) {
+	    	saveButton.setEnabled(true);
+	    }
+	    public void removeUpdate(DocumentEvent e) {
+	    	saveButton.setEnabled(true);
+	    }
+	    public void changedUpdate(DocumentEvent e) {
+	        
+	    }
+	}
 
 	public GI() {
 
@@ -121,22 +146,63 @@ public class GI {
 		label.setVerticalAlignment(JLabel.TOP);
 		label.setPreferredSize(new Dimension(20,20));
 		JLabel label2 = new JLabel("Code smell rules definitions");
+		JComponentMap.put("ruleName", label2);
+		
 		label.setVerticalAlignment(JLabel.TOP);
 		label2.setVerticalAlignment(JLabel.TOP);
 		label2.setPreferredSize(new Dimension(20,20));
 		
 		JPanel test=new JPanel();
-		test.add(new JButton("validar sintaxe"));
-		test.add(new JButton("gravar regras"));
+		JButton validateSyntax=new JButton("validar sintaxe");
+		
+		validateSyntax.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				
+				JTextArea txtArea=(JTextArea) JComponentMap.get("txt_area");
+				if(txtArea.getText()==""||txtArea.getText()==null) {
+					((JLabel)JComponentMap.get("rulesInfo")).setText("não foram definidas regras");
+					return;
+				}
+				
+				if(codeSmellRuleInterpreter.checkIfRuns(txtArea.getText())) {
+					((JLabel)JComponentMap.get("rulesInfo")).setText("Regras definidas com sucesso");
+				}
+				else {
+					((JLabel)JComponentMap.get("rulesInfo")).setText("Regras mal definidas");
+				}
+				
+				
+			}
+		});
+		
+		JButton saveRules=new JButton("gravar regras");
+		saveRules.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				
+				JTextArea txtArea=(JTextArea) JComponentMap.get("txt_area");
+				JLabel ruleLabel=(JLabel) JComponentMap.get("ruleName");
+				try {
+					XMLParser.editRule(System.getProperty("user.dir")+"/"+"code_smell_rule_definitions.xml",ruleLabel.getText(),txtArea.getText());
+					((JButton)JComponentMap.get("saveRules")).setEnabled(false);
+				} catch (TransformerException | ParserConfigurationException | SAXException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		
+
+			}
+		});
+		test.add(validateSyntax);
+		test.add(saveRules);
+		JComponentMap.put("validateSyntax",validateSyntax);
+		JComponentMap.put("saveRules",saveRules);
+		
 		test.setPreferredSize(new Dimension(10, 10));
 		JLabel test2=new JLabel();
 		c.gridx = 0;
 		c.gridy = 0;
-
 		c.weightx = 0.3;
 		c.weighty = 1;
-		
-		
 		rules_card2.add(label, c);
 
 		c2.weightx = 0.7;
@@ -147,7 +213,9 @@ public class GI {
 		
 		c3.weightx = 0.7;
 		c3.weighty = 0.3;
-		TextArea txt_area = new TextArea();
+		JTextArea txt_area = new JTextArea();
+		 
+		JComponentMap.put("txt_area",txt_area);
 		txt_area.setFont(new Font("Serif",Font.PLAIN,20));
 		txt_area.setPreferredSize(new Dimension(10,10));
 		c3.gridx = 1;
@@ -164,6 +232,7 @@ public class GI {
 		
 		JLabel rulesInfo=new JLabel();
 		 Border blackline = BorderFactory.createLineBorder(Color.black);
+		 JComponentMap.put("rulesInfo",rulesInfo);
 		 rulesInfo.setBorder(blackline);
 		GridBagConstraints c6 = new GridBagConstraints();
 		c6.fill=GridBagConstraints.BOTH;
@@ -293,28 +362,16 @@ public class GI {
 		JButton gravarRegra = new JButton("Gravar Regra");
 		gravarRegra.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-
+				
+				JTextArea txtArea=(JTextArea) JComponentMap.get("txt_area");
+				JLabel ruleLabel=(JLabel) JComponentMap.get("ruleName");
 				try {
-					JFileChooser fileChooser = new JFileChooser(defaultFile);
-					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					fileChooser.setAcceptAllFileFilterUsed(false);
-					int returnValue = fileChooser.showSaveDialog(null);
-					if (returnValue == JFileChooser.APPROVE_OPTION) {
-
-						FileWriter writer = null;
-						writer = new FileWriter(fileChooser.getSelectedFile().getCanonicalPath() + ".txt");
-						area.write(writer);
-						writer.close();
-
-						regra = area.getText();
-						JOptionPane.showMessageDialog(frame,
-								"Regra guardada em " + fileChooser.getSelectedFile().getCanonicalPath() + ".txt");
-					} else
-						JOptionPane.showMessageDialog(frame, "Erro na gravação do ficheiro!");
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(frame, "Erro IO na gravação do ficheiro!");
+					XMLParser.editRule(System.getProperty("user.dir")+"/"+"code_smell_rule_definitions.xml",ruleLabel.getText(),txtArea.getText());
+				} catch (TransformerException | ParserConfigurationException | SAXException | IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+		
 
 			}
 		});
@@ -348,20 +405,46 @@ public class GI {
 		m21.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 
-				regrasFrame.setVisible(true);
+				//regrasFrame.setVisible(true);
 
-				CardLayout cl = (CardLayout) (cards.getLayout());
-				cl.show(cards, RULE_CONFIG_INFO);
+				 String selectedRuleName=(String)JOptionPane.showInputDialog(
+		                    frame,
+		                    "Nome  da regra:\n",
+		                    
+		                    "Regras de code smells",
+		                    JOptionPane.PLAIN_MESSAGE,
+		                    null, null,
+		                    "ham");
+					if(selectedRuleName.isEmpty()) return;
+					
+					System.out.println(selectedRuleName);
+					try {
+						XMLParser.createRule(System.getProperty("user.dir")+"/"+"code_smell_rule_definitions.xml",UUID.randomUUID().toString(), selectedRuleName, null);
+					} catch (ParserConfigurationException | SAXException | IOException | TransformerException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					//regrasFrame.setVisible(true);
+					
+					CardLayout cl = (CardLayout) (cards.getLayout());
+					cl.show(cards, RULE_CONFIG_INFO);
+					JLabel label=(JLabel) JComponentMap.get("ruleName");
+					label.setText(selectedRuleName);
+					JTextArea txt_area=(JTextArea)JComponentMap.get("txt_area");
+					//txt_area.setText(rulesAndDefinitions.get(selectedRuleName));
+					txt_area.getDocument().addDocumentListener(new MyDocumentListener( (JButton) JComponentMap.get("saveRules")));
+					((JButton)JComponentMap.get("saveRules")).setEnabled(false);
 
 			}
 		});
 
-		JMenuItem m22 = new JMenuItem("Abrir regra");
+		JMenuItem m22 = new JMenuItem("Editar regra");
 		m22.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 
-				Object[] possibilities = XMLParser.getRulesName(System.getProperty("user.dir")+"/"+"code_smell_rule_definitions.xml").toArray();
-				String selectedRuleName=(String)JOptionPane.showInputDialog(
+				HashMap<String,String>rulesAndDefinitions=XMLParser.getRulesName(System.getProperty("user.dir")+"/"+"code_smell_rule_definitions.xml");
+				Object[] possibilities = rulesAndDefinitions.keySet().toArray();
+				 String selectedRuleName=(String)JOptionPane.showInputDialog(
 	                    frame,
 	                    "Escolha uma regra:\n",
 	                    
@@ -372,30 +455,19 @@ public class GI {
 	                    "ham");
 				
 				System.out.println(selectedRuleName);
-		/*
-				JFileChooser fileChooser = new JFileChooser(defaultFile);
-				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				int returnValue = fileChooser.showSaveDialog(null);
-
-				if (returnValue == JFileChooser.APPROVE_OPTION
-						&& getFileExtension(fileChooser.getSelectedFile().getName()).equals("txt")) {
-
-					try {
-						FileReader reader = new FileReader(fileChooser.getSelectedFile());
-						area.read(reader, fileChooser.getSelectedFile());
-						Path p1 = Paths.get(fileChooser.getSelectedFile().getCanonicalPath());
-						regra = Files.readString(p1, Charset.defaultCharset());
-						regraPredefinida.setEnabled(true);
-
-						regrasFrame.setVisible(true);
-					} catch (IOException ioe) {
-						System.err.println(ioe);
-						System.exit(1);
-					}
-				} else {
-					JOptionPane.showMessageDialog(frame, "Não foi encontrado o ficheiro. Deve ter formato txt");
-				}
-*/
+				//regrasFrame.setVisible(true);
+				
+				CardLayout cl = (CardLayout) (cards.getLayout());
+				cl.show(cards, RULE_CONFIG_INFO);
+				JLabel label=(JLabel) JComponentMap.get("ruleName");
+				label.setText(selectedRuleName);
+				JTextArea txt_area=(JTextArea)JComponentMap.get("txt_area");
+				txt_area.setText(rulesAndDefinitions.get(selectedRuleName));
+				txt_area.getDocument().addDocumentListener(new MyDocumentListener( (JButton) JComponentMap.get("saveRules")));
+				((JButton)JComponentMap.get("saveRules")).setEnabled(false);
+				
+				
+		
 			}
 		});
 
@@ -545,4 +617,5 @@ public class GI {
 		gi.open();
 
 	}
+	
 }

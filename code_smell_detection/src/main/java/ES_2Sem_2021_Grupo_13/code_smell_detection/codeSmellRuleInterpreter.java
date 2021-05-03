@@ -42,12 +42,38 @@ public class codeSmellRuleInterpreter {
 			flags.put("god_class", (Boolean) bindings.get("god_class"));
 			bindings.clear();
 			return flags;
-			
-			
+		}
+	
+	
+	public static boolean checkIfRuns(String script) {
+		int NOM_class=10;
+		int LOC_class=10;
+		int WMC_class=10;
+		int LOC_method=10;
+		int CYCLO_method=10;
+		boolean long_method=false;
+		boolean god_class=false;
+		 ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+		 ScriptEngine engine = scriptEngineManager.getEngineByName("graal.js");
+		 Bindings bindings = engine.createBindings();
+		bindings.put("long_method", long_method);
+		bindings.put("god_class", god_class);
+		bindings.put("NOM_class", NOM_class);
+		bindings.put("LOC_class", LOC_class);
+		bindings.put("WMC_class", WMC_class);
+		bindings.put("LOC_method", LOC_method);
+		bindings.put("CYCLO_method", CYCLO_method);
+	
+			try {
+				Object obj=engine.eval(script,bindings);
+				return true;
+			} catch (ScriptException e) {
+				// TODO Auto-generated catch block
+				return false;
+			}
 		
 		
 	}
-	
 	
 	
 

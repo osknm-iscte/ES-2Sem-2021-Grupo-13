@@ -22,6 +22,7 @@ public class projectParser {
 	private List<App> parsedFilesUnits = new ArrayList<>();
 	private LinkedList<String> parsedFilesStatsList = new LinkedList<String>();
 	private codeSmellRuleInterpreter rulesInterpreter;
+	private int  methodID=0;
 
 	public projectParser(Path path) {
 		super();

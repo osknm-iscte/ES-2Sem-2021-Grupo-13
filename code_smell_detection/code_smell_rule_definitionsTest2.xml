@@ -12,17 +12,11 @@ if(LOC_class&gt;10)god_class=true;
 <definition>
 if(LOC_method&gt;10)long_method=true;
 if(LOC_class&gt;10)god_class=true;
-hello there
-my boys
-once again!</definition>
+</definition>
 </rule>
 
 <rule id="123">
 <name>myruletestwrite</name>
 <definition>if(x&gt;10)something cool will happen;</definition>
-</rule>
-<rule id="4afcfb85-1395-4d5c-b99d-faf778b8a0c5">
-<name>Tom</name>
-<definition>hello there</definition>
 </rule>
 </codeSmellRulesDefinitions>
