@@ -53,6 +53,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.poi.xssf.usermodel.*;
 import org.graalvm.polyglot.PolyglotException;
@@ -300,15 +302,34 @@ public class GI {
 					fileChooser.setAcceptAllFileFilterUsed(false);
 					int returnValue = fileChooser.showSaveDialog(null);
 					if (returnValue == JFileChooser.APPROVE_OPTION) {
+						
+						
+						//writes rule to xml file
+						
+						String [] regraTeste = area.getText().split("\\r?\\n");						
+						String path = fileChooser.getSelectedFile().getCanonicalPath() + ".xml";
+						
+						try {
+							XML_read_write.formatText(path, regraTeste);
+						} catch (ParserConfigurationException | TransformerException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					
+						
 
-						FileWriter writer = null;
-						writer = new FileWriter(fileChooser.getSelectedFile().getCanonicalPath() + ".txt");
-						area.write(writer);
-						writer.close();
-
-						regra = area.getText();
+//						FileWriter writer = null;
+//						writer = new FileWriter(fileChooser.getSelectedFile().getCanonicalPath() + ".txt");
+//						area.write(writer);
+//						writer.close();
+//
+//						regra = area.getText();
+						
+						
+						
+						
 						JOptionPane.showMessageDialog(frame,
-								"Regra guardada em " + fileChooser.getSelectedFile().getCanonicalPath() + ".txt");
+								"Regra guardada em " + fileChooser.getSelectedFile().getCanonicalPath() + ".xml");
 					} else
 						JOptionPane.showMessageDialog(frame, "Erro na gravação do ficheiro!");
 				} catch (IOException e) {
