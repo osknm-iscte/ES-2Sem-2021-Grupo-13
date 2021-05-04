@@ -1,12 +1,13 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
+import com.github.javaparser.ast.body.CallableDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 
 public class methodComplexityInfo {
 
 	private int edges = 0;
 	private int nodes = 0;
-	private MethodDeclaration m;
+	private CallableDeclaration m;
 
 	public int getEdges() {
 		return edges;
@@ -20,13 +21,13 @@ public class methodComplexityInfo {
 		return nodes;
 	}
 
-	public methodComplexityInfo(MethodDeclaration m) {
+	public methodComplexityInfo(CallableDeclaration m2) {
 		super();
-		this.m=m;
+		this.m=m2;
 
 	}
 
-	public MethodDeclaration getMethod() {
+	public CallableDeclaration getMethod() {
 		return m;
 	}
 	public void updateNodes(int nodes) {

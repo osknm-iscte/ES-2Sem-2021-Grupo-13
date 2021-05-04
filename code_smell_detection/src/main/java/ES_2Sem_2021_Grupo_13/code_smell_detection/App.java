@@ -40,7 +40,9 @@ import com.github.javaparser.StreamProvider;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.body.CallableDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.CommentsCollection;
@@ -68,8 +70,10 @@ public class App {
 	private  LinkedList<String> realTest = new LinkedList<String>();
 	private CompilationUnit compunit;
 	private List<MethodDeclaration> methods;
+	private List<ConstructorDeclaration> constructors;
 	private List<ClassOrInterfaceDeclaration> classes;
 	private PackageDeclaration pack;
+	private projectParserMediator metaDataStats;
 	
 	
 	
@@ -127,11 +131,12 @@ public class App {
 		}
 	}
 
-	public App(CompilationUnit compunit) {
+	public App(CompilationUnit compunit, projectParserMediator metaDataStats) {
 
 		this.compunit = compunit;
 		methods = compunit.findAll(MethodDeclaration.class);
 		classes = compunit.findAll(ClassOrInterfaceDeclaration.class);
+		constructors=compunit.findAll(ConstructorDeclaration.class);
 		Optional<PackageDeclaration> packteste =compunit.getPackageDeclaration();
 		packteste.ifPresentOrElse(
                 (value)
@@ -141,8 +146,11 @@ public class App {
 		
 		
 		codeSmellRuleInterpreter ruleInterpreter=new codeSmellRuleInterpreter("if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false");
+		this.metaDataStats=metaDataStats;
 
 	}
+
+	
 
 	public void getMetrics() {
 
@@ -153,34 +161,42 @@ public class App {
 			int classLOC = getLOC(LexicalPreservingPrinter.print(c));
 
 			List<MethodDeclaration> classMethods = c.findAll(MethodDeclaration.class);
-			writeOutClassMetrics(c.getName().toString(), classLOC, classMethods.size(), classMethods);
+			List<ConstructorDeclaration> constructorList=c.findAll(ConstructorDeclaration.class);
+			List<CallableDeclaration> constructorsAndMethods=new ArrayList<CallableDeclaration>(methods);
+			constructorsAndMethods.addAll(constructorList);
+			writeOutClassMetrics(c.getName().toString(), classLOC, constructorsAndMethods.size(),constructorsAndMethods );
 
 		}
 	}
 public LinkedList<String> getParsedFileStats() {
 	return realTest;
 }
-	private void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<MethodDeclaration> methods) {
+	private void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<CallableDeclaration> constructorsAndMethods) {
 
 		System.out.println("------------------------------");
 		int complexitySum = 0;
+		
+		
 		List<Integer>pos=new ArrayList<>();
 		
-		for (MethodDeclaration m : methods) {
+		
+		for (CallableDeclaration m : constructorsAndMethods) {
 			LexicalPreservingPrinter.setup(m);
 			int method_LOC = getLOC(LexicalPreservingPrinter.print(m));
 			int method_CYCLO = getMethodCYCLO(m);
 			int methodComplexity = getMethodCYCLO(m);
 			complexitySum += methodComplexity;
 
-			//System.out.println("class package: " + pack.getNameAsString() + "class name: " + className + " "
-				//	+ "classLOC: " + classLOC + " " + "NOM_class: " + NOM_class + " method name: " + " " + m.getName()
-					//+ " " + "method LOC: " + method_LOC + "  method CYCLO: " + method_CYCLO);
-			realTest.add(String.valueOf(countMethod));
-			if(pack==null)realTest.add("");
+			System.out.println( "class name: " + className + " "
+					+ "classLOC: " + classLOC + " " + "NOM_class: " + NOM_class + " method name: " + " " + m.getName()
+					+ " " + "method LOC: " + method_LOC + "  method CYCLO: " + method_CYCLO);
+			//realTest.add(String.valueOf(countMethod));
+			metaDataStats.incrementMethodCountID();
+			realTest.add(String.valueOf(metaDataStats.getMethodCountID()));
+			if(pack==null)realTest.add("default");
 			else realTest.add(pack.toString());
 			realTest.add(className);
-			String [] splitedMethodDeclaration=m.getDeclarationAsString(false, false, true).split(" ");
+			String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false, true).split(" ");
 			realTest.add(splitedMethodDeclaration[splitedMethodDeclaration.length-1]);
 			realTest.add(String.valueOf(NOM_class));
 			realTest.add(String.valueOf(classLOC));
@@ -229,12 +245,12 @@ public LinkedList<String> getParsedFileStats() {
 	 * VoidVIsitor que vai percorrer todos os ifs,whiles,swtich statement cases,
 	 * TryCatch clauses, dentro do método e extrair a complexidade.
 	 */
-	private int getMethodCYCLO(MethodDeclaration method) {
+	private int getMethodCYCLO(CallableDeclaration m) {
 
 		VoidVisitor<methodComplexityInfo> method_cyclo_info = new ConditionalStatementExplorer();
 		JavaParser javaParser = new JavaParser();
-		methodComplexityInfo cyclo_info = new methodComplexityInfo(method);
-		method.accept(method_cyclo_info, cyclo_info);
+		methodComplexityInfo cyclo_info = new methodComplexityInfo(m);
+		m.accept(method_cyclo_info, cyclo_info);
 		// System.out.println(" nodes: " + cyclo_info.getNodes()+1);
 
 		return cyclo_info.getNodes() + 1;
@@ -302,7 +318,7 @@ public LinkedList<String> getParsedFileStats() {
 
 			for (String s : paths) {
 				CompilationUnit compunit = javaParser.parse(new File(s)).getResult().get();
-				App app = new App(compunit);
+				App app = new App(compunit, new projectParserMediator());
 				app.getMetrics();
 
 			}
@@ -344,7 +360,7 @@ public LinkedList<String> getParsedFileStats() {
 		try (Stream<Path> walk = Files.walk(path)) {
 			result = walk.filter(p -> !Files.isDirectory(p))
 
-					.map(p -> p.toString().toLowerCase()).filter(f -> f.endsWith("java")).collect(Collectors.toList());
+					.map(p -> p.toString()).filter(f -> f.endsWith("java")).collect(Collectors.toList());
 		}
 
 		return result;
