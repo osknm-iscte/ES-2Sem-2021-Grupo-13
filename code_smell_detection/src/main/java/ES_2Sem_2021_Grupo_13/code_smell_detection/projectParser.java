@@ -76,10 +76,10 @@ public class projectParser {
 			HashMap<String,Boolean> singleRowFlags=rulesInterpreter.getCodeSmellFlags(Integer.parseInt(tabularData[i][4]), Integer.parseInt(tabularData[i][5]),
 										Integer.parseInt(tabularData[i][6]),
 										Integer.parseInt( tabularData[i][8]), Integer.parseInt(tabularData[i][9]));
-			if(singleRowFlags.get("long_method"))tabularData[i][10]="Verdadeiro";
-			else tabularData[i][10]="Falso";
-			if(singleRowFlags.get("god_class"))tabularData[i][7]="Verdadeiro";
-			else tabularData[i][7]="Falso";
+			if(singleRowFlags.get("long_method"))tabularData[i][10]="VERDADEIRO";
+			else tabularData[i][10]="FALSO";
+			if(singleRowFlags.get("god_class"))tabularData[i][7]="VERDADEIRO";
+			else tabularData[i][7]="FALSO";
 		}
 		return tabularData;
 		
