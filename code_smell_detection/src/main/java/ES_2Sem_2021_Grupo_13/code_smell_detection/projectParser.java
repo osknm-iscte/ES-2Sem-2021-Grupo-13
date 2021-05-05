@@ -23,6 +23,7 @@ public class projectParser {
 	private LinkedList<String> parsedFilesStatsList = new LinkedList<String>();
 	private codeSmellRuleInterpreter rulesInterpreter;
 	private int  methodID=0;
+	private projectParserMediator metaDataStats=new projectParserMediator();
 
 	public projectParser(Path path) {
 		super();
@@ -36,15 +37,24 @@ public class projectParser {
 		List<String> paths;
 		try {
 			paths = App.listFiles(path);
+			
+			
 			ParserConfiguration configuration = new ParserConfiguration();
 			configuration.setLexicalPreservationEnabled(true);
 			JavaParser javaParser = new JavaParser(configuration);
+			int i=0;
 			for (String s : paths) {
+				i++;
+				System.out.println("path id: "+i+"path: "+s);
 				CompilationUnit compunit = javaParser.parse(new File(s)).getResult().get();
-				App app = new App(compunit);
-				parsedFilesUnits.add(app);
+				App app = new App(compunit,metaDataStats);
 				app.getMetrics();
+				parsedFilesUnits.add(app);
+				
+			
+				
 			}
+			System.out.println("size is: "+parsedFilesUnits.size());
 			
 
 		} catch (IOException e) {
@@ -55,9 +65,16 @@ public class projectParser {
 	}
 	
 	public void writeParsedFilesToExcel() {
+		int i=0;
 		for (App p : parsedFilesUnits) {
+			i++;
 			parsedFilesStatsList.addAll(p.getParsedFileStats());
+			//System.out.println(p.getParsedFileStats());
+			//System.out.println(i+" "+p.getParsedFileStats().get(1)+" "+p.getParsedFileStats().get(2));
+			
 		}
+		
+		
 		App.writeFile(null, parsedFilesStatsList);
 	}
 	
