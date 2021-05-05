@@ -1,6 +1,5 @@
 
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,7 +29,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.graalvm.nativeimage.c.type.CCharPointer;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParseStart;
@@ -225,7 +223,7 @@ public class App {
 			if (pack == null)
 				realTest.add("default");
 			else
-				realTest.add(pack.toString());
+				realTest.add(pack.getNameAsString());
 			
 			realTest.add(className);
 			// String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false,
@@ -260,7 +258,7 @@ public class App {
 				realTest.add("default");
 			
 			else
-				realTest.add(pack.toString());
+				realTest.add(pack.getNameAsString());
 			realTest.add(className);
 			// String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false,
 			// true).split(" ");
