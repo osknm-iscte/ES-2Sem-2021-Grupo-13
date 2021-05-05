@@ -21,7 +21,7 @@ public class projectParserMediator {
 	public int getTotalLOC() {
 		return totalLOC;
 	}
-	public void setTotalLOC(int totalLOC) {
+	public void addTotalLOC(int totalLOC) {
 		this.totalLOC = this.totalLOC+totalLOC;
 	}
 	public int getNumberOfPackages() {
@@ -30,5 +30,6 @@ public class projectParserMediator {
 	public void incrementNumberOfPackages() {
 		this.numberOfPackages = this.numberOfPackages+1;
 	}
+	
 	
 }

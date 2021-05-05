@@ -147,6 +147,7 @@ public class App {
 		Optional<PackageDeclaration> packteste = compunit.getPackageDeclaration();
 		packteste.ifPresentOrElse((value) -> {
 			pack = value;
+			metaDataStats.incrementNumberOfPackages();
 		}, () -> {
 			pack = null;
 		});
@@ -169,6 +170,9 @@ public class App {
 			int classLOC = getLOC(LexicalPreservingPrinter.print(c));
 			String classFullName=getFullCLassName(c);
 			List<CallableDeclaration> classMethods = filterClassMethods(c);
+			metaDataStats.incrementClassCounter();
+			metaDataStats.addTotalLOC(classLOC);
+			
 			writeOutClassMetrics(classFullName, classLOC, classMethods.size(),
 					classMethods);
 

@@ -101,5 +101,14 @@ public class projectParser {
 		return tabularData;
 		
 	}
+	
+	public HashMap<String,String> getProjectData() {
+		HashMap<String,String>projectStats=new HashMap<String,String>();
+		projectStats.put("packages", String.valueOf(metaDataStats.getNumberOfPackages()));
+		projectStats.put("classCounter", String.valueOf(metaDataStats.getClassCounter()));
+		projectStats.put("totalLOC", String.valueOf(metaDataStats.getTotalLOC()));
+		projectStats.put("methodCountID", String.valueOf(metaDataStats.getMethodCountID()));
+		return projectStats;
+	}
 
 }
