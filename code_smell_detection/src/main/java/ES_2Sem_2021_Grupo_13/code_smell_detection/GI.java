@@ -323,7 +323,7 @@ public class GI {
 			}
 		});
 
-		JMenuItem m12 = new JMenuItem("Importar excel");
+		JMenuItem m12 = new JMenuItem("Importar excel"); // TODO
 
 		m12.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
@@ -337,7 +337,37 @@ public class GI {
 							&& getFileExtension(fileChooser.getSelectedFile().getName()).equals("xlsx")) {
 
 						excelFile = fileChooser.getSelectedFile();
-
+						
+//						String[][] rows = App.readyExcelForGUI(excelFile);
+//						//separação entre a linha com os nomes das colunas
+//						//e as linhas com os dados 
+//						
+//						String[] column = Arrays.copyOf(rows[0], rows[0].length-1); 
+//						String[][]rowsForTable=new String[rows.length][rows[0].length];
+//						
+//						
+//						for (int i=1;i<rows.length;i++) {
+//							rowsForTable[i-1]=Arrays.copyOf(rows[i], rows[i].length-1);
+//						}
+//						if (scrollPane != null && jt != null) {
+//							scrollPane.remove(jt);
+//							metrics_card.remove(scrollPane);
+//						}
+//
+//						jt = new JTable(rowsForTable, column) {
+//							public boolean editCellAt(int row, int column, java.util.EventObject e) {
+//								return false;
+//							}
+//						};
+//						
+//						
+//						scrollPane = new JScrollPane(jt);
+//						metrics_card.add(scrollPane);
+//						jt.setFillsViewportHeight(true);
+//						metrics_card.add(scrollPane);
+//						metrics_card.revalidate();
+//						metrics_card.repaint();
+						
 						JOptionPane.showMessageDialog(frame,
 								"Foi importado o ficheiro " + fileChooser.getSelectedFile().getCanonicalPath());
 					} else {
@@ -584,7 +614,7 @@ public class GI {
 					if (excelFile != null) {
 						XSSFWorkbook workbook;
 
-						String fileDictName = "";
+						String fileDictName = ".xlsx";
 						JFileChooser fileChooser = new JFileChooser();
 						FileFilter filter = new FileNameExtensionFilter("Files", ".xlsx");
 						fileChooser.addChoosableFileFilter(filter);
