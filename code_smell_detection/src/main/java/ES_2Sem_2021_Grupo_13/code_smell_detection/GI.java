@@ -356,7 +356,7 @@ public class GI {
 
 						excelFile = fileChooser.getSelectedFile();
 
-						String[][] rows = App.readyExcelForGUI(excelFile);
+						String[][] rows = XLSX_read_write.readyExcelForGUI(excelFile);
 						// separação entre a linha com os nomes das colunas
 						// e as linhas com os dados
 

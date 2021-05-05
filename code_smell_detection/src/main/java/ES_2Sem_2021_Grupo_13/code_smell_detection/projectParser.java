@@ -75,14 +75,14 @@ public class projectParser {
 		}
 		
 		
-		App.writeFile(null, parsedFilesStatsList);
+		XLSX_read_write.writeFile(null, parsedFilesStatsList);
 	}
 	
 	private LinkedList<String> getParsedFilesStatsList(){
 		return parsedFilesStatsList;
 	}
 	public String[][] getParsedFilesTabularData(){
-		return App.dataFormater(getParsedFilesStatsList());
+		return XLSX_read_write.dataFormater(getParsedFilesStatsList());
 	}
 	public String[][] getProjectCodeSmells() throws NumberFormatException, PolyglotException, ScriptException{
 		assert !parsedFilesStatsList.isEmpty():"Não foi feito parsing do projeto";

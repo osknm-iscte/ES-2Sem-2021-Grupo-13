@@ -136,7 +136,7 @@ public class XLSX_read_write {
 
 
 
-	private static void writeFile(String path, LinkedList<String> dataset) { // to use you can't have the file opened anywhere else or else it will give errors on the console
+	static void writeFile(String path, LinkedList<String> dataset) { // to use you can't have the file opened anywhere else or else it will give errors on the console
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Code Smells"); // creates the .xlsx file
@@ -178,7 +178,7 @@ public class XLSX_read_write {
 
 	}
 
-	private static String[][] dataFormater(LinkedList<String> data) { // formats the data so it can be put in a .xlsx,
+	static String[][] dataFormater(LinkedList<String> data) { // formats the data so it can be put in a .xlsx,
 																		// receives a LinkedList<String> and transforms into String [][]
 
 
