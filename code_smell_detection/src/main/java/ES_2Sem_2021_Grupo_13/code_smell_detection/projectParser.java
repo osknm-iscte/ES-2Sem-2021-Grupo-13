@@ -57,7 +57,7 @@ public class projectParser {
 		for (App p : parsedFilesUnits) {
 			parsedFilesStatsList.addAll(p.getParsedFileStats());
 		}
-		App.writeFile(null, parsedFilesStatsList);
+//		App.writeFile(null, parsedFilesStatsList);
 	}
 	
 	private LinkedList<String> getParsedFilesStatsList(){

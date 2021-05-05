@@ -58,6 +58,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.poi.xssf.usermodel.*;
 import org.graalvm.polyglot.PolyglotException;
+import org.xml.sax.SAXException;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
@@ -311,7 +312,7 @@ public class GI {
 						
 						try {
 							XML_read_write.formatText(path, regraTeste);
-						} catch (ParserConfigurationException | TransformerException e) {
+						} catch (ParserConfigurationException | TransformerException | SAXException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
