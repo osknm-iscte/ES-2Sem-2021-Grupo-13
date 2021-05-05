@@ -59,7 +59,7 @@ public class App {
 	
 	private int countMethod = 1; //will count the number of methods, did not work inside the method writeOutClassMetrics 
 
-	private static LinkedList<String> realTest = new LinkedList<String>(); //will be used in writeOutClassMetrics to store the data to write to the .xlsx file
+	private static LinkedList<String> writedata = new LinkedList<String>(); //will be used in writeOutClassMetrics to store the data to write to the .xlsx file
 	private static final int NUMBERPARAMETERS = 9;
 	private CompilationUnit compunit;
 	private List<MethodDeclaration> methods;
@@ -95,18 +95,18 @@ public class App {
 					+ NOM_class + " method name: " + "   " + m.getName() + "   " + "  method LOC: " + method_LOC); //test
 
 //			"NOM_class", "LOC_class", "WMC_class", "is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method"
-			realTest.add(String.valueOf(countMethod));
-			realTest.add("placeholder package");
-			realTest.add(className);
-			realTest.add(String.valueOf(m.getName()));
+			writedata.add(String.valueOf(countMethod));
+			writedata.add("placeholder package");
+			writedata.add(className);
+			writedata.add(String.valueOf(m.getName()));
 
-			realTest.add(String.valueOf(NOM_class));
-			realTest.add(String.valueOf(classLOC));
-			realTest.add("placeholder wmc_class");
-//			realTest.add("");// isgodclass
-			realTest.add(String.valueOf(method_LOC));
-			realTest.add("placeholder cyclo_method");
-//			realTest.add("");// islongmethod
+			writedata.add(String.valueOf(NOM_class));
+			writedata.add(String.valueOf(classLOC));
+			writedata.add("placeholder wmc_class");
+//			writedata.add("");// isgodclass
+			writedata.add(String.valueOf(method_LOC));
+			writedata.add("placeholder cyclo_method");
+//			writedata.add("");// islongmethod
 
 			countMethod++;
 
@@ -288,8 +288,9 @@ public class App {
 			App app = new App(compunit);
 			app.getMetrics();
 
-			writeFile(WRITEPATH, realTest);
+			writeFile(WRITEPATH, writedata);
 			LinkedList <String> dataset = readFile();
+			System.out.println("readfile  - " + readFile());
 			writeFile("C:\\Users\\maria\\Desktop\\after_read.xlsx", dataset);
 			
 			
