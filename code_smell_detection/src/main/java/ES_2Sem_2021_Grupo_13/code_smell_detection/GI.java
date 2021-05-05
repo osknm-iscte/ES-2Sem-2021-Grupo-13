@@ -337,35 +337,35 @@ public class GI {
 
 						excelFile = fileChooser.getSelectedFile();
 						
-//						String[][] rows = App.readyExcelForGUI(excelFile);
-//						//separação entre a linha com os nomes das colunas
-//						//e as linhas com os dados 
-//						
-//						String[] column = Arrays.copyOf(rows[0], rows[0].length-1); 
-//						String[][]rowsForTable=new String[rows.length][rows[0].length];
-//						
-//						
-//						for (int i=1;i<rows.length;i++) {
-//							rowsForTable[i-1]=Arrays.copyOf(rows[i], rows[i].length-1);
-//						}
-//						if (scrollPane != null && jt != null) {
-//							scrollPane.remove(jt);
-//							metrics_card.remove(scrollPane);
-//						}
-//
-//						jt = new JTable(rowsForTable, column) {
-//							public boolean editCellAt(int row, int column, java.util.EventObject e) {
-//								return false;
-//							}
-//						};
-//						
-//						
-//						scrollPane = new JScrollPane(jt);
-//						metrics_card.add(scrollPane);
-//						jt.setFillsViewportHeight(true);
-//						metrics_card.add(scrollPane);
-//						metrics_card.revalidate();
-//						metrics_card.repaint();
+						String[][] rows = App.readyExcelForGUI(excelFile);
+						//separação entre a linha com os nomes das colunas
+						//e as linhas com os dados 
+						
+						String[] column = Arrays.copyOf(rows[0], rows[0].length-1); 
+						String[][]rowsForTable=new String[rows.length][rows[0].length];
+						
+						
+						for (int i=1;i<rows.length;i++) {
+							rowsForTable[i-1]=Arrays.copyOf(rows[i], rows[i].length-1);
+						}
+						if (scrollPane != null && jt != null) {
+							scrollPane.remove(jt);
+							metrics_card.remove(scrollPane);
+						}
+
+						jt = new JTable(rowsForTable, column) {
+							public boolean editCellAt(int row, int column, java.util.EventObject e) {
+								return false;
+							}
+						};
+						
+						
+						scrollPane = new JScrollPane(jt);
+						metrics_card.add(scrollPane);
+						jt.setFillsViewportHeight(true);
+						metrics_card.add(scrollPane);
+						metrics_card.revalidate();
+						metrics_card.repaint();
 						
 						JOptionPane.showMessageDialog(frame,
 								"Foi importado o ficheiro " + fileChooser.getSelectedFile().getCanonicalPath());
