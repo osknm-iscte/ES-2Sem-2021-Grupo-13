@@ -29,6 +29,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.graalvm.nativeimage.c.type.CCharPointer;
+
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParseStart;
@@ -67,19 +69,15 @@ public class App {
 	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/";
 	private static final String FILE_PATH_TEST = "C:/Users/omely/OneDrive/Ambiente de Trabalho/DataMining/testCYCLO.java";
 	private static final String WRITEPATH = null;
-	private  LinkedList<String> realTest = new LinkedList<String>();
+	private LinkedList<String> realTest = new LinkedList<String>();
 	private CompilationUnit compunit;
 	private List<MethodDeclaration> methods;
 	private List<ConstructorDeclaration> constructors;
 	private List<ClassOrInterfaceDeclaration> classes;
 	private PackageDeclaration pack;
 	private projectParserMediator metaDataStats;
-	
-	
-	
-	private int countMethod = 1;
 
-	
+	private int countMethod = 1;
 
 	private static class ConditionalStatementExplorer extends VoidVisitorAdapter<methodComplexityInfo> {
 
@@ -131,55 +129,120 @@ public class App {
 		}
 	}
 
+	private static class methodCollector extends VoidVisitorAdapter<List<MethodDeclaration>> {
+
+		@Override
+		public void visit(MethodDeclaration visitedMethod, List<MethodDeclaration> methodList) {
+			
+			super.visit(visitedMethod, methodList);
+			methodList.add(visitedMethod);
+
+		}
+	}
+
 	public App(CompilationUnit compunit, projectParserMediator metaDataStats) {
 
 		this.compunit = compunit;
 		methods = compunit.findAll(MethodDeclaration.class);
 		classes = compunit.findAll(ClassOrInterfaceDeclaration.class);
-		constructors=compunit.findAll(ConstructorDeclaration.class);
-		Optional<PackageDeclaration> packteste =compunit.getPackageDeclaration();
-		packteste.ifPresentOrElse(
-                (value)
-                    -> { pack=value; },
-                ()-> { pack=null; });
-		
-		
-		
-		codeSmellRuleInterpreter ruleInterpreter=new codeSmellRuleInterpreter("if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false");
-		this.metaDataStats=metaDataStats;
+		constructors = compunit.findAll(ConstructorDeclaration.class);
+		Optional<PackageDeclaration> packteste = compunit.getPackageDeclaration();
+		packteste.ifPresentOrElse((value) -> {
+			pack = value;
+		}, () -> {
+			pack = null;
+		});
+
+		codeSmellRuleInterpreter ruleInterpreter = new codeSmellRuleInterpreter(
+				"if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false");
+		this.metaDataStats = metaDataStats;
 
 	}
-
-	
 
 	public void getMetrics() {
 
 		LexicalPreservingPrinter.setup(compunit);
 
 		for (ClassOrInterfaceDeclaration c : classes) {
-
+			if(c.isInterface()) {
+				continue;
+			}
+			List<MethodDeclaration> methodList = new ArrayList<MethodDeclaration>();
 			int classLOC = getLOC(LexicalPreservingPrinter.print(c));
-
-			List<MethodDeclaration> classMethods = c.findAll(MethodDeclaration.class);
-			List<ConstructorDeclaration> constructorList=c.findAll(ConstructorDeclaration.class);
-			List<CallableDeclaration> constructorsAndMethods=new ArrayList<CallableDeclaration>(methods);
-			constructorsAndMethods.addAll(constructorList);
-			writeOutClassMetrics(c.getName().toString(), classLOC, constructorsAndMethods.size(),constructorsAndMethods );
+			String classFullName=getFullCLassName(c);
+			List<CallableDeclaration> classMethods = filterClassMethods(c);
+			writeOutClassMetrics(classFullName, classLOC, classMethods.size(),
+					classMethods);
 
 		}
 	}
-public LinkedList<String> getParsedFileStats() {
-	return realTest;
-}
-	private void writeOutClassMetrics(String className, int classLOC, int NOM_class, List<CallableDeclaration> constructorsAndMethods) {
+
+	private String getFullCLassName(ClassOrInterfaceDeclaration c) {
+		
+		Optional<Node> node=c.getParentNode();
+		
+		while(node.isPresent()) {
+			Node n=node.get();
+			if(n instanceof ClassOrInterfaceDeclaration) {
+				return ((ClassOrInterfaceDeclaration)n).getNameAsString()+"."+c.getNameAsString();
+			}
+			else node=n.getParentNode();
+		
+		}
+		return c.getNameAsString();
+	}
+
+	private List<CallableDeclaration> filterClassMethods(ClassOrInterfaceDeclaration c) {
+	
+		List<CallableDeclaration> methods = new ArrayList<CallableDeclaration>();
+		for (Node d : c.getChildNodes()) {
+			if (d instanceof MethodDeclaration || d instanceof ConstructorDeclaration) {
+				methods.add(((CallableDeclaration) d));
+				
+			
+			}
+
+		}
+		return methods;
+
+	}
+
+	public LinkedList<String> getParsedFileStats() {
+		return realTest;
+	}
+
+	private void writeOutClassMetrics(String className, int classLOC, int NOM_class,
+			List<CallableDeclaration> constructorsAndMethods) {
 
 		System.out.println("------------------------------");
 		int complexitySum = 0;
-		
-		
-		List<Integer>pos=new ArrayList<>();
-		
-		
+
+		List<Integer> pos = new ArrayList<>();
+
+		if(constructorsAndMethods.isEmpty()) {
+			metaDataStats.incrementMethodCountID();
+			realTest.add(String.valueOf(metaDataStats.getMethodCountID()));
+			if (pack == null)
+				realTest.add("default");
+			else
+				realTest.add(pack.toString());
+			
+			realTest.add(className);
+			// String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false,
+			// true).split(" ");
+			// realTest.add(splitedMethodDeclaration[splitedMethodDeclaration.length-1]);
+			realTest.add(className+"()".replaceAll(" ", ""));
+			realTest.add("0");
+			realTest.add(String.valueOf(classLOC));
+			realTest.add("1");
+			realTest.add("");// isgodclass
+			realTest.add("0");
+			realTest.add("0");
+			realTest.add("");// islongmethod
+			countMethod++;
+			return;
+			
+		}
 		for (CallableDeclaration m : constructorsAndMethods) {
 			LexicalPreservingPrinter.setup(m);
 			int method_LOC = getLOC(LexicalPreservingPrinter.print(m));
@@ -187,33 +250,46 @@ public LinkedList<String> getParsedFileStats() {
 			int methodComplexity = getMethodCYCLO(m);
 			complexitySum += methodComplexity;
 
-			System.out.println( "class name: " + className + " "
-					+ "classLOC: " + classLOC + " " + "NOM_class: " + NOM_class + " method name: " + " " + m.getName()
-					+ " " + "method LOC: " + method_LOC + "  method CYCLO: " + method_CYCLO);
-			//realTest.add(String.valueOf(countMethod));
+			System.out.println("class name: " + className + " " + "classLOC: " + classLOC + " " + "NOM_class: "
+					+ NOM_class + " method name: " + " " + m.getName() + " " + "method LOC: " + method_LOC
+					+ "  method CYCLO: " + method_CYCLO);
+			// realTest.add(String.valueOf(countMethod));
 			metaDataStats.incrementMethodCountID();
 			realTest.add(String.valueOf(metaDataStats.getMethodCountID()));
-			if(pack==null)realTest.add("default");
-			else realTest.add(pack.toString());
+			if (pack == null)
+				realTest.add("default");
+			
+			else
+				realTest.add(pack.toString());
 			realTest.add(className);
-			String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false, true).split(" ");
-			realTest.add(splitedMethodDeclaration[splitedMethodDeclaration.length-1]);
+			// String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false,
+			// true).split(" ");
+			// realTest.add(splitedMethodDeclaration[splitedMethodDeclaration.length-1]);
+			String fullMethodName=null;
+			if(m instanceof ConstructorDeclaration) fullMethodName= "void "+m.getDeclarationAsString(false, false, false);
+			else fullMethodName=m.getDeclarationAsString(false, false, false);
+			
+			String [] splitedMethodDeclaration=fullMethodName.split(" ",2);
+			realTest.add(splitedMethodDeclaration[1].replaceAll(" ", ""));
 			realTest.add(String.valueOf(NOM_class));
 			realTest.add(String.valueOf(classLOC));
 			realTest.add("placeholder wmc_class");
-			pos.add(realTest.size()-1);
+			pos.add(realTest.size() - 1);
 			realTest.add("");// isgodclass
 			realTest.add(String.valueOf(method_LOC));
 			realTest.add(Integer.toString(method_CYCLO));
 			realTest.add("");// islongmethod
 			countMethod++;
-			
+
 		}
-		for(int i:pos) {
-			realTest.set(i, String.valueOf(complexitySum/methods.size()));
+		for (int i : pos) {
+			if (methods.size() == 0)
+				realTest.set(i, String.valueOf(1));
+			else
+				realTest.set(i, String.valueOf(complexitySum / methods.size()));
 		}
-		
-		//writeFile(WRITEPATH,this);
+
+		// writeFile(WRITEPATH,this);
 		System.out.println("Class complexity: " + complexitySum);
 		System.out.println("------------------------------");
 
@@ -221,8 +297,9 @@ public LinkedList<String> getParsedFileStats() {
 
 	// Extrai linhas de código das classes e dos métodos
 	private int getLOC(String NodeString) {
-		
-		String curr_class = NodeString.replaceAll("(?m)^[ \t]*\r?\n", ""); // retira todas as linhas vazias dentro da String
+
+		String curr_class = NodeString.replaceAll("(?m)^[ \t]*\r?\n", ""); // retira todas as linhas vazias dentro da
+																			// String
 		int classWithoutEmptyLines = curr_class.split("\n").length;
 		ParserConfiguration configuration = new ParserConfiguration();
 		configuration.setLexicalPreservationEnabled(true);
@@ -256,52 +333,39 @@ public LinkedList<String> getParsedFileStats() {
 		return cyclo_info.getNodes() + 1;
 
 	}
-	
+
 	public static String[][] readyExcelForGUI(File excelFile) throws IOException {
-		
+
 		return dataFormater(readFile(excelFile));
 
 	}
-	
-	/*public static String[][] readyFileForGUI(Path path, String excelDir) {
-		List<String> paths;
-		LinkedList<String> list=new LinkedList<String>();
-		try {
-			paths = listFiles(path);
-		
-		System.out.println("------------------------------");
-		paths.forEach(x -> System.out.println(x));
-		System.out.println("------------------------------");
-		ParserConfiguration configuration = new ParserConfiguration();
-		configuration.setLexicalPreservationEnabled(true);
-		JavaParser javaParser = new JavaParser(configuration);
-		ArrayList<App>appList=new ArrayList<App>();
-		for (String s : paths) {
-			CompilationUnit compunit = javaParser.parse(new File(s)).getResult().get();
-			App app = new App(compunit);
-			appList.add(app);
-			app.getMetrics();
 
-		}
-		
-		for(App p: appList) {
-			list.addAll(p.getParsedFileStats());
-		}
-		for(String s:list) {
-			System.out.println(s);
-		}
-		
-		writeFile(null, list, excelDir);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		 String[][] rows=dataFormater(list);
-		
-		return rows;
-	}
-	*/
+	/*
+	 * public static String[][] readyFileForGUI(Path path, String excelDir) {
+	 * List<String> paths; LinkedList<String> list=new LinkedList<String>(); try {
+	 * paths = listFiles(path);
+	 * 
+	 * System.out.println("------------------------------"); paths.forEach(x ->
+	 * System.out.println(x)); System.out.println("------------------------------");
+	 * ParserConfiguration configuration = new ParserConfiguration();
+	 * configuration.setLexicalPreservationEnabled(true); JavaParser javaParser =
+	 * new JavaParser(configuration); ArrayList<App>appList=new ArrayList<App>();
+	 * for (String s : paths) { CompilationUnit compunit = javaParser.parse(new
+	 * File(s)).getResult().get(); App app = new App(compunit); appList.add(app);
+	 * app.getMetrics();
+	 * 
+	 * }
+	 * 
+	 * for(App p: appList) { list.addAll(p.getParsedFileStats()); } for(String
+	 * s:list) { System.out.println(s); }
+	 * 
+	 * writeFile(null, list, excelDir); } catch (IOException e) { // TODO
+	 * Auto-generated catch block e.printStackTrace(); }
+	 * 
+	 * String[][] rows=dataFormater(list);
+	 * 
+	 * return rows; }
+	 */
 
 	public static void main(String[] args) {
 
@@ -336,10 +400,11 @@ public LinkedList<String> getParsedFileStats() {
 			bindings.put("CYCLO_method", CYCLO_method);
 			String script = "if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false";
 			Object obj = engine.eval(script, bindings);
-			codeSmellRuleInterpreter interpreter=new codeSmellRuleInterpreter("if(LOC_method>50 && CYCLO_method>10){long_method=true;god_class=true;} else"
-			+ " long_method=false;");
-			HashMap<String,Boolean>testing=interpreter.getCodeSmellFlags(3, 100, 10, 52, 16);
-			
+			codeSmellRuleInterpreter interpreter = new codeSmellRuleInterpreter(
+					"if(LOC_method>50 && CYCLO_method>10){long_method=true;god_class=true;} else"
+							+ " long_method=false;");
+			HashMap<String, Boolean> testing = interpreter.getCodeSmellFlags(3, 100, 10, 52, 16);
+
 			System.out.println("and now: " + testing.get("long_method"));
 			System.out.println("and now: " + testing.get("god_class"));
 		} catch (IOException | ScriptException e) {
@@ -366,7 +431,8 @@ public LinkedList<String> getParsedFileStats() {
 		return result;
 	}
 
-	private static LinkedList<String> readFile(File excelFile) throws IOException { // implemented, but needs adjustments - what will
+	private static LinkedList<String> readFile(File excelFile) throws IOException { // implemented, but needs
+																					// adjustments - what will
 		// it print to??
 
 		LinkedList<String> data = new LinkedList<String>();
@@ -399,17 +465,18 @@ public LinkedList<String> getParsedFileStats() {
 
 	}
 
-public static void writeFile(String path, LinkedList<String>data) { // to use you can't have the file opened anywhere else
-		
+	public static void writeFile(String path, LinkedList<String> data) { // to use you can't have the file opened
+																			// anywhere else
 
-		XSSFWorkbook workbook =  new XSSFWorkbook();
+		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Code Smells");
-		
+
 		Object[][] datatypes = dataFormater(data); // gets the formated data, will probably be passed as an argument
 // in the final version
 
 		int rowNum = 0; // creates the .xlsx file
-		if(sheet.getLastRowNum()!=-1)rowNum=sheet.getLastRowNum();
+		if (sheet.getLastRowNum() != -1)
+			rowNum = sheet.getLastRowNum();
 		System.out.println("Creating excel");
 
 		for (Object[] datatype : datatypes) {
@@ -426,12 +493,12 @@ public static void writeFile(String path, LinkedList<String>data) { // to use yo
 		}
 
 		try {
-			FileOutputStream outputStream=null;
-			if(path==null) {
-				 outputStream = new FileOutputStream(System.getProperty("user.dir")+"/"+"Code_Smells.xlsx");
-			}
-			else  outputStream = new FileOutputStream(path); 
-			
+			FileOutputStream outputStream = null;
+			if (path == null) {
+				outputStream = new FileOutputStream(System.getProperty("user.dir") + "/" + "Code_Smells.xlsx");
+			} else
+				outputStream = new FileOutputStream(path);
+
 			workbook.write(outputStream);
 			workbook.close();
 		} catch (FileNotFoundException e) {
@@ -442,62 +509,62 @@ public static void writeFile(String path, LinkedList<String>data) { // to use yo
 
 		System.out.println("Done");
 	}
+
 	public static String getFileExtension(String fullName) {
-	    String fileName = new File(fullName).getName();
-	    int dotIndex = fileName.lastIndexOf('.');
-	    return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
+		String fileName = new File(fullName).getName();
+		int dotIndex = fileName.lastIndexOf('.');
+		return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
 	}
-	
-    private static String getFileNameWithoutExtension(File file) {
-        String fileName = "";
- 
-        try {
-            if (file != null && file.exists()) {
-                String name = file.getName();
-                fileName = name.replaceFirst("[.][^.]+$", "");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            fileName = "";
-        }
- 
-        return fileName;
- 
-    }
-	
+
+	private static String getFileNameWithoutExtension(File file) {
+		String fileName = "";
+
+		try {
+			if (file != null && file.exists()) {
+				String name = file.getName();
+				fileName = name.replaceFirst("[.][^.]+$", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			fileName = "";
+		}
+
+		return fileName;
+
+	}
+
 	private static String getNewFileName(String filename) throws IOException {
-	    
+
 		File aFile = new File(filename);
-	    int fileNo = 0;
-	    String newFileName = "";
-	    String extension=getFileExtension(filename);
-	    String nameWithoutExtension = getFileNameWithoutExtension(aFile);
-	    
-	    if (aFile.exists() && !aFile.isDirectory()) {
+		int fileNo = 0;
+		String newFileName = "";
+		String extension = getFileExtension(filename);
+		String nameWithoutExtension = getFileNameWithoutExtension(aFile);
 
+		if (aFile.exists() && !aFile.isDirectory()) {
 
-	        //newFileName = filename.replaceAll(getFileExtension(filename), "(" + fileNo + ")" + getFileExtension(filename));
+			// newFileName = filename.replaceAll(getFileExtension(filename), "(" + fileNo +
+			// ")" + getFileExtension(filename));
 
-	        while(aFile.exists()){
-	            fileNo++;
-	            aFile = new File(nameWithoutExtension + "(" + fileNo + ")."+extension);
-	            newFileName = nameWithoutExtension + "(" + fileNo + ")."+extension;
-	        }
+			while (aFile.exists()) {
+				fileNo++;
+				aFile = new File(nameWithoutExtension + "(" + fileNo + ")." + extension);
+				newFileName = nameWithoutExtension + "(" + fileNo + ")." + extension;
+			}
 
+		} else if (!aFile.exists()) {
 
-	    } else if (!aFile.exists()) {
-	        
-	        newFileName = filename;
-	    }
-	    return newFileName;
+			newFileName = filename;
+		}
+		return newFileName;
 	}
-	
-public static String[][] dataFormater(LinkedList<String> data) { // formats the data so it can be put in a .xlsx,
+
+	public static String[][] dataFormater(LinkedList<String> data) { // formats the data so it can be put in a .xlsx,
 		// receives a LinkedList<String>
-	int numberOfParameters = 11;
+		int numberOfParameters = 11;
 
 		String[][] formatedData = new String[data.size() / numberOfParameters + numberOfParameters][numberOfParameters
-		                                                                                            + 1]; // creates the array
+				+ 1]; // creates the array
 		String[] predefinido = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class",
 				"is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method" }; // 1st line
 
@@ -509,15 +576,14 @@ public static String[][] dataFormater(LinkedList<String> data) { // formats the 
 			for (int j = 1; j < numberOfParameters + 1; j++) { // columns
 
 				if (i == 1) {
-				formatedData[i - 1][j - 1] = predefinido[i * j - 1]; // writes 1st line
+					formatedData[i - 1][j - 1] = predefinido[i * j - 1]; // writes 1st line
 				} else {
 					formatedData[i - 1][j - 1] = data.get(count); // writes the rest
 					count++;
 				}
 			}
-}
-return formatedData;
-}
+		}
+		return formatedData;
+	}
 
 }
-
