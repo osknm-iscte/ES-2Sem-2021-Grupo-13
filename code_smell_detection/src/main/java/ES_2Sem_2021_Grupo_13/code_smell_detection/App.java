@@ -51,8 +51,10 @@ public class App {
 //	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/MongoWorker.java";
 
 	private static final String FILE_PATH = "C:\\Users\\maria\\Desktop\\App.java"; // file to analyse, debug
-	private static final String WRITEPATH = "C:\\Users\\maria\\Documents\\Code_Smells.xlsx";// will vary between computers, debug
-
+	private static final String WRITEPATH = "C:\\Users\\maria\\Documents\\Code_Smells.xlsx";// will vary between
+																							// computers, code_smells.xlsx destination, debug
+	
+	private static final String XMLWRITEPATH = "C:\\Users\\maria\\Documents\\xml.xml";
 	
 	
 	private int countMethod = 1; //will count the number of methods, did not work inside the method writeOutClassMetrics 
@@ -172,6 +174,7 @@ public class App {
 		workbook.close();
 		inputStream.close(); //closes reading
 		
+//		testeToLinkedList(data);	//debug
 		
 
 		return data; //returns linkedList
@@ -184,12 +187,12 @@ public class App {
 	
 	
 	
-//	private static void testeToLinkedList(LinkedList<String> data) { //prints all the values of the linkedList data, for debug
-//		for(int i = 0; i < data.size(); i++)
-//			
-//			System.out.println("\n" + data.get(i));
-//			
-//		}
+	private static void testeToLinkedList(LinkedList<String> data) { //prints all the values of the linkedList data, for debug
+		for(int i = 0; i < data.size(); i++)
+			
+			System.out.println("\n" + data.get(i));
+			
+		}
 		
 
 
@@ -197,8 +200,6 @@ public class App {
 
 	private static void writeFile(String path, LinkedList<String> dataset) { // to use you can't have the file opened anywhere else or else it will give errors on the console
 
-		//writes .xlsx file
-		
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Code Smells"); // creates the .xlsx file
 
