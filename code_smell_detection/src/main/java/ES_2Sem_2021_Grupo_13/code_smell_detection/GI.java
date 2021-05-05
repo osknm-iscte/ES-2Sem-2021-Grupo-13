@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.script.ScriptException;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -314,7 +315,6 @@ public class GI {
 					CardLayout cl = (CardLayout) (cards.getLayout());
 					cl.show(cards, METRICS_INFO);
 
-					dealWithJavaFile();
 				} 
 				else {
 					JOptionPane.showMessageDialog(frame, "Não foi encontrado a pasta!");
@@ -322,7 +322,7 @@ public class GI {
 			}
 		});
 
-		JMenuItem m12 = new JMenuItem("Importar excel"); // TODO!!!!!!!!!! TABELA
+		JMenuItem m12 = new JMenuItem("Importar excel");
 
 		m12.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
@@ -336,7 +336,6 @@ public class GI {
 							&& getFileExtension(fileChooser.getSelectedFile().getName()).equals("xlsx")) {
 
 						excelFile = fileChooser.getSelectedFile();
-						dealWithExcelFile();
 
 						JOptionPane.showMessageDialog(frame,
 								"Foi importado o ficheiro " + fileChooser.getSelectedFile().getCanonicalPath());
@@ -469,63 +468,115 @@ public class GI {
 		
 			}
 		});
+		
+		JPanel main, center, left, top;
+        JDialog confusionMatrix = new JDialog(frame, "Matriz de confusao");
+        confusionMatrix.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        Box [] box = new Box[4];
 
+        main = new JPanel(new BorderLayout());
+
+        center = new JPanel();
+        center.setLayout(new GridLayout(2, 2));
+
+        
+        
+        for(int i = 0; i < 4; i++)
+        {
+                box[i] = new Box(BoxLayout.X_AXIS);
+                box[i].setBorder(BorderFactory.createLineBorder(Color.black));
+                box[i].add(new JLabel("      " + (i+1) + "      "));
+                box[i].setOpaque(true);
+                if(i==1 || i==2) box[i].setBackground(Color.orange);
+                else box[i].setBackground(Color.green);
+                center.add(box[i]);
+                
+        }
+        
+
+        left = new JPanel();
+        left.setLayout(new GridLayout(2,1));
+        JLabel predictedPositive = new JLabel("Predicted: Positive");
+        JLabel predictedNegative = new JLabel("Predicted: Negative");
+        left.add(predictedPositive);
+        left.add(predictedNegative);
+        
+        top = new JPanel();
+        top.setLayout(new GridLayout(1,2));
+        JLabel actualPositive = new JLabel("Predicted: Positive");
+        JLabel actualNegative = new JLabel("Predicted: Negative");
+        JLabel matrixLabel = new JLabel("Confusion Matrix");
+        top.add(matrixLabel);
+        top.add(actualPositive);
+        top.add(actualNegative);
+        
+        main.add(center, BorderLayout.CENTER);
+        main.add(left, BorderLayout.WEST);
+        main.add(top, BorderLayout.NORTH);
+        confusionMatrix.add(main);
+        confusionMatrix.getContentPane();
+
+        confusionMatrix.setBounds(50,50,500,500);
+        confusionMatrix.setResizable(false);
+        confusionMatrix.setLocationRelativeTo(null);
+		
+		JMenuItem m23 = new JMenuItem("Comparar Code Smells"); // TODO
+		m23.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+
+				HashMap<String,String>rulesAndDefinitions=XMLParser.getRulesName(System.getProperty("user.dir")+"/"+"code_smell_rule_definitions.xml");
+				Object[] possibilities = rulesAndDefinitions.keySet().toArray();
+				String selectedRuleName=(String)JOptionPane.showInputDialog(
+	                    frame,
+	                    "Escolha uma regra:\n",
+	                    
+	                    "Regras de code smells",
+	                    JOptionPane.PLAIN_MESSAGE,
+	               
+	                    null, possibilities,
+	                    "ham");
+					
+					System.out.println(selectedRuleName); 
+					
+					
+					try {
+						detectCodeSmells();
+						compararCodeSmells();
+						confusionMatrix.setVisible(true);
+					} catch (NumberFormatException | PolyglotException | ScriptException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				
+		
+			}
+		});
+		
 		m1.add(m11);
 		m1.add(m12);
 		m2.add(m21);
 		m2.add(m22);
-
+		m2.add(m23);
+		
 		JButton send = new JButton("Detectar Code Smells");
 		send.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				try {
-					assert selectedProjectParser!=null:"não foi feito parsing do projeto";
-					String [][]tabularDataWithCodeSmells=selectedProjectParser.getProjectCodeSmells();
-					String[] column = Arrays.copyOf(tabularDataWithCodeSmells[0], tabularDataWithCodeSmells[0].length-1); 
-					String[][]rowsForTable=new String[tabularDataWithCodeSmells.length][tabularDataWithCodeSmells[0].length-1];
 					
-					
-					for (int i=1;i<tabularDataWithCodeSmells.length;i++) {
-						rowsForTable[i-1]=Arrays.copyOf(tabularDataWithCodeSmells[i], tabularDataWithCodeSmells[i].length-1);
-					}
-					if (scrollPane != null && jt != null) {
-						scrollPane.remove(jt);
-						metrics_card.remove(scrollPane);
-					}
-
-					jt = new JTable(rowsForTable, column) {
-						public boolean editCellAt(int row, int column, java.util.EventObject e) {
-							return false;
-						}
-					};
-					
-					
-					scrollPane = new JScrollPane(jt);
-					metrics_card.add(scrollPane);
-					metrics_card.revalidate();
-					metrics_card.repaint();
-					
-				} catch (NumberFormatException | PolyglotException | ScriptException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				
-				/*if (predefinido && excelFile != null)
-					dealWithCodeSmell();
-				else {
-					if (!predefinido) {
-						JOptionPane.showMessageDialog(frame, "Nenhuma regra esta definida.");
-					} else {
-						JOptionPane.showMessageDialog(frame, "Projeto java em falta!");
+					try {
+						detectCodeSmells();
+						
+					} catch (NumberFormatException | PolyglotException | ScriptException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				}
-				*/
+				
 			}
 		
 
 		});
 
-		JButton gravarExcel = new JButton("Gravar Excel");// TODO!!!!!!!!!!!!! GRAVAR FICHEIRO XLSX
+		JButton gravarExcel = new JButton("Gravar Excel");
 		gravarExcel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				try {
@@ -585,18 +636,49 @@ public class GI {
 
 	}
 
-	private void dealWithJavaFile() {
-		System.out.println("Enviar para java parser e voltar para aqui para mostrar tabela atraves do excel.");
-
+	private void compararCodeSmells() {
+		
+		ArrayList<Object> is_God_Class = new ArrayList<Object>();
+		for(int i = 0;i<jt.getModel().getRowCount();i++)
+		{
+		    is_God_Class.add(jt.getModel().getValueAt(i,7));
+		}
+		System.out.println("Teste a column " + jt.getModel().getValueAt(1, 7).toString());
+		
+		ArrayList<Object> is_Long_Method = new ArrayList<Object>();
+		for(int i = 0;i<jt.getModel().getRowCount();i++)
+		{
+			is_Long_Method.add(jt.getModel().getValueAt(i,10));
+		}
+		System.out.println("Teste a column " + jt.getModel().getValueAt(1, 10).toString());
+		
 	}
+	
+	private void detectCodeSmells() throws NumberFormatException, PolyglotException, ScriptException {
+		assert selectedProjectParser!=null:"não foi feito parsing do projeto";
+		String [][]tabularDataWithCodeSmells=selectedProjectParser.getProjectCodeSmells();
+		String[] column = Arrays.copyOf(tabularDataWithCodeSmells[0], tabularDataWithCodeSmells[0].length-1); 
+		String[][]rowsForTable=new String[tabularDataWithCodeSmells.length][tabularDataWithCodeSmells[0].length-1];
+		
+		
+		for (int i=1;i<tabularDataWithCodeSmells.length;i++) {
+			rowsForTable[i-1]=Arrays.copyOf(tabularDataWithCodeSmells[i], tabularDataWithCodeSmells[i].length-1);
+		}
+		if (scrollPane != null && jt != null) {
+			scrollPane.remove(jt);
+			metrics_card.remove(scrollPane);
+		}
 
-	private void dealWithExcelFile() throws FileNotFoundException, IOException {
-
-		System.out.println("Mostrar tabela através do excel");
-	}
-
-	private void dealWithCodeSmell() {
-		System.out.println("Code smell e mostrar na GUI");
+		jt = new JTable(rowsForTable, column) {
+			public boolean editCellAt(int row, int column, java.util.EventObject e) {
+				return false;
+			}
+		};
+		
+		scrollPane = new JScrollPane(jt);
+		metrics_card.add(scrollPane);
+		metrics_card.revalidate();
+		metrics_card.repaint();
 	}
 
 	private String getFileExtension(String fullName) {
