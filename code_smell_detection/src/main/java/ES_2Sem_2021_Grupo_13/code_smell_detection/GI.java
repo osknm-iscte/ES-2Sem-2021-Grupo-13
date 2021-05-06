@@ -355,8 +355,8 @@ public class GI {
 							&& getFileExtension(fileChooser.getSelectedFile().getName()).equals("xlsx")) {
 
 						excelFile = fileChooser.getSelectedFile();
-
-						String[][] rows = XLSX_read_write.readyExcelForGUI(excelFile);
+					
+						String[][] rows = XLSX_read_write.readyExcelForGUI(excelFile.getAbsolutePath());
 						// separação entre a linha com os nomes das colunas
 						// e as linhas com os dados
 
@@ -629,14 +629,22 @@ public class GI {
 							File file = new File(fileDictName);
 
 							if (file.exists() == false) {
-								workbook = new XSSFWorkbook();
-								XSSFSheet exampleSheet = workbook.createSheet("1");
-								XSSFRow firstRow = exampleSheet.createRow(1);
-								XSSFCell cell = firstRow.createCell(0);
-								cell.setCellValue("value");
-
-								FileOutputStream out = new FileOutputStream(file);
-								workbook.write(out);
+								
+								LinkedList<String> dataset = new LinkedList<String>(); //TODO
+								
+								dataset.add("a");
+								dataset.add("b");
+								
+								XLSX_read_write.writeFile(file.getAbsolutePath(), dataset);
+								
+//								workbook = new XSSFWorkbook();
+//								XSSFSheet exampleSheet = workbook.createSheet("1");
+//								XSSFRow firstRow = exampleSheet.createRow(1);
+//								XSSFCell cell = firstRow.createCell(0);
+//								cell.setCellValue("value");
+//
+//								FileOutputStream out = new FileOutputStream(file);
+//								workbook.write(out);
 
 							} else {
 								JOptionPane.showMessageDialog(frame, "Excel já existe!");

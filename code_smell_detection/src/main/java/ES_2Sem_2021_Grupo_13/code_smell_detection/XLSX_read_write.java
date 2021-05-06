@@ -74,15 +74,15 @@ public class XLSX_read_write {
 
 
 
-	private static LinkedList<String> readFile() throws IOException { //reads the .xlsx file and puts its content on a linkedList
+	private static LinkedList<String> readFile(String path) throws IOException { //reads the .xlsx file and puts its content on a linkedList
 		
 		//if you want a String [][] use the dataFormater(returnOfThisMethod) 
 
 		LinkedList<String> data = new LinkedList<String>();
 
 
-		String excelFilePath = WRITEPATH;
-		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+//		String excelFilePath = WRITEPATH;
+		FileInputStream inputStream = new FileInputStream(new File(path));
 
 		Workbook workbook = new XSSFWorkbook(inputStream);
 		Sheet firstSheet = workbook.getSheetAt(0); //reads only the first sheet
@@ -172,9 +172,9 @@ public class XLSX_read_write {
 		System.out.println("Done"); //debug
 	}
 	
-	public static String[][] readyExcelForGUI(File excelFile) throws IOException {
+	public static String[][] readyExcelForGUI(String excelFile) throws IOException {
 
-		return dataFormater(readFile());
+		return dataFormater(readFile(excelFile));
 
 	}
 
@@ -233,10 +233,10 @@ public static void main(String[] args) throws IOException {
 
 			
 
-			writeFile(WRITEPATH, writedata);
-			LinkedList <String> dataset = readFile();
-			System.out.println("readfile  - " + readFile());
-			writeFile("C:\\Users\\maria\\Desktop\\after_read.xlsx", dataset);
+//			writeFile(WRITEPATH, writedata);
+//			LinkedList <String> dataset = readFile(WRITEPATH);
+//			System.out.println("readfile  - " + readFile(WRITEPATH));
+//			writeFile("C:\\Users\\maria\\Desktop\\after_read.xlsx", dataset);
 			
 			
 
