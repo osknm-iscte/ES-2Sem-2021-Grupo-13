@@ -54,7 +54,7 @@ public class XLSX_read_write {
 	private int countMethod = 1; //will count the number of methods, did not work inside the method writeOutClassMetrics 
 
 	private static LinkedList<String> writedata = new LinkedList<String>(); //will be used in writeOutClassMetrics to store the data to write to the .xlsx file
-	private static final int NUMBERPARAMETERS = 9;
+	private static final int NUMBERPARAMETERS = 11;
 	private CompilationUnit compunit;
 	private List<MethodDeclaration> methods;
 	private List<ClassOrInterfaceDeclaration> classes;
@@ -160,7 +160,7 @@ public class XLSX_read_write {
 		}
 
 		try {
-			FileOutputStream outputStream = new FileOutputStream(path);
+			FileOutputStream outputStream = new FileOutputStream(System.getProperty("user.dir") + "/" + "Code_Smells.xlsx");
 			workbook.write(outputStream);//writes file
 			workbook.close();//closes file
 		} catch (FileNotFoundException e) {
