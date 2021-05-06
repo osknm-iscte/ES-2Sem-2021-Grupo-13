@@ -1,4 +1,5 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.io.IOException;
@@ -93,12 +94,14 @@ class XMLParserTest {
 
 			XMLParser.createRule(System.getProperty("user.dir") + "/" + "code_smell_rule_definitionsTests.xml",
 					"TEST_ID", "DELETE_ME_AFTER_TEST", "if(x>10)something cool will happen;");
-			
-			XMLParser.editRule(System.getProperty("user.dir") + "/" + "code_smell_rule_definitionsTests.xml","DELETE_ME_AFTER_TEST", "if(x>20) everything is good;");
+
+			XMLParser.editRule(System.getProperty("user.dir") + "/" + "code_smell_rule_definitionsTests.xml",
+					"DELETE_ME_AFTER_TEST", "if(x>20) everything is good;");
 			HashMap<String, String> hashTest = (HashMap<String, String>) XMLParser
 					.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitionsTests.xml");
-			assertTrue(hashTest.containsKey("DELETE_ME_AFTER_TEST") && hashTest.get("DELETE_ME_AFTER_TEST").equals("if(x>20) everything is good;"));
-			
+			assertTrue(hashTest.containsKey("DELETE_ME_AFTER_TEST")
+					&& hashTest.get("DELETE_ME_AFTER_TEST").equals("if(x>20) everything is good;"));
+
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			HashMap<String, String> ruleNamesAndDefinitions = new HashMap<String, String>();
 			dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);

@@ -184,8 +184,9 @@ public class XLSX_read_write {
 
 		String[][] formatedData = new String[data.size() / NUMBERPARAMETERS + NUMBERPARAMETERS][NUMBERPARAMETERS
 				+ 1]; // creates the array with the size required
-		String[] predefinido = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class",
-				"LOC_method", "CYCLO_method" }; // 1st line, titles
+		String[] predefinido = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class", "is_God_Class",
+				
+				"LOC_method", "CYCLO_method","is_long_method" }; // 1st line, titles
 
 		int nrLines = data.size() / NUMBERPARAMETERS; // number of lines the final table will have (does not account
 														// for the 1st)
@@ -275,12 +276,6 @@ public class XLSX_read_write {
 		
 		
 	}
-	
-
-	
-	
-	
-	
 	
 
 public static void main(String[] args) throws IOException {
