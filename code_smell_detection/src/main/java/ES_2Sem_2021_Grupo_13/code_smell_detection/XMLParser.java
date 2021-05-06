@@ -39,23 +39,14 @@ public class XMLParser {
 
 	      try {
 	    	  HashMap<String, String>ruleNamesAndDefinitions=new HashMap<String,String>();
-	          // optional, but recommended
-	          // process XML securely, avoid attacks like XML External Entities (XXE)
-	          dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-
-	          // parse XML file
+	          dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);	
 	          DocumentBuilder db = dbf.newDocumentBuilder();
-
 	          Document doc = db.parse(new File(path));
-
-	          // optional, but recommended
-	          // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 	          doc.getDocumentElement().normalize();
 
 	          System.out.println("Root Element :" + doc.getDocumentElement().getNodeName());
 	          System.out.println("------");
 
-	          // get <staff>
 	          NodeList list = (NodeList) doc.getElementsByTagName("rule");
 
 	          for (int temp = 0; temp < ((org.w3c.dom.NodeList) list).getLength(); temp++) {
@@ -123,6 +114,7 @@ public class XMLParser {
 	          dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 	          DocumentBuilder db = dbf.newDocumentBuilder();
 	          Document doc = db.parse(new File(path));
+	          
 
 	          // optional, but recommended
 	          // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work

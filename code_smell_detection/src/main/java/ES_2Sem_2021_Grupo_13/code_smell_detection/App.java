@@ -1,6 +1,5 @@
 
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -174,7 +173,7 @@ public class App {
 			String classFullName = getFullCLassName(c);
 			List<CallableDeclaration> classMethods = filterClassMethods(c);
 			metaDataStats.incrementClassCounter();
-			metaDataStats.addTotalLOC(classLOC);
+			metaDataStats.addTotalLOC(classFinalLOC);
 
 			writeOutClassMetrics(classFullName, classFinalLOC, classMethods.size(), classMethods);
 
