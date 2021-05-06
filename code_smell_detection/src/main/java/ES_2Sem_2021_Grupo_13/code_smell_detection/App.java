@@ -1,5 +1,6 @@
 
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -131,7 +132,7 @@ public class App {
 
 		@Override
 		public void visit(MethodDeclaration visitedMethod, List<MethodDeclaration> methodList) {
-			
+
 			super.visit(visitedMethod, methodList);
 			methodList.add(visitedMethod);
 
@@ -163,45 +164,60 @@ public class App {
 		LexicalPreservingPrinter.setup(compunit);
 
 		for (ClassOrInterfaceDeclaration c : classes) {
-			if(c.isInterface()) {
+			if (c.isInterface()) {
 				continue;
 			}
 			List<MethodDeclaration> methodList = new ArrayList<MethodDeclaration>();
+			int sumOfLOCtoSubtract = getSumLOCnestedClasses(c);
 			int classLOC = getLOC(LexicalPreservingPrinter.print(c));
-			String classFullName=getFullCLassName(c);
+			int classFinalLOC=classLOC-sumOfLOCtoSubtract;
+			String classFullName = getFullCLassName(c);
 			List<CallableDeclaration> classMethods = filterClassMethods(c);
 			metaDataStats.incrementClassCounter();
 			metaDataStats.addTotalLOC(classLOC);
-			
-			writeOutClassMetrics(classFullName, classLOC, classMethods.size(),
-					classMethods);
+
+			writeOutClassMetrics(classFullName, classFinalLOC, classMethods.size(), classMethods);
 
 		}
 	}
 
-	private String getFullCLassName(ClassOrInterfaceDeclaration c) {
-		
-		Optional<Node> node=c.getParentNode();
-		
-		while(node.isPresent()) {
-			Node n=node.get();
-			if(n instanceof ClassOrInterfaceDeclaration) {
-				return ((ClassOrInterfaceDeclaration)n).getNameAsString()+"."+c.getNameAsString();
+	private int getSumLOCnestedClasses(ClassOrInterfaceDeclaration c) {
+		List<ClassOrInterfaceDeclaration> innerClasses = new ArrayList<ClassOrInterfaceDeclaration>();
+		List <Node> classChildren= c.getChildNodes();
+		int LOCcounter=0;
+		for(Node n:classChildren) {
+			if(n instanceof ClassOrInterfaceDeclaration && ((ClassOrInterfaceDeclaration)n).isInterface())
+				continue;
+			else if(n instanceof ClassOrInterfaceDeclaration && !((ClassOrInterfaceDeclaration)n).isInterface()) {
+				 LOCcounter+=getLOC(LexicalPreservingPrinter.print(n));
 			}
-			else node=n.getParentNode();
+		}
 		
+		return LOCcounter;
+	}
+
+	private String getFullCLassName(ClassOrInterfaceDeclaration c) {
+
+		Optional<Node> node = c.getParentNode();
+
+		while (node.isPresent()) {
+			Node n = node.get();
+			if (n instanceof ClassOrInterfaceDeclaration) {
+				return ((ClassOrInterfaceDeclaration) n).getNameAsString() + "." + c.getNameAsString();
+			} else
+				node = n.getParentNode();
+
 		}
 		return c.getNameAsString();
 	}
 
 	private List<CallableDeclaration> filterClassMethods(ClassOrInterfaceDeclaration c) {
-	
+
 		List<CallableDeclaration> methods = new ArrayList<CallableDeclaration>();
 		for (Node d : c.getChildNodes()) {
 			if (d instanceof MethodDeclaration || d instanceof ConstructorDeclaration) {
 				methods.add(((CallableDeclaration) d));
-				
-			
+
 			}
 
 		}
@@ -221,19 +237,19 @@ public class App {
 
 		List<Integer> pos = new ArrayList<>();
 
-		if(constructorsAndMethods.isEmpty()) {
+		if (constructorsAndMethods.isEmpty()) {
 			metaDataStats.incrementMethodCountID();
 			realTest.add(String.valueOf(metaDataStats.getMethodCountID()));
 			if (pack == null)
 				realTest.add("default");
 			else
 				realTest.add(pack.getNameAsString());
-			
+
 			realTest.add(className);
 			// String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false,
 			// true).split(" ");
 			// realTest.add(splitedMethodDeclaration[splitedMethodDeclaration.length-1]);
-			realTest.add(className+"()".replaceAll(" ", ""));
+			realTest.add(className + "()".replaceAll(" ", ""));
 			realTest.add("0");
 			realTest.add(String.valueOf(classLOC));
 			realTest.add("1");
@@ -243,7 +259,7 @@ public class App {
 			realTest.add("");// islongmethod
 			countMethod++;
 			return;
-			
+
 		}
 		for (CallableDeclaration m : constructorsAndMethods) {
 			LexicalPreservingPrinter.setup(m);
@@ -260,18 +276,20 @@ public class App {
 			realTest.add(String.valueOf(metaDataStats.getMethodCountID()));
 			if (pack == null)
 				realTest.add("default");
-			
+
 			else
 				realTest.add(pack.getNameAsString());
 			realTest.add(className);
 			// String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false,
 			// true).split(" ");
 			// realTest.add(splitedMethodDeclaration[splitedMethodDeclaration.length-1]);
-			String fullMethodName=null;
-			if(m instanceof ConstructorDeclaration) fullMethodName= "void "+m.getDeclarationAsString(false, false, false);
-			else fullMethodName=m.getDeclarationAsString(false, false, false);
-			
-			String [] splitedMethodDeclaration=fullMethodName.split(" ",2);
+			String fullMethodName = null;
+			if (m instanceof ConstructorDeclaration)
+				fullMethodName = "void " + m.getDeclarationAsString(false, false, false);
+			else
+				fullMethodName = m.getDeclarationAsString(false, false, false);
+
+			String[] splitedMethodDeclaration = fullMethodName.split(" ", 2);
 			realTest.add(splitedMethodDeclaration[1].replaceAll(" ", ""));
 			realTest.add(String.valueOf(NOM_class));
 			realTest.add(String.valueOf(classLOC));
