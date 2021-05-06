@@ -1,5 +1,5 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
-
+//new
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -75,14 +75,16 @@ public class projectParser {
 		}
 		
 		
-		App.writeFile(null, parsedFilesStatsList);
+		XLSX_read_write.writeFile(null, parsedFilesStatsList);
+
+//		App.writeFile(null, parsedFilesStatsList);
 	}
 	
 	private LinkedList<String> getParsedFilesStatsList(){
 		return parsedFilesStatsList;
 	}
 	public String[][] getParsedFilesTabularData(){
-		return App.dataFormater(getParsedFilesStatsList());
+		return XLSX_read_write.dataFormater(getParsedFilesStatsList());
 	}
 	public String[][] getProjectCodeSmells() throws NumberFormatException, PolyglotException, ScriptException{
 		assert !parsedFilesStatsList.isEmpty():"Não foi feito parsing do projeto";

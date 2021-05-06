@@ -353,11 +353,7 @@ public class App {
 
 	}
 
-	public static String[][] readyExcelForGUI(File excelFile) throws IOException {
 
-		return dataFormater(readFile(excelFile));
-
-	}
 
 	/*
 	 * public static String[][] readyFileForGUI(Path path, String excelDir) {
@@ -450,84 +446,7 @@ public class App {
 		return result;
 	}
 
-	private static LinkedList<String> readFile(File excelFile) throws IOException { // implemented, but needs
-																					// adjustments - what will
-		// it print to??
 
-		LinkedList<String> data = new LinkedList<String>();
-
-		FileInputStream inputStream = new FileInputStream(excelFile);
-
-		Workbook workbook = new XSSFWorkbook(inputStream);
-		Sheet firstSheet = (Sheet) workbook.getSheetAt(0);
-		Iterator<Row> iterator = firstSheet.iterator();
-
-		while (iterator.hasNext()) {
-			Row nextRow = iterator.next();
-			Iterator<Cell> cellIterator = nextRow.cellIterator();
-
-			while (cellIterator.hasNext()) {
-				Cell cell = cellIterator.next();
-				System.out.print(cell.getStringCellValue());
-				System.out.print(" - ");
-
-				data.add(cell.getStringCellValue());
-
-			}
-			System.out.println();
-		}
-
-		workbook.close();
-		inputStream.close();
-
-		return data;
-
-	}
-
-	public static void writeFile(String path, LinkedList<String> data) { // to use you can't have the file opened
-																			// anywhere else
-
-		XSSFWorkbook workbook = new XSSFWorkbook();
-		XSSFSheet sheet = workbook.createSheet("Code Smells");
-
-		Object[][] datatypes = dataFormater(data); // gets the formated data, will probably be passed as an argument
-// in the final version
-
-		int rowNum = 0; // creates the .xlsx file
-		if (sheet.getLastRowNum() != -1)
-			rowNum = sheet.getLastRowNum();
-		System.out.println("Creating excel");
-
-		for (Object[] datatype : datatypes) {
-			Row row = sheet.createRow(rowNum++);
-			int colNum = 0;
-			for (Object field : datatype) {
-				Cell cell = row.createCell(colNum++);
-				if (field instanceof String) {
-					cell.setCellValue((String) field);
-				} else if (field instanceof Integer) {
-					cell.setCellValue((Integer) field);
-				}
-			}
-		}
-
-		try {
-			FileOutputStream outputStream = null;
-			if (path == null) {
-				outputStream = new FileOutputStream(System.getProperty("user.dir") + "/" + "Code_Smells.xlsx");
-			} else
-				outputStream = new FileOutputStream(path);
-
-			workbook.write(outputStream);
-			workbook.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		System.out.println("Done");
-	}
 
 	public static String getFileExtension(String fullName) {
 		String fileName = new File(fullName).getName();
@@ -578,31 +497,6 @@ public class App {
 		return newFileName;
 	}
 
-	public static String[][] dataFormater(LinkedList<String> data) { // formats the data so it can be put in a .xlsx,
-		// receives a LinkedList<String>
-		int numberOfParameters = 11;
 
-		String[][] formatedData = new String[data.size() / numberOfParameters + numberOfParameters][numberOfParameters
-				+ 1]; // creates the array
-		String[] predefinido = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class",
-				"is_God_Class", "LOC_method", "CYCLO_method", "is_Long_Method" }; // 1st line
-
-		int nrLines = data.size() / numberOfParameters; // number of lines the final table will have (does not account
-		// for the 1st)
-		int count = 0; // iterates the linkedList
-
-		for (int i = 1; i < nrLines + 2; i++) { // lines
-			for (int j = 1; j < numberOfParameters + 1; j++) { // columns
-
-				if (i == 1) {
-					formatedData[i - 1][j - 1] = predefinido[i * j - 1]; // writes 1st line
-				} else {
-					formatedData[i - 1][j - 1] = data.get(count); // writes the rest
-					count++;
-				}
-			}
-		}
-		return formatedData;
-	}
 
 }

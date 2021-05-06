@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"ES_2Sem_2021_Grupo_13.code_smell_detection","c":"GI","l":"GI()","url":"%3Cinit%3E()"},{"p":"ES_2Sem_2021_Grupo_13.code_smell_detection","c":"GI","l":"main(String[])","url":"main(java.lang.String[])"},{"p":"ES_2Sem_2021_Grupo_13.code_smell_detection","c":"GI","l":"open()"}]
