@@ -1,14 +1,19 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    
+import java.nio.file.Paths;
+
+import org.junit.jupiter.api.Test;
+
+class AppTest {
+
+	@Test
+	void testingProjectParsing() {
+		projectParser test = new projectParser(Paths.get(System.getProperty("user.dir") + "/" + "mongotest.java"));
+		test.parseJavaFiles();
+
+	}
+	
+	
 }

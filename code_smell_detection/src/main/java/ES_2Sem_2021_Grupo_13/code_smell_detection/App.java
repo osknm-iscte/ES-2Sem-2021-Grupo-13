@@ -1,5 +1,6 @@
 
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -169,7 +170,7 @@ public class App {
 			List<MethodDeclaration> methodList = new ArrayList<MethodDeclaration>();
 			int sumOfLOCtoSubtract = getSumLOCnestedClasses(c);
 			int classLOC = getLOC(LexicalPreservingPrinter.print(c));
-			int classFinalLOC=classLOC-sumOfLOCtoSubtract;
+			int classFinalLOC = classLOC - sumOfLOCtoSubtract;
 			String classFullName = getFullCLassName(c);
 			List<CallableDeclaration> classMethods = filterClassMethods(c);
 			metaDataStats.incrementClassCounter();
@@ -182,16 +183,16 @@ public class App {
 
 	private int getSumLOCnestedClasses(ClassOrInterfaceDeclaration c) {
 		List<ClassOrInterfaceDeclaration> innerClasses = new ArrayList<ClassOrInterfaceDeclaration>();
-		List <Node> classChildren= c.getChildNodes();
-		int LOCcounter=0;
-		for(Node n:classChildren) {
-			if(n instanceof ClassOrInterfaceDeclaration && ((ClassOrInterfaceDeclaration)n).isInterface())
+		List<Node> classChildren = c.getChildNodes();
+		int LOCcounter = 0;
+		for (Node n : classChildren) {
+			if (n instanceof ClassOrInterfaceDeclaration && ((ClassOrInterfaceDeclaration) n).isInterface())
 				continue;
-			else if(n instanceof ClassOrInterfaceDeclaration && !((ClassOrInterfaceDeclaration)n).isInterface()) {
-				 LOCcounter+=getLOC(LexicalPreservingPrinter.print(n));
+			else if (n instanceof ClassOrInterfaceDeclaration && !((ClassOrInterfaceDeclaration) n).isInterface()) {
+				LOCcounter += getLOC(LexicalPreservingPrinter.print(n));
 			}
 		}
-		
+
 		return LOCcounter;
 	}
 
@@ -262,7 +263,9 @@ public class App {
 		}
 		for (CallableDeclaration m : constructorsAndMethods) {
 			LexicalPreservingPrinter.setup(m);
-			int method_LOC = getLOC(LexicalPreservingPrinter.print(m));
+			int method_LOC =0;
+			if(m instanceof MethodDeclaration) method_LOC=getLOC(LexicalPreservingPrinter.print((MethodDeclaration)m));
+			if(m instanceof ConstructorDeclaration) method_LOC=getLOC(LexicalPreservingPrinter.print((ConstructorDeclaration)m));
 			int method_CYCLO = getMethodCYCLO(m);
 			int methodComplexity = getMethodCYCLO(m);
 			complexitySum += methodComplexity;
@@ -317,13 +320,28 @@ public class App {
 	// Extrai linhas de código das classes e dos métodos
 	private int getLOC(String NodeString) {
 
+		//System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		ParserConfiguration configurationTest = new ParserConfiguration();
+		configurationTest.setLexicalPreservationEnabled(true);
+		configurationTest.setAttributeComments(false);
+		JavaParser javaParserTest = new JavaParser(configurationTest);
+		ParseResult<CompilationUnit> compunit2Test = javaParserTest.parse(NodeString);
+		 return compunit2Test.getResult().get().toString().replaceAll("(?m)^[ \t]*\r?\n", "").split("\n").length;
+
+		//System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
+	/*
 		String curr_class = NodeString.replaceAll("(?m)^[ \t]*\r?\n", ""); // retira todas as linhas vazias dentro da
 																			// String
 		int classWithoutEmptyLines = curr_class.split("\n").length;
 		ParserConfiguration configuration = new ParserConfiguration();
 		configuration.setLexicalPreservationEnabled(true);
+		// configuration.setAttributeComments(false);
 		JavaParser javaParser = new JavaParser(configuration);
-		ParseResult<CompilationUnit> compunit2 = javaParser.parse(curr_class);
+		ParseResult<CompilationUnit> compunit2 = javaParser.parse(NodeString);
+		// String finalClass=compunit2.toString().replaceAll("(?m)^[ \t]*\r?\n", "");
+		// return finalClass.split("\n").length;
+
 		CommentsCollection comments = compunit2.getCommentsCollection().get();
 		TreeSet tree = comments.getComments();
 		Iterator itr = tree.iterator();
@@ -332,7 +350,9 @@ public class App {
 			commentLengthCounter = commentLengthCounter + itr.next().toString().split("\n").length;
 
 		}
+
 		return classWithoutEmptyLines - commentLengthCounter;
+		*/
 
 	}
 
@@ -352,8 +372,6 @@ public class App {
 		return cyclo_info.getNodes() + 1;
 
 	}
-
-
 
 	/*
 	 * public static String[][] readyFileForGUI(Path path, String excelDir) {
@@ -446,8 +464,6 @@ public class App {
 		return result;
 	}
 
-
-
 	public static String getFileExtension(String fullName) {
 		String fileName = new File(fullName).getName();
 		int dotIndex = fileName.lastIndexOf('.');
@@ -496,7 +512,5 @@ public class App {
 		}
 		return newFileName;
 	}
-
-
 
 }

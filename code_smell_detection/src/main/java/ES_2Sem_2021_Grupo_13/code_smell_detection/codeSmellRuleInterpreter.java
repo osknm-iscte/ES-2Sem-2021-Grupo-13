@@ -21,6 +21,7 @@ public class codeSmellRuleInterpreter {
 	
 
 	public codeSmellRuleInterpreter(String script) {
+		if(script!=null)
 		this.script=script;
 		
 		
