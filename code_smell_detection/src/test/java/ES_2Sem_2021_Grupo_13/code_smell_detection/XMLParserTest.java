@@ -28,6 +28,7 @@ class XMLParserTest {
 		assertEquals(str, str2);
 		
 		
+		
 	}
 	
 	@Test

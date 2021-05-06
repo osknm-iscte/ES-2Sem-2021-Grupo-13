@@ -112,6 +112,8 @@ public class XMLParser {
       //  rule.appendChild(doc.createTextNode(ruleDefinition));
         
         
+        
+        
 
 	}
 
