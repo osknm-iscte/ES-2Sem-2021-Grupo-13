@@ -206,6 +206,76 @@ public class XLSX_read_write {
 	}
 	
 	
+	
+	public static void confusionMatrixGC (LinkedList<String> data) {//TODO
+		
+		int falso_positivo = 0;
+		int falso_negativo = 0;
+		int verdadeiro_positivo = 0;
+		int verdadeiro_negativo = 0;
+		
+		//compare is_god_class with ??
+		
+		
+		
+		
+		
+	}
+	
+	
+	public static LinkedList<Integer> confusionMatrixLM (LinkedList<String> data) {
+		
+		int falso_positivo = 0;
+		int falso_negativo = 0;
+		int verdadeiro_positivo = 0;
+		int verdadeiro_negativo = 0;
+		
+		int numComparacoes = 0;
+		//compare is_long_method with LOC_method
+		int count = 2;
+		int verif_condition = 0;
+		for(int i = 0; i < data.size(); i++) {
+			
+			if ( i == 7*count ) { //posicao do loc_method (?)
+								
+//				if(data.get(i) == verif_condition && data.get(i+2) == True ) { //True && True
+//					verdadeiro_positivo++;
+//				}
+//				
+//				if(data.get(i) == verif_condition && data.get(i+2) == True ) { //False && True
+//					falso_negativo++;
+//				}
+//				
+//				if(data.get(i) == verif_condition && data.get(i+2) == False ) { //True && False
+//					falso_positivo++;
+//				}
+//				
+//				if(data.get(i) == verif_condition && data.get(i+2) == False ) { //False && False
+//					verdadeiro_negativo++;
+//				}
+				
+				
+				
+			}
+			
+		
+		
+		}
+		
+		LinkedList<Integer> resultados = new LinkedList<Integer>();
+		numComparacoes = verdadeiro_positivo + verdadeiro_negativo + falso_negativo + falso_positivo;
+		resultados.add(verdadeiro_positivo);
+		resultados.add(falso_negativo);
+		resultados.add(falso_positivo);
+		resultados.add(verdadeiro_negativo);
+		resultados.add(numComparacoes);
+		
+		return resultados;
+		
+		
+		
+	}
+	
 
 	
 	
