@@ -118,13 +118,6 @@ public class XLSX_read_write {
 							
 						}
 						
-						
-						
-						
-//						else {
-//							System.out.println("ERRO!!!! types");
-//							System.out.println(cell.getCellType());
-//						}
 					}
 				}
 
@@ -140,7 +133,6 @@ public class XLSX_read_write {
 		
 
 		return data; //returns linkedList
-		
 		
 		
 
