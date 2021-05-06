@@ -100,6 +100,7 @@ public class XLSX_read_write {
 //					System.out.print(cell.getStringCellValue()); //test
 //					System.out.print(" - "); //test
 					
+					
 					if (nextRow.getRowNum() != 0) { //if its not the columns names then print
 						
 						if (cell.getCellType() == CellType.STRING) {
