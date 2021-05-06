@@ -24,6 +24,7 @@ import java.util.LinkedList;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -45,7 +46,7 @@ public class XLSX_read_write {
 
 
 	private static final String FILE_PATH = "C:\\Users\\maria\\Desktop\\App.java"; // file to analyse, debug
-	private static final String WRITEPATH = "C:\\Users\\maria\\Documents\\Code_Smells.xlsx";// will vary between
+	private static final String WRITEPATH = "C:\\Users\\maria\\Downloads\\Code_Smells (2).xlsx";// will vary between
 																							// computers, code_smells.xlsx destination, debug
 	
 	private static final String XMLWRITEPATH = "C:\\Users\\maria\\Documents\\xml.xml";
@@ -96,11 +97,33 @@ public class XLSX_read_write {
 			while (cellIterator.hasNext()) {
 				Cell cell = cellIterator.next(); //goes to the next cell
 				if (cell.getCellType() != CellType.BLANK) { //if the cell is empty don't create a new position on the linkedList
-					System.out.print(cell.getStringCellValue()); //test
-					System.out.print(" - "); //test
+//					System.out.print(cell.getStringCellValue()); //test
+//					System.out.print(" - "); //test
 					
 					if (nextRow.getRowNum() != 0) { //if its not the columns names then print
-						data.add(cell.getStringCellValue()); // adds the value, if not empty, to the linkedList
+						
+						if (cell.getCellType() == CellType.STRING) {
+//						System.out.println("Cell type - " + cell.getCellType());
+							data.add(cell.getStringCellValue()); // adds the value, if not empty, to the linkedList
+						}
+						if (cell.getCellType() == CellType.NUMERIC) {
+							int toAdd = (int) cell.getNumericCellValue();
+							data.add(String.valueOf(toAdd));
+							
+						}
+						if (cell.getCellType() == CellType.BOOLEAN) {
+							boolean toAdd = cell.getBooleanCellValue();
+							data.add(String.valueOf(toAdd));
+							
+						}
+						
+						
+						
+						
+//						else {
+//							System.out.println("ERRO!!!! types");
+//							System.out.println(cell.getCellType());
+//						}
 					}
 				}
 
@@ -304,7 +327,7 @@ public static void main(String[] args) throws IOException {
 			
 
 //			writeFile(WRITEPATH, writedata);
-//			LinkedList <String> dataset = readFile(WRITEPATH);
+			LinkedList <String> dataset = readFile(WRITEPATH);
 //			System.out.println("readfile  - " + readFile(WRITEPATH));
 //			writeFile("C:\\Users\\maria\\Desktop\\after_read.xlsx", dataset);
 			
