@@ -1,4 +1,5 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
+//new
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -60,9 +61,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+
 import org.apache.poi.xssf.usermodel.*;
 import org.graalvm.polyglot.PolyglotException;
 import org.xml.sax.SAXException;
+
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
@@ -411,11 +414,55 @@ public class GI {
 				JTextArea txtArea = (JTextArea) JComponentMap.get("txt_area");
 				JLabel ruleLabel = (JLabel) JComponentMap.get("ruleName");
 				try {
+
 					XMLParser.editRule(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml",
 							ruleLabel.getText(), txtArea.getText());
 				} catch (TransformerException | ParserConfigurationException | SAXException | IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+
+					JFileChooser fileChooser = new JFileChooser(defaultFile);
+					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+					fileChooser.setAcceptAllFileFilterUsed(false);
+					int returnValue = fileChooser.showSaveDialog(null);
+					if (returnValue == JFileChooser.APPROVE_OPTION) {
+						
+						
+						//writes rule to xml file
+						
+						String [] regraTeste = area.getText().split("\\r?\\n");						
+						String path;
+						try {
+							path = fileChooser.getSelectedFile().getCanonicalPath() + ".xml";
+						
+								XML_read_write.formatText(path, regraTeste);
+							} catch (ParserConfigurationException | TransformerException | SAXException
+									| IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+					
+					
+						
+
+//						FileWriter writer = null;
+//						writer = new FileWriter(fileChooser.getSelectedFile().getCanonicalPath() + ".txt");
+//						area.write(writer);
+//						writer.close();
+//
+//						regra = area.getText();
+						
+						
+						
+						
+						try {
+							JOptionPane.showMessageDialog(frame,
+									"Regra guardada em " + fileChooser.getSelectedFile().getCanonicalPath() + ".xml");
+						} catch (HeadlessException | IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					} else
+						JOptionPane.showMessageDialog(frame, "Erro na gravação do ficheiro!");
 				}
 
 			}
