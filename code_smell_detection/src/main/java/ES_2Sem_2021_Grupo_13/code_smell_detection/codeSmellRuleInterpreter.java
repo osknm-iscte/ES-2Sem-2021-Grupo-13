@@ -11,13 +11,11 @@ import org.graalvm.polyglot.PolyglotException;
 
 public class codeSmellRuleInterpreter {
 
-	private boolean long_method=false;
-	private boolean god_class=false;
+	
+	private  static String SCRIPT="if(LOC_method>10)long_method=true; else"
+			+ " long_method=false;";
 	private String script="if(LOC_method>10)long_method=true; else"
 			+ " long_method=false;";
-	private ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-	private ScriptEngine engine = scriptEngineManager.getEngineByName("graal.js");
-	private Bindings bindings = engine.createBindings();
 	
 
 	public codeSmellRuleInterpreter(String script) {
@@ -27,8 +25,12 @@ public class codeSmellRuleInterpreter {
 		
 	}
 	
-	public HashMap<String,Boolean> getCodeSmellFlags(int NOM_class,int LOC_class,int WMC_class,int LOC_method,int CYCLO_method) throws PolyglotException, ScriptException {
-	
+	public static HashMap<String,Boolean> getCodeSmellFlags(String script,int NOM_class,int LOC_class,int WMC_class,int LOC_method,int CYCLO_method) throws PolyglotException, ScriptException {
+		 ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+		 ScriptEngine engine = scriptEngineManager.getEngineByName("graal.js");
+		 Bindings bindings = engine.createBindings();
+		 boolean long_method=false;
+		 boolean god_class=false;
 		HashMap<String,Boolean>flags=new HashMap<String,Boolean>();
 		bindings.put("long_method", long_method);
 		bindings.put("god_class", god_class);
@@ -77,5 +79,23 @@ public class codeSmellRuleInterpreter {
 	}
 	
 	
+	public static String[][] getProjectCodeSmells(String[][] tabularData,String script) throws NumberFormatException, PolyglotException, ScriptException{
+		
+		for(int i=1;i<tabularData.length-1;i++) {
+			if(tabularData[i][0]==null)return tabularData;
+			HashMap<String,Boolean> singleRowFlags=getCodeSmellFlags(script,Integer.parseInt(tabularData[i][4]), Integer.parseInt(tabularData[i][5]),
+										Integer.parseInt(tabularData[i][6]),
+										Integer.parseInt( tabularData[i][8]), Integer.parseInt(tabularData[i][9]));
+			if(singleRowFlags.get("long_method"))tabularData[i][10]="VERDADEIRO";
+			else tabularData[i][10]="FALSO";
+			if(singleRowFlags.get("god_class"))tabularData[i][7]="VERDADEIRO";
+			else tabularData[i][7]="FALSO";
+		}
+		return tabularData;
+		
+	}
 
+	public static String getDefaultRule() {
+		return SCRIPT;
+	}
 }

@@ -161,7 +161,7 @@ public class App {
 
 	public void getMetrics() {
 
-		LexicalPreservingPrinter.setup(compunit);
+	//	LexicalPreservingPrinter.setup(compunit);
 
 		for (ClassOrInterfaceDeclaration c : classes) {
 			if (c.isInterface()) {
@@ -169,7 +169,7 @@ public class App {
 			}
 			List<MethodDeclaration> methodList = new ArrayList<MethodDeclaration>();
 			int sumOfLOCtoSubtract = getSumLOCnestedClasses(c);
-			int classLOC = getLOC(LexicalPreservingPrinter.print(c));
+			int classLOC = getLOC(c.toString());
 			int classFinalLOC = classLOC - sumOfLOCtoSubtract;
 			String classFullName = getFullCLassName(c);
 			List<CallableDeclaration> classMethods = filterClassMethods(c);
@@ -189,7 +189,7 @@ public class App {
 			if (n instanceof ClassOrInterfaceDeclaration && ((ClassOrInterfaceDeclaration) n).isInterface())
 				continue;
 			else if (n instanceof ClassOrInterfaceDeclaration && !((ClassOrInterfaceDeclaration) n).isInterface()) {
-				LOCcounter += getLOC(LexicalPreservingPrinter.print(n));
+				LOCcounter += getLOC(n.toString());
 			}
 		}
 
@@ -262,10 +262,13 @@ public class App {
 
 		}
 		for (CallableDeclaration m : constructorsAndMethods) {
-			LexicalPreservingPrinter.setup(m);
-			int method_LOC =0;
-			if(m instanceof MethodDeclaration) method_LOC=getLOC(LexicalPreservingPrinter.print((MethodDeclaration)m));
-			if(m instanceof ConstructorDeclaration) method_LOC=getLOC(LexicalPreservingPrinter.print((ConstructorDeclaration)m));
+			//LexicalPreservingPrinter.setup(m);
+			int method_LOC = 0;
+			if (m instanceof MethodDeclaration)
+				method_LOC = getLOC(((MethodDeclaration) m).toString());
+			if (m instanceof ConstructorDeclaration)
+				method_LOC = getLOC(((ConstructorDeclaration) m).toString());
+
 			int method_CYCLO = getMethodCYCLO(m);
 			int methodComplexity = getMethodCYCLO(m);
 			complexitySum += methodComplexity;
@@ -320,39 +323,7 @@ public class App {
 	// Extrai linhas de código das classes e dos métodos
 	private int getLOC(String NodeString) {
 
-		//System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		ParserConfiguration configurationTest = new ParserConfiguration();
-		configurationTest.setLexicalPreservationEnabled(true);
-		configurationTest.setAttributeComments(false);
-		JavaParser javaParserTest = new JavaParser(configurationTest);
-		ParseResult<CompilationUnit> compunit2Test = javaParserTest.parse(NodeString);
-		 return compunit2Test.getResult().get().toString().replaceAll("(?m)^[ \t]*\r?\n", "").split("\n").length;
-
-		//System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-
-	/*
-		String curr_class = NodeString.replaceAll("(?m)^[ \t]*\r?\n", ""); // retira todas as linhas vazias dentro da
-																			// String
-		int classWithoutEmptyLines = curr_class.split("\n").length;
-		ParserConfiguration configuration = new ParserConfiguration();
-		configuration.setLexicalPreservationEnabled(true);
-		// configuration.setAttributeComments(false);
-		JavaParser javaParser = new JavaParser(configuration);
-		ParseResult<CompilationUnit> compunit2 = javaParser.parse(NodeString);
-		// String finalClass=compunit2.toString().replaceAll("(?m)^[ \t]*\r?\n", "");
-		// return finalClass.split("\n").length;
-
-		CommentsCollection comments = compunit2.getCommentsCollection().get();
-		TreeSet tree = comments.getComments();
-		Iterator itr = tree.iterator();
-		int commentLengthCounter = 0;
-		while (itr.hasNext()) {
-			commentLengthCounter = commentLengthCounter + itr.next().toString().split("\n").length;
-
-		}
-
-		return classWithoutEmptyLines - commentLengthCounter;
-		*/
+		return NodeString.replaceAll("(?m)^[ \t]*\r?\n", "").split("\n").length;
 
 	}
 
@@ -410,7 +381,7 @@ public class App {
 			System.out.println("------------------------------");
 
 			ParserConfiguration configuration = new ParserConfiguration();
-			configuration.setLexicalPreservationEnabled(true);
+			//configuration.setLexicalPreservationEnabled(true);
 			JavaParser javaParser = new JavaParser(configuration);
 
 			for (String s : paths) {
@@ -436,10 +407,10 @@ public class App {
 			codeSmellRuleInterpreter interpreter = new codeSmellRuleInterpreter(
 					"if(LOC_method>50 && CYCLO_method>10){long_method=true;god_class=true;} else"
 							+ " long_method=false;");
-			HashMap<String, Boolean> testing = interpreter.getCodeSmellFlags(3, 100, 10, 52, 16);
+		//	HashMap<String, Boolean> testing = interpreter.getCodeSmellFlags(3, 100, 10, 52, 16);
 
-			System.out.println("and now: " + testing.get("long_method"));
-			System.out.println("and now: " + testing.get("god_class"));
+		//	System.out.println("and now: " + testing.get("long_method"));
+		//	System.out.println("and now: " + testing.get("god_class"));
 		} catch (IOException | ScriptException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

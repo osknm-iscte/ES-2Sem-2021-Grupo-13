@@ -1,4 +1,5 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
+
 //new
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -29,8 +30,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.script.ScriptException;
 import javax.swing.BorderFactory;
@@ -87,6 +90,8 @@ public class GI {
 	private JPanel cards;
 	private projectParser selectedProjectParser;
 	private HashMap<String, Component> JComponentMap = new HashMap<String, Component>();
+	private String script;
+	private String[][] rows;
 
 	private static class MyDocumentListener implements DocumentListener {
 
@@ -109,29 +114,63 @@ public class GI {
 		}
 	}
 
+	public static HashMap<String, String> getProjectStatsFromExcel(String[][] rowsForTable) {
+		Set<String> packageSet = new HashSet<String>();
+		Set<String> classSet = new HashSet<String>();
+		HashMap<String, String> parsedStats = new HashMap<String, String>();
+		int totalLOCcounter = 0;
+		int methodCounter = 0;
+		for (int i = 0; i < rowsForTable.length; i++) {
+
+			if (rowsForTable[i][1] != null) {
+				methodCounter++;
+				if (!packageSet.contains(rowsForTable[i][1])) {
+					packageSet.add(rowsForTable[i][1]);
+					classSet.add(rowsForTable[i][1] + "." + rowsForTable[i][2]);
+					totalLOCcounter += Integer.parseInt(rowsForTable[i][5]);
+				} else if (!classSet.contains(rowsForTable[i][1] + "." + rowsForTable[i][2])) {
+					classSet.add(rowsForTable[i][1] + "." + rowsForTable[i][2]);
+					totalLOCcounter += Integer.parseInt(rowsForTable[i][5]);
+				}
+
+			} else
+				break;
+		}
+		parsedStats.put("packages", String.valueOf(packageSet.size()));
+		parsedStats.put("classes", String.valueOf(classSet.size()));
+		parsedStats.put("totalLOC", String.valueOf(totalLOCcounter));
+		parsedStats.put("totalMethods", String.valueOf(methodCounter));
+		return parsedStats;
+
+	}
+
 	public GI() {
 
 		metrics_card = new JPanel();
 		scrollPane = new JScrollPane();
-		
+
 		metrics_card.setLayout(new BoxLayout(metrics_card, BoxLayout.Y_AXIS));
-		//metrics_card.setBorder(new EmptyBorder(10, 10, 10, 10));
+		// metrics_card.setBorder(new EmptyBorder(10, 10, 10, 10));
 		JLabel projectStatistics = new JLabel("hello there");
 		metrics_card.add(projectStatistics);
 		JComponentMap.put("projectStatistics", projectStatistics);
 		metrics_card.add(projectStatistics);
 		rules_card = new JPanel();
 		setGuiRuleCard(rules_card);
-				
-		//metrics_card.add(scrollPane);
+
+		// metrics_card.add(scrollPane);
 		cards = new JPanel(new CardLayout());
 		cards.add(metrics_card, METRICS_INFO);
 		cards.add(rules_card, RULE_CONFIG_INFO);
 		addFrameContent();
+		// HashMap<String,String>
+		// rules=XMLParser.getRulesName(System.getProperty("user.dir") + "/" +
+		// "code_smell_rule_definitions.xml");
+		// script=rules.get("default");
+		script = codeSmellRuleInterpreter.getDefaultRule();
 
 	}
-	
-	
+
 	private void setGuiRuleCard(JPanel rules_card2) {
 
 		rules_card2.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -298,16 +337,17 @@ public class GI {
 					StringBuilder labelStats = new StringBuilder();
 					labelStats.append("<html>");
 					labelStats.append(" pacotes: " + projectStats.get("packages"));
-					//labelStats.append("<br>");
-					labelStats.append(" classes: " + projectStats.get("classCounter")+" ");
-					//labelStats.append("<br>");
-					labelStats.append(" metodos: " + projectStats.get("methodCountID")+" ");
-					//labelStats.append("<br>");
-					labelStats.append(" nº total de linhas de codigo das classes: " + projectStats.get("totalLOC")+" ");
+					// labelStats.append("<br>");
+					labelStats.append(" classes: " + projectStats.get("classCounter") + " ");
+					// labelStats.append("<br>");
+					labelStats.append(" metodos: " + projectStats.get("methodCountID") + " ");
+					// labelStats.append("<br>");
+					labelStats
+							.append(" nº total de linhas de codigo das classes: " + projectStats.get("totalLOC") + " ");
 					projectStats.get("</html>");
 					((JLabel) JComponentMap.get("projectStatistics")).setText(labelStats.toString());
 
-					String[][] rows = selectedProjectParser.getParsedFilesTabularData();
+					rows = selectedProjectParser.getParsedFilesTabularData();
 					// separação entre a linha com os nomes das colunas
 					// e as linhas com os dados
 
@@ -358,8 +398,8 @@ public class GI {
 							&& getFileExtension(fileChooser.getSelectedFile().getName()).equals("xlsx")) {
 
 						excelFile = fileChooser.getSelectedFile();
-					
-						String[][] rows = XLSX_read_write.readyExcelForGUI(excelFile.getAbsolutePath());
+
+						rows = XLSX_read_write.readyExcelForGUI(excelFile.getAbsolutePath());
 						// separação entre a linha com os nomes das colunas
 						// e as linhas com os dados
 
@@ -373,12 +413,28 @@ public class GI {
 							scrollPane.remove(jt);
 							metrics_card.remove(scrollPane);
 						}
+						getProjectStatsFromExcel(rowsForTable);
 
 						jt = new JTable(rowsForTable, column) {
 							public boolean editCellAt(int row, int column, java.util.EventObject e) {
 								return false;
 							}
 						};
+
+						HashMap<String, String> parsedProjectStats = getProjectStatsFromExcel(rowsForTable);
+						StringBuilder labelStats = new StringBuilder();
+						labelStats.append("<html>");
+						labelStats.append(" pacotes: " + parsedProjectStats.get("packages"));
+						// labelStats.append("<br>");
+						labelStats.append(" classes: " + parsedProjectStats.get("classes") + " ");
+						// labelStats.append("<br>");
+						labelStats.append(" metodos: " + parsedProjectStats.get("totalMethods") + " ");
+						// labelStats.append("<br>");
+						labelStats.append(" nº total de linhas de codigo das classes: "
+								+ parsedProjectStats.get("totalLOC") + " ");
+						labelStats.append("</html>");
+
+						((JLabel) JComponentMap.get("projectStatistics")).setText(labelStats.toString());
 
 						scrollPane = new JScrollPane(jt);
 						metrics_card.add(scrollPane);
@@ -425,24 +481,19 @@ public class GI {
 					fileChooser.setAcceptAllFileFilterUsed(false);
 					int returnValue = fileChooser.showSaveDialog(null);
 					if (returnValue == JFileChooser.APPROVE_OPTION) {
-						
-						
-						//writes rule to xml file
-						
-						String [] regraTeste = area.getText().split("\\r?\\n");						
+
+						// writes rule to xml file
+
+						String[] regraTeste = area.getText().split("\\r?\\n");
 						String path;
 						try {
 							path = fileChooser.getSelectedFile().getCanonicalPath() + ".xml";
-						
-								XML_read_write.formatText(path, regraTeste);
-							} catch (ParserConfigurationException | TransformerException | SAXException
-									| IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-					
-					
-						
+
+							XML_read_write.formatText(path, regraTeste);
+						} catch (ParserConfigurationException | TransformerException | SAXException | IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 
 //						FileWriter writer = null;
 //						writer = new FileWriter(fileChooser.getSelectedFile().getCanonicalPath() + ".txt");
@@ -450,10 +501,7 @@ public class GI {
 //						writer.close();
 //
 //						regra = area.getText();
-						
-						
-						
-						
+
 						try {
 							JOptionPane.showMessageDialog(frame,
 									"Regra guardada em " + fileChooser.getSelectedFile().getCanonicalPath() + ".xml");
@@ -676,14 +724,14 @@ public class GI {
 							File file = new File(fileDictName);
 
 							if (file.exists() == false) {
-								
-								LinkedList<String> dataset = new LinkedList<String>(); //TODO
-								
+
+								LinkedList<String> dataset = new LinkedList<String>(); // TODO
+
 								dataset.add("a");
 								dataset.add("b");
-								
+
 								XLSX_read_write.writeFile(file.getAbsolutePath(), dataset);
-								
+
 //								workbook = new XSSFWorkbook();
 //								XSSFSheet exampleSheet = workbook.createSheet("1");
 //								XSSFRow firstRow = exampleSheet.createRow(1);
@@ -741,12 +789,13 @@ public class GI {
 
 	private void detectCodeSmells() throws NumberFormatException, PolyglotException, ScriptException {
 		assert selectedProjectParser != null : "não foi feito parsing do projeto";
-		String[][] tabularDataWithCodeSmells = selectedProjectParser.getProjectCodeSmells();
-		String[] column = Arrays.copyOf(tabularDataWithCodeSmells[0], tabularDataWithCodeSmells[0].length - 1);
-		String[][] rowsForTable = new String[tabularDataWithCodeSmells.length][tabularDataWithCodeSmells[0].length - 1];
 
-		for (int i = 1; i < tabularDataWithCodeSmells.length; i++) {
-			rowsForTable[i - 1] = Arrays.copyOf(tabularDataWithCodeSmells[i], tabularDataWithCodeSmells[i].length - 1);
+		String[][] dataWithCodeSmellFlags=codeSmellRuleInterpreter.getProjectCodeSmells(rows, script);
+		String[] column = Arrays.copyOf(rows[0], rows[0].length - 1);
+		String[][] rowsForTable = new String[rows.length][rows[0].length - 1];
+
+		for (int i = 1; i < rows.length; i++) {
+			rowsForTable[i - 1] = Arrays.copyOf(rows[i], rows[i].length - 1);
 		}
 		if (scrollPane != null && jt != null) {
 			scrollPane.remove(jt);
