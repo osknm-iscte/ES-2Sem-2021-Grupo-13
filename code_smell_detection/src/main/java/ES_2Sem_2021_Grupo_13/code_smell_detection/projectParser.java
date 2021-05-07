@@ -52,9 +52,11 @@ public class projectParser {
 				App app = new App(compunit, metaDataStats);
 				app.getMetrics();
 				parsedFilesUnits.add(app);
+				parsedFilesStatsList.addAll(app.getParsedFileStats());
 
 			}
 			System.out.println("size is: " + parsedFilesUnits.size());
+			
 
 		} catch (IOException e) {
 
@@ -64,15 +66,13 @@ public class projectParser {
 	}
 
 	public void writeParsedFilesToExcel() {
-		int i = 0;
-		for (App p : parsedFilesUnits) {
-			i++;
-			parsedFilesStatsList.addAll(p.getParsedFileStats());
-			// System.out.println(p.getParsedFileStats());
-			// System.out.println(i+" "+p.getParsedFileStats().get(1)+"
-			// "+p.getParsedFileStats().get(2));
+		//int i = 0;
+		//for (App p : parsedFilesUnits) {
+		//	i++;
+		//	parsedFilesStatsList.addAll(p.getParsedFileStats());
+			
 
-		}
+		//}
 
 		XLSX_read_write.writeFile(null, parsedFilesStatsList);
 

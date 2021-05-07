@@ -20,7 +20,7 @@ class codeSmellRuleInterpreterTest {
 			mock.put("long_method", true);
 			mock.put("god_class", false);
 
-			HashMap<String, Boolean> testing = ruleTest.getCodeSmellFlags(3, 100, 10, 52, 16);
+			HashMap<String, Boolean> testing = ruleTest.getCodeSmellFlags("if(LOC_method>50 && CYCLO_method>10)long_method=true; else" + " long_method=false;",3, 100, 10, 52, 16);
 			assertTrue(mock.equals(testing));
 		} catch (ScriptException e) {
 			// TODO Auto-generated catch block
@@ -36,7 +36,7 @@ class codeSmellRuleInterpreterTest {
 					// sintaxe das regras mal escrito
 					"ifLOC_method>50 && CYCLO_method>10)long_method=true; else" + " long_method=false;");
 
-			HashMap<String, Boolean> testing = ruleTest.getCodeSmellFlags(3, 100, 10, 52, 16);
+			HashMap<String, Boolean> testing = ruleTest.getCodeSmellFlags("ifLOC_method>50 && CYCLO_method>10)long_method=true; else" + " long_method=false;",3, 100, 10, 52, 16);
 
 		});
 	}

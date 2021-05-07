@@ -154,7 +154,28 @@ public class GI {
 		JLabel projectStatistics = new JLabel("hello there");
 		metrics_card.add(projectStatistics);
 		JComponentMap.put("projectStatistics", projectStatistics);
-		metrics_card.add(projectStatistics);
+
+		JLabel currentRule = new JLabel("regra de detecção de code smells usada: default");
+		JComponentMap.put("currentRule", currentRule);
+		metrics_card.add(currentRule);
+		JButton detectCodeSmells = new JButton("Detectar Code Smells");
+		detectCodeSmells.setVisible(false);
+		detectCodeSmells.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+
+				try {
+					detectCodeSmells();
+
+				} catch (NumberFormatException | PolyglotException | ScriptException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+
+		});
+		JComponentMap.put("detectCodeSmells", detectCodeSmells);
+		metrics_card.add(detectCodeSmells);
 		rules_card = new JPanel();
 		setGuiRuleCard(rules_card);
 
@@ -326,7 +347,7 @@ public class GI {
 				JFileChooser fileChooser = new JFileChooser(defaultFile);
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				fileChooser.setAcceptAllFileFilterUsed(false);
-				int returnValue = fileChooser.showSaveDialog(null);
+				int returnValue = fileChooser.showOpenDialog(null);
 				if (returnValue == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile().isDirectory()) {
 					javaFile = fileChooser.getSelectedFile();
 					Path path = Paths.get(javaFile.getAbsolutePath());
@@ -377,6 +398,7 @@ public class GI {
 					metrics_card.repaint();
 					CardLayout cl = (CardLayout) (cards.getLayout());
 					cl.show(cards, METRICS_INFO);
+					((JButton) JComponentMap.get("detectCodeSmells")).setVisible(true);
 
 				} else {
 					JOptionPane.showMessageDialog(frame, "Não foi encontrado a pasta!");
@@ -390,9 +412,10 @@ public class GI {
 			public void actionPerformed(ActionEvent ae) {
 
 				try {
+
 					JFileChooser fileChooser = new JFileChooser(defaultFile);
 					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					int returnValue = fileChooser.showSaveDialog(null);
+					int returnValue = fileChooser.showOpenDialog(null);
 
 					if (returnValue == JFileChooser.APPROVE_OPTION
 							&& getFileExtension(fileChooser.getSelectedFile().getName()).equals("xlsx")) {
@@ -442,7 +465,7 @@ public class GI {
 						metrics_card.add(scrollPane);
 						metrics_card.revalidate();
 						metrics_card.repaint();
-
+						((JButton) JComponentMap.get("detectCodeSmells")).setVisible(true);
 						JOptionPane.showMessageDialog(frame,
 								"Foi importado o ficheiro " + fileChooser.getSelectedFile().getCanonicalPath());
 					} else {
@@ -577,6 +600,7 @@ public class GI {
 		});
 
 		JMenuItem m22 = new JMenuItem("Editar regra");
+
 		m22.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 
@@ -601,6 +625,27 @@ public class GI {
 				txt_area.getDocument()
 						.addDocumentListener(new MyDocumentListener((JButton) JComponentMap.get("saveRules")));
 				((JButton) JComponentMap.get("saveRules")).setEnabled(false);
+
+			}
+		});
+
+		JMenuItem selectedRuleToUse = new JMenuItem("Escolher regra a usar");
+		selectedRuleToUse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+
+				HashMap<String, String> rulesAndDefinitions = XMLParser
+						.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml");
+				Object[] possibilities = rulesAndDefinitions.keySet().toArray();
+				String selectedRuleName = (String) JOptionPane.showInputDialog(frame, "Escolha uma regra:\n",
+
+						"Regras de code smells", JOptionPane.PLAIN_MESSAGE,
+
+						null, possibilities, "ham");
+
+				if (selectedRuleName != null) {
+					script = rulesAndDefinitions.get(selectedRuleName);
+					((JLabel) JComponentMap.get("currentRule")).setText("regra usada: " + selectedRuleName);
+				}
 
 			}
 		});
@@ -686,84 +731,52 @@ public class GI {
 		m2.add(m21);
 		m2.add(m22);
 		m2.add(m23);
+		m2.add(selectedRuleToUse);
 
-		JButton send = new JButton("Detectar Code Smells");
-		send.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-
-				try {
-					detectCodeSmells();
-
-				} catch (NumberFormatException | PolyglotException | ScriptException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-
-		});
-
-		JButton gravarExcel = new JButton("Gravar Excel");
-		gravarExcel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				try {
-					if (excelFile != null) {
-						XSSFWorkbook workbook;
-
-						String fileDictName = ".xlsx";
-						JFileChooser fileChooser = new JFileChooser();
-						FileFilter filter = new FileNameExtensionFilter("Files", ".xlsx");
-						fileChooser.addChoosableFileFilter(filter);
-						fileChooser.setAcceptAllFileFilterUsed(false);
-						fileChooser.setSelectedFile(new File(fileDictName));
-						int userSelection = fileChooser.showSaveDialog(fileChooser);
-
-						if (userSelection == JFileChooser.APPROVE_OPTION) {
-
-							fileDictName = fileChooser.getSelectedFile().getAbsolutePath();
-							File file = new File(fileDictName);
-
-							if (file.exists() == false) {
-
-								LinkedList<String> dataset = new LinkedList<String>(); // TODO
-
-								dataset.add("a");
-								dataset.add("b");
-
-								XLSX_read_write.writeFile(file.getAbsolutePath(), dataset);
-
-//								workbook = new XSSFWorkbook();
-//								XSSFSheet exampleSheet = workbook.createSheet("1");
-//								XSSFRow firstRow = exampleSheet.createRow(1);
-//								XSSFCell cell = firstRow.createCell(0);
-//								cell.setCellValue("value");
-//
-//								FileOutputStream out = new FileOutputStream(file);
-//								workbook.write(out);
-
-							} else {
-								JOptionPane.showMessageDialog(frame, "Excel já existe!");
-							}
-							JOptionPane.showMessageDialog(frame,
-									"Excel guardado em " + fileChooser.getSelectedFile().getCanonicalPath());
-
-						}
-					} else {
-						JOptionPane.showMessageDialog(frame, "Excel em falta!");
-					}
-
-				} catch (HeadlessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(frame, "Erro IO na gravação do ficheiro!");
-					e.printStackTrace();
-				}
-			}
-		});
-
-		panel.add(gravarExcel);
-		panel.add(send);
+		/*
+		 * JButton gravarExcel = new JButton("Gravar Excel");
+		 * gravarExcel.addActionListener(new ActionListener() { public void
+		 * actionPerformed(ActionEvent ae) { try { if (excelFile != null) { XSSFWorkbook
+		 * workbook;
+		 * 
+		 * String fileDictName = ".xlsx"; JFileChooser fileChooser = new JFileChooser();
+		 * FileFilter filter = new FileNameExtensionFilter("Files", ".xlsx");
+		 * fileChooser.addChoosableFileFilter(filter);
+		 * fileChooser.setAcceptAllFileFilterUsed(false);
+		 * fileChooser.setSelectedFile(new File(fileDictName)); int userSelection =
+		 * fileChooser.showSaveDialog(fileChooser);
+		 * 
+		 * if (userSelection == JFileChooser.APPROVE_OPTION) {
+		 * 
+		 * fileDictName = fileChooser.getSelectedFile().getAbsolutePath(); File file =
+		 * new File(fileDictName);
+		 * 
+		 * if (file.exists() == false) {
+		 * 
+		 * LinkedList<String> dataset = new LinkedList<String>(); // TODO
+		 * 
+		 * dataset.add("a"); dataset.add("b");
+		 * 
+		 * XLSX_read_write.writeFile(file.getAbsolutePath(), dataset);
+		 * 
+		 * // workbook = new XSSFWorkbook(); // XSSFSheet exampleSheet =
+		 * workbook.createSheet("1"); // XSSFRow firstRow = exampleSheet.createRow(1);
+		 * // XSSFCell cell = firstRow.createCell(0); // cell.setCellValue("value"); //
+		 * // FileOutputStream out = new FileOutputStream(file); // workbook.write(out);
+		 * 
+		 * } else { JOptionPane.showMessageDialog(frame, "Excel já existe!"); }
+		 * JOptionPane.showMessageDialog(frame, "Excel guardado em " +
+		 * fileChooser.getSelectedFile().getCanonicalPath());
+		 * 
+		 * } } else { JOptionPane.showMessageDialog(frame, "Excel em falta!"); }
+		 * 
+		 * } catch (HeadlessException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); } catch (IOException e) {
+		 * JOptionPane.showMessageDialog(frame, "Erro IO na gravação do ficheiro!");
+		 * e.printStackTrace(); } } });
+		 */
+		// panel.add(gravarExcel);
+		// panel.add(send);
 
 		// frame.getContentPane().add(BorderLayout.SOUTH, panel);
 		// frame.getContentPane().add(BorderLayout.NORTH, mb);
@@ -790,7 +803,7 @@ public class GI {
 	private void detectCodeSmells() throws NumberFormatException, PolyglotException, ScriptException {
 		assert selectedProjectParser != null : "não foi feito parsing do projeto";
 
-		String[][] dataWithCodeSmellFlags=codeSmellRuleInterpreter.getProjectCodeSmells(rows, script);
+		String[][] dataWithCodeSmellFlags = codeSmellRuleInterpreter.getProjectCodeSmells(rows, script);
 		String[] column = Arrays.copyOf(rows[0], rows[0].length - 1);
 		String[][] rowsForTable = new String[rows.length][rows[0].length - 1];
 

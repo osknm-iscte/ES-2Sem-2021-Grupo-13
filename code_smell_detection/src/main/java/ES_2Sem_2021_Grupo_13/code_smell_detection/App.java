@@ -65,8 +65,6 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
  */
 public class App {
 
-	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/";
-	private static final String FILE_PATH_TEST = "C:/Users/omely/OneDrive/Ambiente de Trabalho/DataMining/testCYCLO.java";
 	private static final String WRITEPATH = null;
 	private LinkedList<String> realTest = new LinkedList<String>();
 	private CompilationUnit compunit;
@@ -127,17 +125,18 @@ public class App {
 
 		}
 	}
-
-	private static class methodCollector extends VoidVisitorAdapter<List<MethodDeclaration>> {
-
-		@Override
-		public void visit(MethodDeclaration visitedMethod, List<MethodDeclaration> methodList) {
-
-			super.visit(visitedMethod, methodList);
-			methodList.add(visitedMethod);
-
-		}
-	}
+	/*
+	 * private static class methodCollector extends
+	 * VoidVisitorAdapter<List<MethodDeclaration>> {
+	 * 
+	 * @Override public void visit(MethodDeclaration visitedMethod,
+	 * List<MethodDeclaration> methodList) {
+	 * 
+	 * super.visit(visitedMethod, methodList); methodList.add(visitedMethod);
+	 * 
+	 * } }
+	 * 
+	 */
 
 	public App(CompilationUnit compunit, projectParserMediator metaDataStats) {
 
@@ -161,7 +160,7 @@ public class App {
 
 	public void getMetrics() {
 
-	//	LexicalPreservingPrinter.setup(compunit);
+		// LexicalPreservingPrinter.setup(compunit);
 
 		for (ClassOrInterfaceDeclaration c : classes) {
 			if (c.isInterface()) {
@@ -262,7 +261,7 @@ public class App {
 
 		}
 		for (CallableDeclaration m : constructorsAndMethods) {
-			//LexicalPreservingPrinter.setup(m);
+			// LexicalPreservingPrinter.setup(m);
 			int method_LOC = 0;
 			if (m instanceof MethodDeclaration)
 				method_LOC = getLOC(((MethodDeclaration) m).toString());
@@ -341,80 +340,6 @@ public class App {
 		// System.out.println(" nodes: " + cyclo_info.getNodes()+1);
 
 		return cyclo_info.getNodes() + 1;
-
-	}
-
-	/*
-	 * public static String[][] readyFileForGUI(Path path, String excelDir) {
-	 * List<String> paths; LinkedList<String> list=new LinkedList<String>(); try {
-	 * paths = listFiles(path);
-	 * 
-	 * System.out.println("------------------------------"); paths.forEach(x ->
-	 * System.out.println(x)); System.out.println("------------------------------");
-	 * ParserConfiguration configuration = new ParserConfiguration();
-	 * configuration.setLexicalPreservationEnabled(true); JavaParser javaParser =
-	 * new JavaParser(configuration); ArrayList<App>appList=new ArrayList<App>();
-	 * for (String s : paths) { CompilationUnit compunit = javaParser.parse(new
-	 * File(s)).getResult().get(); App app = new App(compunit); appList.add(app);
-	 * app.getMetrics();
-	 * 
-	 * }
-	 * 
-	 * for(App p: appList) { list.addAll(p.getParsedFileStats()); } for(String
-	 * s:list) { System.out.println(s); }
-	 * 
-	 * writeFile(null, list, excelDir); } catch (IOException e) { // TODO
-	 * Auto-generated catch block e.printStackTrace(); }
-	 * 
-	 * String[][] rows=dataFormater(list);
-	 * 
-	 * return rows; }
-	 */
-
-	public static void main(String[] args) {
-
-		try {
-			Path path = Paths.get("C:\\Users\\omely\\OneDrive\\Ambiente de Trabalho\\EI-2021");
-			List<String> paths = listFiles(path);
-			System.out.println("------------------------------");
-			paths.forEach(x -> System.out.println(x));
-			System.out.println("------------------------------");
-
-			ParserConfiguration configuration = new ParserConfiguration();
-			//configuration.setLexicalPreservationEnabled(true);
-			JavaParser javaParser = new JavaParser(configuration);
-
-			for (String s : paths) {
-				CompilationUnit compunit = javaParser.parse(new File(s)).getResult().get();
-				App app = new App(compunit, new projectParserMediator());
-				app.getMetrics();
-
-			}
-
-			boolean long_method = false;
-			boolean long_class = false;
-			int LOC_method = 60;
-			int CYCLO_method = 40;
-			ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-			ScriptEngine engine = scriptEngineManager.getEngineByName("graal.js");
-			Bindings bindings = engine.createBindings();
-			bindings.put("long_method", long_method);
-			bindings.put("long_class", long_class);
-			bindings.put("LOC_method", LOC_method);
-			bindings.put("CYCLO_method", CYCLO_method);
-			String script = "if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false";
-			Object obj = engine.eval(script, bindings);
-			codeSmellRuleInterpreter interpreter = new codeSmellRuleInterpreter(
-					"if(LOC_method>50 && CYCLO_method>10){long_method=true;god_class=true;} else"
-							+ " long_method=false;");
-		//	HashMap<String, Boolean> testing = interpreter.getCodeSmellFlags(3, 100, 10, 52, 16);
-
-		//	System.out.println("and now: " + testing.get("long_method"));
-		//	System.out.println("and now: " + testing.get("god_class"));
-		} catch (IOException | ScriptException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 	}
 
