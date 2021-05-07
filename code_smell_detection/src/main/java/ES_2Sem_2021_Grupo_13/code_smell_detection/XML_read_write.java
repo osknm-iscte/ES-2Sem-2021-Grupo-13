@@ -35,6 +35,12 @@ public class XML_read_write {
 	
 	private final static String XMLWRITEPATH = "C:\\Users\\maria\\Documents\\xml_k.xml"; //has to be changed between computers	
 	
+	public static void toTestWriteXMLFile(String path, String ruleName, String NOM_Class_Parameters, String LOC_Class_Parameters, String WMC_class_Parameters, String is_God_Class_Parameters, String LOC_method_Parameters, String CYCLO_method_Parameters, String is_Long_Method_Parameters ) throws ParserConfigurationException, TransformerException, FileNotFoundException, SAXException, IOException { 
+
+		writeXMLFile(path, ruleName, NOM_Class_Parameters, LOC_Class_Parameters, WMC_class_Parameters, is_Long_Method_Parameters, LOC_method_Parameters, CYCLO_method_Parameters, is_Long_Method_Parameters);
+	}
+	
+	
 	private static void writeXMLFile(String path, String ruleName, String NOM_Class_Parameters, String LOC_Class_Parameters, String WMC_class_Parameters, String is_God_Class_Parameters, String LOC_method_Parameters, String CYCLO_method_Parameters, String is_Long_Method_Parameters ) throws ParserConfigurationException, TransformerException, FileNotFoundException, SAXException, IOException { 
 
 		
@@ -123,6 +129,14 @@ public class XML_read_write {
 		
 	}
 	
+	
+	public static LinkedList<String> toTestreadXMLFile(String path) {
+		
+		return readXMLFile(path);
+		
+	}
+	
+	
 	private static LinkedList<String> readXMLFile(String path) {
 		LinkedList<String> dataFromXML = new LinkedList<String>();
 		
@@ -189,7 +203,9 @@ public class XML_read_write {
 		
     }
 	
-	
+	public static void toTestjustRules(LinkedList<String> dataFromXML) { //takes out empty spaces, to print on gui
+		justRules(dataFromXML);
+	}
 	
 	private static LinkedList<String> justRules(LinkedList<String> dataFromXML) { //takes out empty spaces, to print on gui
 		
@@ -367,7 +383,7 @@ public class XML_read_write {
 	
 
 
-	public static void main(String[] args) {
+/*	public static void main(String[] args) {
 		
 			try {
 //				writeXMLFile(XMLWRITEPATH, "ruleName","1", "2", "3", "" , "5", "6", "7");	
@@ -402,7 +418,7 @@ public class XML_read_write {
 
 	}
 
-
+*/
 
 
 		
