@@ -56,10 +56,11 @@ public class XLSX_read_write {
 
 	}
 
-	private static LinkedList<String> readFile(String path) throws IOException { // reads the .xlsx file and puts its
-																					// content on a linkedList
+	
+private static LinkedList<String> readFile(String path) throws IOException { //reads the .xlsx file and puts its content on a linkedList
+		
+		//if you want a String [][] use the dataFormater(returnOfThisMethod) 
 
-		// if you want a String [][] use the dataFormater(returnOfThisMethod)
 
 		LinkedList<String> data = new LinkedList<String>();
 
@@ -75,14 +76,31 @@ public class XLSX_read_write {
 			Iterator<Cell> cellIterator = nextRow.cellIterator(); // will read the cells in each row
 
 			while (cellIterator.hasNext()) {
-				Cell cell = cellIterator.next(); // goes to the next cell
-				if (cell.getCellType() != CellType.BLANK) { // if the cell is empty don't create a new position on the
-															// linkedList
-					System.out.print(cell.getStringCellValue()); // test
-					System.out.print(" - "); // test
 
-					if (nextRow.getRowNum() != 0) { // if its not the columns names then print
-						data.add(cell.getStringCellValue()); // adds the value, if not empty, to the linkedList
+				Cell cell = cellIterator.next(); //goes to the next cell
+				if (cell.getCellType() != CellType.BLANK) { //if the cell is empty don't create a new position on the linkedList
+//					System.out.print(cell.getStringCellValue()); //test
+//					System.out.print(" - "); //test
+					
+					
+					if (nextRow.getRowNum() != 0) { //if its not the columns names then print
+						
+						if (cell.getCellType() == CellType.STRING) {
+//						System.out.println("Cell type - " + cell.getCellType());
+							data.add(cell.getStringCellValue()); // adds the value, if not empty, to the linkedList
+						}
+						if (cell.getCellType() == CellType.NUMERIC) {
+							int toAdd = (int) cell.getNumericCellValue();
+							data.add(String.valueOf(toAdd));
+							
+						}
+						if (cell.getCellType() == CellType.BOOLEAN) {
+							boolean toAdd = cell.getBooleanCellValue();
+							data.add(String.valueOf(toAdd));
+							
+						}
+						
+
 					}
 				}
 
