@@ -5,19 +5,19 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 
 public class methodComplexityInfo {
 
-	private int edges = 0;
-	private int nodes = 0;
-	private CallableDeclaration m;
+	private static int edges = 0;
+	private static int nodes = 0;
+	private static CallableDeclaration m;
 
-	public int getEdges() {
+	public static int getEdges() {
 		return edges;
 	}
 
-	public void updateEdges(int edges) {
-		this.edges = this.edges+edges;
+	public static void updateEdges(int newEdges) {
+		edges = edges+newEdges;
 	}
 
-	public int getNodes() {
+	public static int getNodes() {
 		return nodes;
 	}
 
@@ -27,11 +27,11 @@ public class methodComplexityInfo {
 
 	}
 
-	public CallableDeclaration getMethod() {
+	public static CallableDeclaration getMethod() {
 		return m;
 	}
-	public void updateNodes(int nodes) {
-		this.nodes = this.nodes+nodes;
+	public static void updateNodes(int newNodes) {
+		nodes = nodes+newNodes;
 	}
 
 }
