@@ -2,34 +2,41 @@ package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
 public class projectParserMediator {
 
-	private int methodCountID=0;
-	private int classCounter=0;
-	private int totalLOC=0;
-	private int numberOfPackages=0;
-	public int getMethodCountID() {
+	private static int methodCountID = 0;
+	private static int classCounter = 0;
+	private static int totalLOC = 0;
+	private static int numberOfPackages = 0;
+
+	public static int getMethodCountID() {
 		return methodCountID;
 	}
-	public void incrementMethodCountID() {
-		this.methodCountID =this.methodCountID+ 1;
+
+	public static void incrementMethodCountID() {
+		methodCountID = methodCountID + 1;
 	}
-	public int getClassCounter() {
+
+	public static int getClassCounter() {
 		return classCounter;
 	}
-	public void incrementClassCounter() {
-		this.classCounter = this.classCounter+1;
+
+	public static void incrementClassCounter() {
+		classCounter = classCounter + 1;
 	}
-	public int getTotalLOC() {
+
+	public static int getTotalLOC() {
 		return totalLOC;
 	}
-	public void addTotalLOC(int totalLOC) {
-		this.totalLOC = this.totalLOC+totalLOC;
+
+	public static void addTotalLOC(int newTotalLOC) {
+		totalLOC = totalLOC + newTotalLOC;
 	}
-	public int getNumberOfPackages() {
+
+	public static int getNumberOfPackages() {
 		return numberOfPackages;
 	}
-	public void incrementNumberOfPackages() {
-		this.numberOfPackages = this.numberOfPackages+1;
+
+	public static void incrementNumberOfPackages() {
+		numberOfPackages = numberOfPackages + 1;
 	}
-	
-	
+
 }

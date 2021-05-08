@@ -1,42 +1,59 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Test;
 
-import org.junit.jupiter.api.Test;
-
-class projectParserMediatorTest {
-
-	projectParserMediator classTest= new projectParserMediator();
-	
-	
+public class projectParserMediatorTest {
 	
 	@Test
-	public void getMethodCountIDTest() {
-		int test=classTest.getMethodCountID();
-		test=2;
-		assertEquals(test, 2);
+	public void testgetMethodCountID() {//TODO
+		
+		projectParserMediator.getMethodCountID();
+		
 	}
-	
 	
 	@Test
-	public void getClassCounterTest() {
+	public void testincrementMethodCount() {//TODO
 		
-		int test =classTest.getClassCounter();
-		test=0;
-		assertEquals(test,0);
-	
-	}
-	
-	@Test 
-	public void getTotalLOCTest()  {
-		
-		int test =classTest.getTotalLOC();
-		test=2;
-		assertEquals(test,2);
-	
+		projectParserMediator.incrementMethodCountID();
+				
 		
 	}
 	
+	@Test
+	public void getClassCounter() {//TODO
+		
+		projectParserMediator.getClassCounter();
+		
+		
+	}
 	
+	@Test
+	public void testincrementClassCounter() {//TODO
+		projectParserMediator.incrementClassCounter();
+		
+	}
+	
+	@Test
+	public void testgetTotalLOC() {//TODO
+		
+		projectParserMediator.getTotalLOC();
+		int totalLoc = 2;
+		projectParserMediator.addTotalLOC(totalLoc);
+		
+	}
+	
+
+	@Test
+	public void testgetNumberOfPackages() {//TODO
+		projectParserMediator.getNumberOfPackages();
+		
+	}
+	
+	@Test
+	public void testincrementNumberOfPackages() {//TODO
+		projectParserMediator.incrementNumberOfPackages();
+		
+	}
 
 }
+

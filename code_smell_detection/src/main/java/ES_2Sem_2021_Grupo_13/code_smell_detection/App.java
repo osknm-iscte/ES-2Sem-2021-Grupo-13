@@ -1,5 +1,6 @@
 
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -64,8 +65,6 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
  */
 public class App {
 
-	private static final String FILE_PATH = "C:/Users/omely/OneDrive/Ambiente de Trabalho/EI-2021/";
-	private static final String FILE_PATH_TEST = "C:/Users/omely/OneDrive/Ambiente de Trabalho/DataMining/testCYCLO.java";
 	private static final String WRITEPATH = null;
 	private LinkedList<String> realTest = new LinkedList<String>();
 	private CompilationUnit compunit;
@@ -126,17 +125,18 @@ public class App {
 
 		}
 	}
-
-	private static class methodCollector extends VoidVisitorAdapter<List<MethodDeclaration>> {
-
-		@Override
-		public void visit(MethodDeclaration visitedMethod, List<MethodDeclaration> methodList) {
-
-			super.visit(visitedMethod, methodList);
-			methodList.add(visitedMethod);
-
-		}
-	}
+	/*
+	 * private static class methodCollector extends
+	 * VoidVisitorAdapter<List<MethodDeclaration>> {
+	 * 
+	 * @Override public void visit(MethodDeclaration visitedMethod,
+	 * List<MethodDeclaration> methodList) {
+	 * 
+	 * super.visit(visitedMethod, methodList); methodList.add(visitedMethod);
+	 * 
+	 * } }
+	 * 
+	 */
 
 	public App(CompilationUnit compunit, projectParserMediator metaDataStats) {
 
@@ -160,7 +160,7 @@ public class App {
 
 	public void getMetrics() {
 
-		LexicalPreservingPrinter.setup(compunit);
+		// LexicalPreservingPrinter.setup(compunit);
 
 		for (ClassOrInterfaceDeclaration c : classes) {
 			if (c.isInterface()) {
@@ -168,8 +168,8 @@ public class App {
 			}
 			List<MethodDeclaration> methodList = new ArrayList<MethodDeclaration>();
 			int sumOfLOCtoSubtract = getSumLOCnestedClasses(c);
-			int classLOC = getLOC(LexicalPreservingPrinter.print(c));
-			int classFinalLOC=classLOC-sumOfLOCtoSubtract;
+			int classLOC = getLOC(c.toString());
+			int classFinalLOC = classLOC - sumOfLOCtoSubtract;
 			String classFullName = getFullCLassName(c);
 			List<CallableDeclaration> classMethods = filterClassMethods(c);
 			metaDataStats.incrementClassCounter();
@@ -182,16 +182,16 @@ public class App {
 
 	private int getSumLOCnestedClasses(ClassOrInterfaceDeclaration c) {
 		List<ClassOrInterfaceDeclaration> innerClasses = new ArrayList<ClassOrInterfaceDeclaration>();
-		List <Node> classChildren= c.getChildNodes();
-		int LOCcounter=0;
-		for(Node n:classChildren) {
-			if(n instanceof ClassOrInterfaceDeclaration && ((ClassOrInterfaceDeclaration)n).isInterface())
+		List<Node> classChildren = c.getChildNodes();
+		int LOCcounter = 0;
+		for (Node n : classChildren) {
+			if (n instanceof ClassOrInterfaceDeclaration && ((ClassOrInterfaceDeclaration) n).isInterface())
 				continue;
-			else if(n instanceof ClassOrInterfaceDeclaration && !((ClassOrInterfaceDeclaration)n).isInterface()) {
-				 LOCcounter+=getLOC(LexicalPreservingPrinter.print(n));
+			else if (n instanceof ClassOrInterfaceDeclaration && !((ClassOrInterfaceDeclaration) n).isInterface()) {
+				LOCcounter += getLOC(n.toString());
 			}
 		}
-		
+
 		return LOCcounter;
 	}
 
@@ -261,8 +261,13 @@ public class App {
 
 		}
 		for (CallableDeclaration m : constructorsAndMethods) {
-			LexicalPreservingPrinter.setup(m);
-			int method_LOC = getLOC(LexicalPreservingPrinter.print(m));
+			// LexicalPreservingPrinter.setup(m);
+			int method_LOC = 0;
+			if (m instanceof MethodDeclaration)
+				method_LOC = getLOC(((MethodDeclaration) m).toString());
+			if (m instanceof ConstructorDeclaration)
+				method_LOC = getLOC(((ConstructorDeclaration) m).toString());
+
 			int method_CYCLO = getMethodCYCLO(m);
 			int methodComplexity = getMethodCYCLO(m);
 			complexitySum += methodComplexity;
@@ -317,22 +322,7 @@ public class App {
 	// Extrai linhas de código das classes e dos métodos
 	private int getLOC(String NodeString) {
 
-		String curr_class = NodeString.replaceAll("(?m)^[ \t]*\r?\n", ""); // retira todas as linhas vazias dentro da
-																			// String
-		int classWithoutEmptyLines = curr_class.split("\n").length;
-		ParserConfiguration configuration = new ParserConfiguration();
-		configuration.setLexicalPreservationEnabled(true);
-		JavaParser javaParser = new JavaParser(configuration);
-		ParseResult<CompilationUnit> compunit2 = javaParser.parse(curr_class);
-		CommentsCollection comments = compunit2.getCommentsCollection().get();
-		TreeSet tree = comments.getComments();
-		Iterator itr = tree.iterator();
-		int commentLengthCounter = 0;
-		while (itr.hasNext()) {
-			commentLengthCounter = commentLengthCounter + itr.next().toString().split("\n").length;
-
-		}
-		return classWithoutEmptyLines - commentLengthCounter;
+		return NodeString.replaceAll("(?m)^[ \t]*\r?\n", "").split("\n").length;
 
 	}
 
@@ -353,82 +343,6 @@ public class App {
 
 	}
 
-
-
-	/*
-	 * public static String[][] readyFileForGUI(Path path, String excelDir) {
-	 * List<String> paths; LinkedList<String> list=new LinkedList<String>(); try {
-	 * paths = listFiles(path);
-	 * 
-	 * System.out.println("------------------------------"); paths.forEach(x ->
-	 * System.out.println(x)); System.out.println("------------------------------");
-	 * ParserConfiguration configuration = new ParserConfiguration();
-	 * configuration.setLexicalPreservationEnabled(true); JavaParser javaParser =
-	 * new JavaParser(configuration); ArrayList<App>appList=new ArrayList<App>();
-	 * for (String s : paths) { CompilationUnit compunit = javaParser.parse(new
-	 * File(s)).getResult().get(); App app = new App(compunit); appList.add(app);
-	 * app.getMetrics();
-	 * 
-	 * }
-	 * 
-	 * for(App p: appList) { list.addAll(p.getParsedFileStats()); } for(String
-	 * s:list) { System.out.println(s); }
-	 * 
-	 * writeFile(null, list, excelDir); } catch (IOException e) { // TODO
-	 * Auto-generated catch block e.printStackTrace(); }
-	 * 
-	 * String[][] rows=dataFormater(list);
-	 * 
-	 * return rows; }
-	 */
-
-	public static void main(String[] args) {
-
-		try {
-			Path path = Paths.get("C:\\Users\\omely\\OneDrive\\Ambiente de Trabalho\\EI-2021");
-			List<String> paths = listFiles(path);
-			System.out.println("------------------------------");
-			paths.forEach(x -> System.out.println(x));
-			System.out.println("------------------------------");
-
-			ParserConfiguration configuration = new ParserConfiguration();
-			configuration.setLexicalPreservationEnabled(true);
-			JavaParser javaParser = new JavaParser(configuration);
-
-			for (String s : paths) {
-				CompilationUnit compunit = javaParser.parse(new File(s)).getResult().get();
-				App app = new App(compunit, new projectParserMediator());
-				app.getMetrics();
-
-			}
-
-			boolean long_method = false;
-			boolean long_class = false;
-			int LOC_method = 60;
-			int CYCLO_method = 40;
-			ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-			ScriptEngine engine = scriptEngineManager.getEngineByName("graal.js");
-			Bindings bindings = engine.createBindings();
-			bindings.put("long_method", long_method);
-			bindings.put("long_class", long_class);
-			bindings.put("LOC_method", LOC_method);
-			bindings.put("CYCLO_method", CYCLO_method);
-			String script = "if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false";
-			Object obj = engine.eval(script, bindings);
-			codeSmellRuleInterpreter interpreter = new codeSmellRuleInterpreter(
-					"if(LOC_method>50 && CYCLO_method>10){long_method=true;god_class=true;} else"
-							+ " long_method=false;");
-			HashMap<String, Boolean> testing = interpreter.getCodeSmellFlags(3, 100, 10, 52, 16);
-
-			System.out.println("and now: " + testing.get("long_method"));
-			System.out.println("and now: " + testing.get("god_class"));
-		} catch (IOException | ScriptException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
 	public static List<String> listFiles(Path path) throws IOException {
 
 		if (!Files.isDirectory(path)) {
@@ -445,8 +359,6 @@ public class App {
 
 		return result;
 	}
-
-
 
 	public static String getFileExtension(String fullName) {
 		String fileName = new File(fullName).getName();
@@ -496,7 +408,5 @@ public class App {
 		}
 		return newFileName;
 	}
-
-
 
 }

@@ -24,6 +24,7 @@ import java.util.LinkedList;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -45,7 +46,7 @@ public class XLSX_read_write {
 
 
 	private static final String FILE_PATH = "C:\\Users\\maria\\Desktop\\App.java"; // file to analyse, debug
-	private static final String WRITEPATH = "C:\\Users\\maria\\Documents\\Code_Smells.xlsx";// will vary between
+	private static final String WRITEPATH = "C:\\Users\\maria\\Downloads\\Code_Smells (2).xlsx";// will vary between
 																							// computers, code_smells.xlsx destination, debug
 	
 	private static final String XMLWRITEPATH = "C:\\Users\\maria\\Documents\\xml.xml";
@@ -54,7 +55,7 @@ public class XLSX_read_write {
 	private int countMethod = 1; //will count the number of methods, did not work inside the method writeOutClassMetrics 
 
 	private static LinkedList<String> writedata = new LinkedList<String>(); //will be used in writeOutClassMetrics to store the data to write to the .xlsx file
-	private static final int NUMBERPARAMETERS = 11;
+	private static final int NUMBERPARAMETERS = 9;
 	private CompilationUnit compunit;
 	private List<MethodDeclaration> methods;
 	private List<ClassOrInterfaceDeclaration> classes;
@@ -70,11 +71,15 @@ public class XLSX_read_write {
 
 
 
+	public static void toTestreadFile(String path) throws IOException { 
+	
+		readFile(path);
+	
+	}
 
 
 
-
-private static LinkedList<String> readFile(String path) throws IOException { //reads the .xlsx file and puts its content on a linkedList
+	private static LinkedList<String> readFile(String path) throws IOException { //reads the .xlsx file and puts its content on a linkedList
 		
 		//if you want a String [][] use the dataFormater(returnOfThisMethod) 
 
@@ -152,7 +157,7 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 
 
 
-	static void writeFile(String path, LinkedList<String> dataset) { // to use you can't have the file opened anywhere else or else it will give errors on the console
+	public static void writeFile(String path, LinkedList<String> dataset) { // to use you can't have the file opened anywhere else or else it will give errors on the console
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Code Smells"); // creates the .xlsx file
@@ -176,7 +181,7 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 		}
 
 		try {
-			FileOutputStream outputStream = new FileOutputStream(System.getProperty("user.dir") + "/" + "Code_Smells.xlsx");
+			FileOutputStream outputStream = new FileOutputStream(path);
 			workbook.write(outputStream);//writes file
 			workbook.close();//closes file
 		} catch (FileNotFoundException e) {
@@ -200,9 +205,8 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 
 		String[][] formatedData = new String[data.size() / NUMBERPARAMETERS + NUMBERPARAMETERS][NUMBERPARAMETERS
 				+ 1]; // creates the array with the size required
-		String[] predefinido = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class", "is_God_Class",
-				
-				"LOC_method", "CYCLO_method","is_long_method" }; // 1st line, titles
+		String[] predefinido = { "MethodID", "package", "class", "method", "NOM_class", "LOC_class", "WMC_class",
+				"LOC_method", "CYCLO_method" }; // 1st line, titles
 
 		int nrLines = data.size() / NUMBERPARAMETERS; // number of lines the final table will have (does not account
 														// for the 1st)
@@ -224,110 +228,165 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 	
 	
 	
-	public static void confusionMatrixGC (LinkedList<String> data) {//TODO
-		
-		int falso_positivo = 0;
-		int falso_negativo = 0;
-		int verdadeiro_positivo = 0;
-		int verdadeiro_negativo = 0;
-		
-		//compare is_god_class with ??
-		
-		
-		
-		
-		
-	}
-	
-	
-	public static LinkedList<Integer> confusionMatrixLM (LinkedList<String> data) {
-		
-		int falso_positivo = 0;
-		int falso_negativo = 0;
-		int verdadeiro_positivo = 0;
-		int verdadeiro_negativo = 0;
-		
-		int numComparacoes = 0;
-		//compare is_long_method with LOC_method
-		int count = 2;
-		int verif_condition = 0;
-		for(int i = 0; i < data.size(); i++) {
-			
-			if ( i == 7*count ) { //posicao do loc_method (?)
-								
-//				if(data.get(i) == verif_condition && data.get(i+2) == True ) { //True && True
+//	public static LinkedList<Integer> confusionMatrixGC (LinkedList<String> data) {//TODO
+//		
+//		int falso_positivo = 0;
+//		int falso_negativo = 0;
+//		int verdadeiro_positivo = 0;
+//		int verdadeiro_negativo = 0;
+//		
+//		//God Class code smell envolves WMC_Class and NOM_Class
+//
+//		int count = 2;
+//		
+//		int positionGodClassColumn = 9;
+//		
+//		int positionOf1stColumnRequired = 4; //NOM_Class position
+//		int nrColumnsUntil2ndColumnRequired = 2; //WMC_Class position
+//		
+//		
+//		for(int i = 0; i < data.size(); i++) {
+//			
+//			if ( i == positionOf1stColumnRequired*count ) { //posicao do loc_method (?)
+//								
+//				if(/* se data.get(i) verificar a condicao &&*/ Boolean.parseBoolean(data.get(i+positionGodClassColumn-positionOf1stColumnRequired)) == true ) { //True && True
 //					verdadeiro_positivo++;
 //				}
 //				
-//				if(data.get(i) == verif_condition && data.get(i+2) == True ) { //False && True
+//				if(/* se data.get(i) NAO verificar a condicao &&*/ Boolean.parseBoolean(data.get(i+positionGodClassColumn-positionOf1stColumnRequired)) == true ) { //False && True
 //					falso_negativo++;
 //				}
 //				
-//				if(data.get(i) == verif_condition && data.get(i+2) == False ) { //True && False
+//				if(/* se data.get(i) verificar a condicao &&*/ Boolean.parseBoolean(data.get(i+positionGodClassColumn-positionOf1stColumnRequired)) == false ) { //True && False
 //					falso_positivo++;
 //				}
 //				
-//				if(data.get(i) == verif_condition && data.get(i+2) == False ) { //False && False
+//				if(/* se data.get(i) NAO verificar a condicao &&*/ Boolean.parseBoolean(data.get(i+positionGodClassColumn-positionOf1stColumnRequired)) == false ) { //False && False
 //					verdadeiro_negativo++;
 //				}
-				
-				
-				
-			}
-			
-		
-		
-		}
-		
-		LinkedList<Integer> resultados = new LinkedList<Integer>();
-		numComparacoes = verdadeiro_positivo + verdadeiro_negativo + falso_negativo + falso_positivo;
-		resultados.add(verdadeiro_positivo);
-		resultados.add(falso_negativo);
-		resultados.add(falso_positivo);
-		resultados.add(verdadeiro_negativo);
-		resultados.add(numComparacoes);
-		
-		return resultados;
-		
-		
-		
-	}
+//				
+//				if(i % positionOf1stColumnRequired == 0) {
+//					count++;
+//				}
+//				
+//				
+//			}
+//			
+//		
+//		
+//		}
+//		
+//		LinkedList<Integer> resultados = new LinkedList<Integer>();
+//		int numComparacoes = verdadeiro_positivo + verdadeiro_negativo + falso_negativo + falso_positivo;
+//		resultados.add(verdadeiro_positivo);
+//		resultados.add(falso_negativo);
+//		resultados.add(falso_positivo);
+//		resultados.add(verdadeiro_negativo);
+//		resultados.add(numComparacoes);
+//		
+//		return resultados;	
+//		
+//		
+//		
+//		
+//	}
+//	
+//	
+//	public static LinkedList<Integer> confusionMatrixLM (LinkedList<String> data) { //TODO
+//		
+//		int falso_positivo = 0;
+//		int falso_negativo = 0;
+//		int verdadeiro_positivo = 0;
+//		int verdadeiro_negativo = 0;
+//		
+//		//Long Method code smell envolves LOC_Method and CYCLO_Method
+//		int count = 2;
+//		
+//		int positionLongMethodColumn = 10;
+//		
+//		int positionOf1stColumnRequired = 7; //LOC_Method position
+//		int nrColumnsUntil2ndColumnRequired = 1; //CYCLO_Method position
+//		
+//		
+//		for(int i = 0; i < data.size(); i++) {
+//			
+//			if ( i == positionOf1stColumnRequired*count ) { //posicao do loc_method (?)
+//								
+//				if(/* se data.get(i) verificar a condicao &&*/ Boolean.parseBoolean(data.get(i+positionLongMethodColumn-positionOf1stColumnRequired)) == true ) { //True && True
+//					verdadeiro_positivo++;
+//				}
+//				
+//				if(/* se data.get(i) NAO verificar a condicao &&*/ Boolean.parseBoolean(data.get(i+positionLongMethodColumn-positionOf1stColumnRequired)) == true ) { //False && True
+//					falso_negativo++;
+//				}
+//				
+//				if(/* se data.get(i) verificar a condicao &&*/ Boolean.parseBoolean(data.get(i+positionLongMethodColumn-positionOf1stColumnRequired)) == false ) { //True && False
+//					falso_positivo++;
+//				}
+//				
+//				if(/* se data.get(i) NAO verificar a condicao &&*/ Boolean.parseBoolean(data.get(i+positionLongMethodColumn-positionOf1stColumnRequired)) == false ) { //False && False
+//					verdadeiro_negativo++;
+//				}
+//				
+//				if(i % positionOf1stColumnRequired == 0) {
+//					count++;
+//				}
+//				
+//				
+//			}
+//			
+//		
+//		
+//		}
+//		
+//		LinkedList<Integer> resultados = new LinkedList<Integer>();
+//		int numComparacoes = verdadeiro_positivo + verdadeiro_negativo + falso_negativo + falso_positivo;
+//		resultados.add(verdadeiro_positivo);
+//		resultados.add(falso_negativo);
+//		resultados.add(falso_positivo);
+//		resultados.add(verdadeiro_negativo);
+//		resultados.add(numComparacoes);
+//		
+//		return resultados;		
+//		
+//	}
 	
 
-public static void main(String[] args) throws IOException {
+	
+	
+	
+	
 	
 
-
-		try {
-
-			ParserConfiguration configuration = new ParserConfiguration();
-			configuration.setLexicalPreservationEnabled(true);
-			JavaParser javaParser = new JavaParser(configuration);
-			CompilationUnit compunit = javaParser.parse(new File(FILE_PATH)).getResult().get();
-
-			List<MethodDeclaration> methods = compunit.findAll(MethodDeclaration.class);
-
-			for (MethodDeclaration m : methods) {
-				System.out.println(m.getDeclarationAsString(true, true, true));
-
-			}
-
-			
-
-//			writeFile(WRITEPATH, writedata);
-//			LinkedList <String> dataset = readFile(WRITEPATH);
-//			System.out.println("readfile  - " + readFile(WRITEPATH));
-//			writeFile("C:\\Users\\maria\\Desktop\\after_read.xlsx", dataset);
-			
-			
-
-
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
+//public static void main(String[] args) throws IOException {
+//	
+//
+//
+//		try {
+//
+//			ParserConfiguration configuration = new ParserConfiguration();
+//			configuration.setLexicalPreservationEnabled(true);
+//			JavaParser javaParser = new JavaParser(configuration);
+//			CompilationUnit compunit = javaParser.parse(new File(FILE_PATH)).getResult().get();
+//
+//			List<MethodDeclaration> methods = compunit.findAll(MethodDeclaration.class);
+//
+//			for (MethodDeclaration m : methods) {
+//				System.out.println(m.getDeclarationAsString(true, true, true));
+//
+//			}
+//
+//			
+//
+////			writeFile(WRITEPATH, writedata);
+////			LinkedList <String> dataset = readFile(WRITEPATH);
+////			System.out.println("readfile  - " + readFile(WRITEPATH));
+////			writeFile("C:\\Users\\maria\\Desktop\\after_read.xlsx", dataset);
+//			} catch (FileNotFoundException e) {
+////			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//	}
 
 }

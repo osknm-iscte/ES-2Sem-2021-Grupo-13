@@ -26,6 +26,7 @@ if(LOC_class&gt;10)god_class=true;
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -34,4 +35,6 @@ if(LOC_class&gt;10)god_class=true;
 
 
 
+=======
+>>>>>>> 76a4b502405ca76f88aa96cdba949f262d07a089
 </codeSmellRulesDefinitions>
