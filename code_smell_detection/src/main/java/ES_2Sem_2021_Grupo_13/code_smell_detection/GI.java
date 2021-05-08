@@ -40,6 +40,8 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -77,9 +79,6 @@ public class GI {
 
 	private File javaFile;
 	private File excelFile;
-	private File excelDir;
-	private String regra;
-	private boolean predefinido = false;
 	private JFrame frame;
 	private final String METRICS_INFO = "Card with metrics";
 	private final String RULE_CONFIG_INFO = "Card with rules";
@@ -92,6 +91,12 @@ public class GI {
 	private HashMap<String, Component> JComponentMap = new HashMap<String, Component>();
 	private String script;
 	private String[][] rows;
+	private JDialog confusionMatrixGodClass = new JDialog(frame, "Matriz de confusao: is_god_class");
+	private JDialog confusionMatrixLongMethod = new JDialog(frame, "Matriz de confusao: long_Method");
+	private JPanel mainLongMethod;
+	private JPanel mainGodClass;
+	private Box[] box = new Box[4];
+	private Box[] box2 = new Box[4];
 
 	private static class MyDocumentListener implements DocumentListener {
 
@@ -167,7 +172,6 @@ public class GI {
 					detectCodeSmells();
 
 				} catch (NumberFormatException | PolyglotException | ScriptException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -254,11 +258,10 @@ public class GI {
 				JTextArea txtArea = (JTextArea) JComponentMap.get("txt_area");
 				JLabel ruleLabel = (JLabel) JComponentMap.get("ruleName");
 				try {
-					XMLParser.editRule(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml",
-							ruleLabel.getText(), txtArea.getText());
+					XMLParser.editRule(
+							System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml", ruleLabel.getText(), txtArea.getText());
 					((JButton) JComponentMap.get("saveRules")).setEnabled(false);
 				} catch (TransformerException | ParserConfigurationException | SAXException | IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -270,7 +273,6 @@ public class GI {
 		JComponentMap.put("saveRules", saveRules);
 
 		test.setPreferredSize(new Dimension(10, 10));
-		JLabel test2 = new JLabel();
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 0.3;
@@ -372,30 +374,31 @@ public class GI {
 					// separação entre a linha com os nomes das colunas
 					// e as linhas com os dados
 
-					String[] column = Arrays.copyOf(rows[0], rows[0].length - 1);
-					String[][] rowsForTable = new String[rows.length][rows[0].length];
-
-					for (int i = 1; i < rows.length; i++) {
-						rowsForTable[i - 1] = Arrays.copyOf(rows[i], rows[i].length - 1);
-					}
-					if (scrollPane != null && jt != null) {
-						scrollPane.remove(jt);
-						metrics_card.remove(scrollPane);
-					}
-
-					jt = new JTable(rowsForTable, column) {
-						public boolean editCellAt(int row, int column, java.util.EventObject e) {
-							return false;
-						}
-					};
-					jt.setFillsViewportHeight(true);
-
-					scrollPane = new JScrollPane(jt);
-					metrics_card.add(scrollPane);
-					jt.setFillsViewportHeight(true);
-					metrics_card.add(scrollPane);
-					metrics_card.revalidate();
-					metrics_card.repaint();
+					tableFabric();
+//					STRING[] COLUMN = ARRAYS.COPYOF(ROWS[0], ROWS[0].LENGTH - 1);
+//					STRING[][] ROWSFORTABLE = NEW STRING[ROWS.LENGTH][ROWS[0].LENGTH];
+//
+//					FOR (INT I = 1; I < ROWS.LENGTH; I++) {
+//						ROWSFORTABLE[I - 1] = ARRAYS.COPYOF(ROWS[I], ROWS[I].LENGTH - 1);
+//					}
+//					IF (SCROLLPANE != NULL && JT != NULL) {
+//						SCROLLPANE.REMOVE(JT);
+//						METRICS_CARD.REMOVE(SCROLLPANE);
+//					}
+//
+//					JT = NEW JTABLE(ROWSFORTABLE, COLUMN) {
+//						PUBLIC BOOLEAN EDITCELLAT(INT ROW, INT COLUMN, JAVA.UTIL.EVENTOBJECT E) {
+//							RETURN FALSE;
+//						}
+//					};
+//					JT.SETFILLSVIEWPORTHEIGHT(TRUE);
+//
+//					SCROLLPANE = NEW JSCROLLPANE(JT);
+//					METRICS_CARD.ADD(SCROLLPANE);
+//					JT.SETFILLSVIEWPORTHEIGHT(TRUE);
+//					METRICS_CARD.ADD(SCROLLPANE);
+//					METRICS_CARD.REVALIDATE();
+//					METRICS_CARD.REPAINT();
 					CardLayout cl = (CardLayout) (cards.getLayout());
 					cl.show(cards, METRICS_INFO);
 					((JButton) JComponentMap.get("detectCodeSmells")).setVisible(true);
@@ -428,21 +431,21 @@ public class GI {
 
 						String[] column = Arrays.copyOf(rows[0], rows[0].length - 1);
 						String[][] rowsForTable = new String[rows.length][rows[0].length];
-
+//
 						for (int i = 1; i < rows.length; i++) {
 							rowsForTable[i - 1] = Arrays.copyOf(rows[i], rows[i].length - 1);
 						}
-						if (scrollPane != null && jt != null) {
-							scrollPane.remove(jt);
-							metrics_card.remove(scrollPane);
-						}
+//						if (scrollPane != null && jt != null) {
+//							scrollPane.remove(jt);
+//							metrics_card.remove(scrollPane);
+//						}
 						getProjectStatsFromExcel(rowsForTable);
 
-						jt = new JTable(rowsForTable, column) {
-							public boolean editCellAt(int row, int column, java.util.EventObject e) {
-								return false;
-							}
-						};
+//						jt = new JTable(rowsForTable, column) {
+//							public boolean editCellAt(int row, int column, java.util.EventObject e) {
+//								return false;
+//							}
+//						};
 
 						HashMap<String, String> parsedProjectStats = getProjectStatsFromExcel(rowsForTable);
 						StringBuilder labelStats = new StringBuilder();
@@ -459,15 +462,16 @@ public class GI {
 
 						((JLabel) JComponentMap.get("projectStatistics")).setText(labelStats.toString());
 
-						scrollPane = new JScrollPane(jt);
-						metrics_card.add(scrollPane);
-						jt.setFillsViewportHeight(true);
-						metrics_card.add(scrollPane);
-						metrics_card.revalidate();
-						metrics_card.repaint();
+//						scrollPane = new JScrollPane(jt);
+//						metrics_card.add(scrollPane);
+//						jt.setFillsViewportHeight(true);
+//						metrics_card.add(scrollPane);
+//						metrics_card.revalidate();
+//						metrics_card.repaint();
+						tableFabric();
 						((JButton) JComponentMap.get("detectCodeSmells")).setVisible(true);
-						JOptionPane.showMessageDialog(frame,
-								"Foi importado o ficheiro " + fileChooser.getSelectedFile().getCanonicalPath());
+						JOptionPane.
+						showMessageDialog(frame, "Foi importado o ficheiro " + fileChooser.getSelectedFile().getCanonicalPath());
 					} else {
 						JOptionPane.showMessageDialog(frame, "Não foi encontrado o ficheiro. Deve ter formato xlsx");
 					}
@@ -494,10 +498,9 @@ public class GI {
 				JLabel ruleLabel = (JLabel) JComponentMap.get("ruleName");
 				try {
 
-					XMLParser.editRule(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml",
-							ruleLabel.getText(), txtArea.getText());
+					XMLParser.editRule(
+							System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml", ruleLabel.getText(), txtArea.getText());
 				} catch (TransformerException | ParserConfigurationException | SAXException | IOException e) {
-					// TODO Auto-generated catch block
 
 					JFileChooser fileChooser = new JFileChooser(defaultFile);
 					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -529,7 +532,6 @@ public class GI {
 							JOptionPane.showMessageDialog(frame,
 									"Regra guardada em " + fileChooser.getSelectedFile().getCanonicalPath() + ".xml");
 						} catch (HeadlessException | IOException e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 					} else
@@ -539,27 +541,10 @@ public class GI {
 			}
 		});
 
-		final JToggleButton regraPredefinida = new JToggleButton("Regra Predefinida: OFF");
-		ItemListener itemListener = new ItemListener() {
-			public void itemStateChanged(ItemEvent itemEvent) {
-
-				int state = itemEvent.getStateChange();
-				if (state == ItemEvent.SELECTED) {
-					predefinido = true;
-					regraPredefinida.setText("Regra Predefinida: ON");
-				} else {
-					predefinido = false;
-					regraPredefinida.setText("Regra Predefinida: OFF");
-				}
-			}
-		};
-		regraPredefinida.addItemListener(itemListener);
-
 		JPanel panelTextMetricas = new JPanel();
 		JPanel panelBotoesMetricas = new JPanel();
 		panelTextMetricas.add(area);
 		panelBotoesMetricas.add(gravarRegra);
-		panelBotoesMetricas.add(regraPredefinida);
 		regrasFrame.getContentPane().add(BorderLayout.WEST, panelTextMetricas);
 		regrasFrame.getContentPane().add(BorderLayout.SOUTH, panelBotoesMetricas);
 
@@ -570,18 +555,16 @@ public class GI {
 
 				// regrasFrame.setVisible(true);
 
-				String selectedRuleName = (String) JOptionPane.showInputDialog(frame, "Nome  da regra:\n",
-
-						"Regras de code smells", JOptionPane.PLAIN_MESSAGE, null, null, "ham");
+				String selectedRuleName = (String) JOptionPane.
+						showInputDialog(frame, "Nome  da regra:\n", "Regras de code smells", JOptionPane.PLAIN_MESSAGE, null, null, "ham");
 				if (selectedRuleName.isEmpty())
 					return;
 
 				System.out.println(selectedRuleName);
 				try {
-					XMLParser.createRule(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml",
-							UUID.randomUUID().toString(), selectedRuleName, null);
+					XMLParser.createRule (
+							System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml", UUID.randomUUID().toString(), selectedRuleName, null);
 				} catch (ParserConfigurationException | SAXException | IOException | TransformerException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				// regrasFrame.setVisible(true);
@@ -607,11 +590,8 @@ public class GI {
 				HashMap<String, String> rulesAndDefinitions = XMLParser
 						.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml");
 				Object[] possibilities = rulesAndDefinitions.keySet().toArray();
-				String selectedRuleName = (String) JOptionPane.showInputDialog(frame, "Escolha uma regra:\n",
-
-						"Regras de code smells", JOptionPane.PLAIN_MESSAGE,
-
-						null, possibilities, "ham");
+				String selectedRuleName = (String) JOptionPane.
+						showInputDialog(frame, "Escolha uma regra:\n", "Regras de code smells", JOptionPane.PLAIN_MESSAGE, null, possibilities, "ham");
 
 				System.out.println(selectedRuleName);
 				// regrasFrame.setVisible(true);
@@ -636,11 +616,8 @@ public class GI {
 				HashMap<String, String> rulesAndDefinitions = XMLParser
 						.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml");
 				Object[] possibilities = rulesAndDefinitions.keySet().toArray();
-				String selectedRuleName = (String) JOptionPane.showInputDialog(frame, "Escolha uma regra:\n",
-
-						"Regras de code smells", JOptionPane.PLAIN_MESSAGE,
-
-						null, possibilities, "ham");
+				String selectedRuleName = (String) JOptionPane.
+						showInputDialog(frame, "Escolha uma regra:\n", "Regras de code smells", JOptionPane.PLAIN_MESSAGE, null, possibilities, "ham");
 
 				if (selectedRuleName != null) {
 					script = rulesAndDefinitions.get(selectedRuleName);
@@ -649,80 +626,75 @@ public class GI {
 
 			}
 		});
+		
+		
+		fillMatrixes();
 
-		JPanel main, center, left, top;
-		JDialog confusionMatrix = new JDialog(frame, "Matriz de confusao");
-		confusionMatrix.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		Box[] box = new Box[4];
-
-		main = new JPanel(new BorderLayout());
-
-		center = new JPanel();
-		center.setLayout(new GridLayout(2, 2));
-
-		for (int i = 0; i < 4; i++) {
-			box[i] = new Box(BoxLayout.X_AXIS);
-			box[i].setBorder(BorderFactory.createLineBorder(Color.black));
-			box[i].add(new JLabel("      " + (i + 1) + "      "));
-			box[i].setOpaque(true);
-			if (i == 1 || i == 2)
-				box[i].setBackground(Color.orange);
-			else
-				box[i].setBackground(Color.green);
-			center.add(box[i]);
-
-		}
-
-		left = new JPanel();
-		left.setLayout(new GridLayout(2, 1));
-		JLabel predictedPositive = new JLabel("Predicted: Positive");
-		JLabel predictedNegative = new JLabel("Predicted: Negative");
-		left.add(predictedPositive);
-		left.add(predictedNegative);
-
-		top = new JPanel();
-		top.setLayout(new GridLayout(1, 2));
-		JLabel actualPositive = new JLabel("Predicted: Positive");
-		JLabel actualNegative = new JLabel("Predicted: Negative");
-		JLabel matrixLabel = new JLabel("Confusion Matrix");
-		top.add(matrixLabel);
-		top.add(actualPositive);
-		top.add(actualNegative);
-
-		main.add(center, BorderLayout.CENTER);
-		main.add(left, BorderLayout.WEST);
-		main.add(top, BorderLayout.NORTH);
-		confusionMatrix.add(main);
-		confusionMatrix.getContentPane();
-
-		confusionMatrix.setBounds(50, 50, 500, 500);
-		confusionMatrix.setResizable(false);
-		confusionMatrix.setLocationRelativeTo(null);
-
-		JMenuItem m23 = new JMenuItem("Comparar Code Smells"); // TODO
+		JMenuItem m23 = new JMenuItem("Comparar Code Smells");
 		m23.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 
-				HashMap<String, String> rulesAndDefinitions = XMLParser
-						.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml");
+				HashMap<String, String> rulesAndDefinitions = XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml");
 				Object[] possibilities = rulesAndDefinitions.keySet().toArray();
-				String selectedRuleName = (String) JOptionPane.showInputDialog(frame, "Escolha uma regra:\n",
-
-						"Regras de code smells", JOptionPane.PLAIN_MESSAGE,
-
-						null, possibilities, "ham");
-
-				System.out.println(selectedRuleName);
-
-				try {
-					detectCodeSmells();
-					compararCodeSmells();
-					confusionMatrix.setVisible(true);
-				} catch (NumberFormatException | PolyglotException | ScriptException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				
+				String[] tempArray = new String[possibilities.length];
+				
+				for(int i=0; i<possibilities.length; i++) {
+					tempArray[i] = (String) possibilities[i];
 				}
+				
 
+				JComboBox<Object> possibilitiesBox = new JComboBox<Object>(tempArray);
+				
+				JCheckBox long_Method = new JCheckBox("Long_Method");
+				JCheckBox is_God_Class = new JCheckBox("Is_God_Class");
+				
+				Object[] message = {"Regra: ", possibilitiesBox, long_Method, is_God_Class};
+				
+//				String selectedRuleName = 
+//						(String) JOptionPane.showInputDialog(frame, "Escolha uma regra:\n", "Regras de code smells", JOptionPane.PLAIN_MESSAGE, null, possibilities, "ham");
+				int option = JOptionPane.showConfirmDialog(null, message, "Escolha a regra e 1 ou mais Code Smells", JOptionPane.OK_CANCEL_OPTION);
+				if (option == JOptionPane.OK_OPTION) {
+					
+				if(long_Method.isSelected() || is_God_Class.isSelected()) {
+					
+					int chooser = !long_Method.isSelected() ? 7 : !is_God_Class.isSelected() ? 10 : 0;	
+					JLabel[] labelArray = new JLabel[4];
+					
+					int finalI = (chooser>0) ? 1 : 2;
+					if(chooser==0) chooser=7;
+					try {		
+						for(int i=0; i<finalI; i++) {		
+						
+							
+							JLabel tPl = new JLabel(String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
+									.get((possibilitiesBox.getSelectedItem())), chooser).get("truePositive")));
+							JLabel tNl = new JLabel(String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
+									.get((possibilitiesBox.getSelectedItem())), chooser).get("trueNegative")));
+							JLabel fPl = new JLabel(String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
+									.get((possibilitiesBox.getSelectedItem())), chooser).get("falsePositiveCounter")));
+							JLabel fNl = new JLabel(String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
+									.get((possibilitiesBox.getSelectedItem())), chooser).get("falseNegative")));
+							
+							labelArray[0] = tPl;
+							labelArray[1] = fPl;
+							labelArray[2] = fNl;
+							labelArray[3] = tNl;
+							
+							changeBoxStats(labelArray, chooser);
+							
+							chooser=10;
+						}
+					} catch (NumberFormatException | PolyglotException | IOException | ScriptException e1) {
+						e1.printStackTrace();
+					}
+						if(long_Method.isSelected()) confusionMatrixLongMethod.setVisible(true);
+						if(is_God_Class.isSelected()) confusionMatrixGodClass.setVisible(true);
+					
+				}
+				else JOptionPane.showMessageDialog(frame, "Deve escolher 1 ou mais Code Smells!");
+				
+				}
 			}
 		});
 
@@ -784,28 +756,150 @@ public class GI {
 
 	}
 
-	private void compararCodeSmells() {
+	private void fillMatrixes() {
+		
+		confusionMatrixGodClass.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		confusionMatrixLongMethod.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		
+		JPanel centerLongMethod, centerGodClass, left, top;
 
-		ArrayList<Object> is_God_Class = new ArrayList<Object>();
-		for (int i = 0; i < jt.getModel().getRowCount(); i++) {
-			is_God_Class.add(jt.getModel().getValueAt(i, 7));
+		mainGodClass = new JPanel(new BorderLayout());
+		mainLongMethod = new JPanel(new BorderLayout());
+		
+		centerLongMethod = new JPanel();
+		centerGodClass = new JPanel();
+		centerLongMethod.setLayout(new GridLayout(2, 2));
+		centerGodClass.setLayout(new GridLayout(2, 2));
+
+		for (int i = 0; i < 4; i++) {
+			box[i] = new Box(BoxLayout.X_AXIS);
+			box[i].setBorder(BorderFactory.createLineBorder(Color.black));
+			box[i].add(new JLabel("      " + (i + 1) + "      "));
+			box[i].setOpaque(true);
+			if (i == 1 || i == 2)
+				box[i].setBackground(Color.orange);
+			else
+				box[i].setBackground(Color.green);
+			centerLongMethod.add(box[i]);
+			
+			box2[i] = new Box(BoxLayout.X_AXIS);
+			box2[i].setBorder(BorderFactory.createLineBorder(Color.black));
+			box2[i].add(new JLabel("      " + (i + 1) + "      "));
+			box2[i].setOpaque(true);
+			if (i == 1 || i == 2)
+				box2[i].setBackground(Color.orange);
+			else
+				box2[i].setBackground(Color.green);
+			centerGodClass.add(box2[i]);
+
 		}
-		System.out.println("Teste a column " + jt.getModel().getValueAt(1, 7).toString());
 
-		ArrayList<Object> is_Long_Method = new ArrayList<Object>();
-		for (int i = 0; i < jt.getModel().getRowCount(); i++) {
-			is_Long_Method.add(jt.getModel().getValueAt(i, 10));
-		}
-		System.out.println("Teste a column " + jt.getModel().getValueAt(1, 10).toString());
+		left = new JPanel();
+		left.setLayout(new GridLayout(2, 1));
+		JLabel predictedPositive = new JLabel("Predicted: Positive");
+		JLabel predictedNegative = new JLabel("Predicted: Negative");
+		left.add(predictedPositive);
+		left.add(predictedNegative);
 
+		top = new JPanel();
+		top.setLayout(new GridLayout(1, 2));
+		JLabel actualPositive = new JLabel("Predicted: Positive");
+		JLabel actualNegative = new JLabel("Predicted: Negative");
+		JLabel matrixLabel = new JLabel("Confusion Matrix");
+		top.add(matrixLabel);
+		top.add(actualPositive);
+		top.add(actualNegative);
+
+		mainLongMethod.add(centerLongMethod, BorderLayout.CENTER);
+		mainLongMethod.add(left, BorderLayout.WEST);
+		mainLongMethod.add(top, BorderLayout.NORTH);
+		confusionMatrixLongMethod.add(mainLongMethod);
+		confusionMatrixLongMethod.getContentPane();
+		
+		mainGodClass.add(centerGodClass, BorderLayout.CENTER);
+		mainGodClass.add(left, BorderLayout.WEST);
+		mainGodClass.add(top, BorderLayout.NORTH);
+		confusionMatrixGodClass.add(mainGodClass);
+		confusionMatrixGodClass.getContentPane();
+
+		confusionMatrixLongMethod.setBounds(50, 50, 500, 500);
+		confusionMatrixLongMethod.setResizable(false);
+		confusionMatrixLongMethod.setLocationRelativeTo(null);
+		
+		confusionMatrixGodClass.setBounds(50, 50, 500, 500);
+		confusionMatrixGodClass.setResizable(false);
+		confusionMatrixGodClass.setLocationRelativeTo(null);
 	}
+	
+	private void changeBoxStats(JLabel[] labelArray, int chooser) {
+		for(int i=0; i<4; i++) {
+			
+			if(chooser==10) {
+				box[i].removeAll();;
+				box[i].add(labelArray[i]);
+				mainLongMethod.revalidate();
+				mainLongMethod.repaint();
+			}
+			else {
+				box2[i].removeAll();
+				box2[i].add(labelArray[i]);
+				mainGodClass.revalidate();
+				mainGodClass.repaint();
+			}	
+		}
+		
+	}
+
+//	private void compararCodeSmells() {
+//
+//		ArrayList<Object> is_God_Class = new ArrayList<Object>();
+//		for (int i = 0; i < jt.getModel().getRowCount(); i++) {
+//			is_God_Class.add(jt.getModel().getValueAt(i, 7));
+//		}
+//		System.out.println("Teste a column " + jt.getModel().getValueAt(1, 7).toString());
+//
+//		ArrayList<Object> is_Long_Method = new ArrayList<Object>();
+//		for (int i = 0; i < jt.getModel().getRowCount(); i++) {
+//			is_Long_Method.add(jt.getModel().getValueAt(i, 10));
+//		}
+//		System.out.println("Teste a column " + jt.getModel().getValueAt(1, 10).toString());
+//
+//	}
 
 	private void detectCodeSmells() throws NumberFormatException, PolyglotException, ScriptException {
 		assert selectedProjectParser != null : "não foi feito parsing do projeto";
 
 		String[][] dataWithCodeSmellFlags = codeSmellRuleInterpreter.getProjectCodeSmells(rows, script);
+		
+		tableFabric();
+		
+//		String[] column = Arrays.copyOf(rows[0], rows[0].length - 1);
+//		String[][] rowsForTable = new String[rows.length][rows[0].length - 1];
+
+		
+//		for (int i = 1; i < rows.length; i++) {
+//			rowsForTable[i - 1] = Arrays.copyOf(rows[i], rows[i].length - 1);
+//		}
+//		if (scrollPane != null && jt != null) {
+//			scrollPane.remove(jt);
+//			metrics_card.remove(scrollPane);
+//		}
+//
+//		jt = new JTable(rowsForTable, column) {
+//			public boolean editCellAt(int row, int column, java.util.EventObject e) {
+//				return false;
+//			}
+//		};
+//
+//		scrollPane = new JScrollPane(jt);
+//		metrics_card.add(scrollPane);
+//		metrics_card.revalidate();
+//		metrics_card.repaint();
+	}
+	
+	private void tableFabric() {
 		String[] column = Arrays.copyOf(rows[0], rows[0].length - 1);
-		String[][] rowsForTable = new String[rows.length][rows[0].length - 1];
+		String[][] rowsForTable = new String[rows.length][rows[0].length];
 
 		for (int i = 1; i < rows.length; i++) {
 			rowsForTable[i - 1] = Arrays.copyOf(rows[i], rows[i].length - 1);
@@ -820,8 +914,11 @@ public class GI {
 				return false;
 			}
 		};
+		jt.setFillsViewportHeight(true);
 
 		scrollPane = new JScrollPane(jt);
+		metrics_card.add(scrollPane);
+		jt.setFillsViewportHeight(true);
 		metrics_card.add(scrollPane);
 		metrics_card.revalidate();
 		metrics_card.repaint();

@@ -1,6 +1,10 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -22,8 +26,112 @@ public class codeSmellRuleInterpreter {
 		if(script!=null)
 		this.script=script;
 		
-		
 	}
+	
+	public static HashMap<String, Integer> testRuleAccuracy(String scriptToTest, int code_smell_id)
+			throws IOException, NumberFormatException, PolyglotException, ScriptException {
+
+		projectParser testingProject = new projectParser(
+				Paths.get(System.getProperty("user.dir") + "/rulesTesting/jasml/"));
+		testingProject.parseJavaFiles();
+		String[][] testingRuleCodeSmells = getProjectCodeSmells(testingProject.getParsedFilesTabularData(),
+				scriptToTest);
+		testingRuleCodeSmells = preprocessData(testingRuleCodeSmells);
+		String[][] testingData = XLSX_read_write
+				.readyExcelForGUI(System.getProperty("user.dir") + "/rulesTesting/excelForTesting/Code_Smells.xlsx");
+		testingData=preprocessData(testingData);
+		HashMap<String, Boolean> testingRulesCodeSmellFlags = getMetricsInHashMap(testingRuleCodeSmells, code_smell_id);
+		HashMap<String, Boolean> testAgainstModel = getMetricsInHashMap(testingData, code_smell_id);
+		return compareHashMapsAndGetResults(testingRulesCodeSmellFlags, testAgainstModel);
+	}
+
+	private static String[][] preprocessData(String[][] testingRuleCodeSmells) {
+		for (int i = 0; i < testingRuleCodeSmells.length; i++) {
+			if (testingRuleCodeSmells[i][1] != null) {
+				if (testingRuleCodeSmells[i][7] == "false")
+					testingRuleCodeSmells[i][7] = "FALSO";
+				if (testingRuleCodeSmells[i][7] == "true")
+					testingRuleCodeSmells[i][7] = "VERDADEIRO";
+				if (testingRuleCodeSmells[i][10] == "false")
+					testingRuleCodeSmells[i][10] = "FALSO";
+				if (testingRuleCodeSmells[i][10] == "true")
+					testingRuleCodeSmells[i][10] = "VERDADEIRO";
+			}
+		}
+		return testingRuleCodeSmells;
+
+	}
+
+	private static HashMap<String, Integer> compareHashMapsAndGetResults(
+			HashMap<String, Boolean> testingRulesCodeSmellFlags, HashMap<String, Boolean> testAgainstModel) {
+		int truePositiveCounter = 0;
+		int falsePositiveCounter = 0;
+		int trueNegativeCounter = 0;
+		int falseNegativeCounter = 0;
+		HashMap<String, Integer> results = new HashMap<String, Integer>();
+
+		for (String key : testingRulesCodeSmellFlags.keySet()) {
+
+			if (testAgainstModel.containsKey(key)) {
+				if (testingRulesCodeSmellFlags.get(key) == testAgainstModel.get(key)) {
+					if (testingRulesCodeSmellFlags.get(key) == true)
+						truePositiveCounter++;
+					else
+						trueNegativeCounter++;
+
+				} else {
+					if (testingRulesCodeSmellFlags.get(key) == true && testAgainstModel.get(key) == false)
+						falsePositiveCounter++;
+					else if (testingRulesCodeSmellFlags.get(key) == false && testAgainstModel.get(key) == true)
+						falseNegativeCounter++;
+
+				}
+			}
+		}
+
+		results.put("truePositive", truePositiveCounter);
+		results.put("trueNegative", trueNegativeCounter);
+		results.put("falsePositiveCounter", falsePositiveCounter);
+		results.put("falseNegative", falseNegativeCounter);
+		
+		return results;
+
+	}
+
+	public static HashMap<String, Boolean> getMetricsInHashMap(String[][] dataToConvert, int code_smell_id)
+			throws IOException {
+		HashMap<String, Boolean> excelInHash = new HashMap<String, Boolean>();
+		for (int i = 1; i < dataToConvert.length; i++) {
+
+			if (dataToConvert[i][1] != null) {
+
+				if (!excelInHash
+						.containsKey(dataToConvert[i][1] + "." + dataToConvert[i][2] + "." + dataToConvert[i][3])) {
+
+					boolean code_smell;
+
+					if (dataToConvert[i][code_smell_id] == "VERDADEIRO")
+						code_smell = true;
+					else
+						code_smell = false;
+
+					excelInHash.put(dataToConvert[i][1] + "." + dataToConvert[i][2] + "." + dataToConvert[i][3],
+							code_smell);
+				}
+
+			} else
+				break;
+		}
+
+		Iterator hmIterator = excelInHash.entrySet().iterator();
+		while (hmIterator.hasNext()) {
+			Map.Entry mapElement = (Map.Entry) hmIterator.next();
+
+			System.out.println(mapElement.getKey() + " : " + mapElement.getValue());
+		}
+		return excelInHash;
+	}
+
 	
 	public static HashMap<String,Boolean> getCodeSmellFlags(String script,int NOM_class,int LOC_class,int WMC_class,int LOC_method,int CYCLO_method) throws PolyglotException, ScriptException {
 		 ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
