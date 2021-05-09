@@ -415,7 +415,7 @@ public class GI {
 			}
 		});
 
-		JMenuItem m12 = new JMenuItem("Importar excel"); // TODO
+		JMenuItem m12 = new JMenuItem("Importar excel"); 
 
 		m12.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
@@ -526,7 +526,7 @@ public class GI {
 
 							XML_read_write.formatText(path, regraTeste);
 						} catch (ParserConfigurationException | TransformerException | SAXException | IOException e1) {
-							// TODO Auto-generated catch block
+							
 							e1.printStackTrace();
 						}
 
@@ -582,6 +582,8 @@ public class GI {
 						    "Algo correu mal no processamento do ficheiro das regras",
 						    "erro de processamento das regras",
 						    JOptionPane.ERROR_MESSAGE);
+					e1.printStackTrace();
+
 						return;
 				}
 

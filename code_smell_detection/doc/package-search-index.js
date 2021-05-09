@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"ES_2Sem_2021_Grupo_13.code_smell_detection"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"ES_2Sem_2021_Grupo_13.code_smell_detection"}]
