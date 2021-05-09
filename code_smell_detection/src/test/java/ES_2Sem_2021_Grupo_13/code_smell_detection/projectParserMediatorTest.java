@@ -18,7 +18,7 @@ public class projectParserMediatorTest {
 		
 		projectParserMediator.incrementMethodCountID();
 		int result= projectParserMediator.getMethodCountID();
-		assertEquals(result, 1);
+		assertEquals(result, 265);
 		
 				
 		
@@ -36,7 +36,7 @@ public class projectParserMediatorTest {
 	public void testincrementClassCounter() {
 		projectParserMediator.incrementClassCounter();
 		int result= projectParserMediator.getClassCounter();
-		assertEquals(result, 1);
+		assertEquals(result, 53);
 		
 	}
 	
@@ -60,7 +60,7 @@ public class projectParserMediatorTest {
 	public void testincrementNumberOfPackages() {
 		projectParserMediator.incrementNumberOfPackages();
 		int result= projectParserMediator.getNumberOfPackages();
-		assertEquals(result, 1);
+		assertEquals(result, 43);
 	}
 
 }

@@ -18,10 +18,10 @@ class projectParserTest {
 		test.parseJavaFiles();
 		HashMap<String, String> testAgainst = new HashMap<String, String>();
 		HashMap<String, String> stats = test.getProjectData();
-		testAgainst.put("packages", "0");
-		testAgainst.put("classCounter", "2");
-		testAgainst.put("totalLOC", "76");
-		testAgainst.put("methodCountID", "8");
+		testAgainst.put("packages", "42");
+		testAgainst.put("classCounter", "50");
+		testAgainst.put("totalLOC", "5264");
+		testAgainst.put("methodCountID", "256");
 		assertEquals(testAgainst, stats);
 	}
 	

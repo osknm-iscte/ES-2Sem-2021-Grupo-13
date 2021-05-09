@@ -104,9 +104,9 @@ class codeSmellRuleInterpreterTest {
 		try {
 			
 			HashMap<String,Integer>testHashMap=new HashMap<String,Integer>();
-			testHashMap.put("truePositive", 3);
-			testHashMap.put("trueNegative", 5);
-			testHashMap.put("falsePositiveCounter", 0);
+			testHashMap.put("truePositive", 24);
+			testHashMap.put("trueNegative", 113);
+			testHashMap.put("falsePositiveCounter", 105);
 			testHashMap.put("falseNegative", 0);
 			HashMap<String,Integer>results=codeSmellRuleInterpreter.testRuleAccuracy("if(LOC_method>5)long_method=true; else" + " long_method=false;",10);
 			assertEquals(testHashMap,results);
