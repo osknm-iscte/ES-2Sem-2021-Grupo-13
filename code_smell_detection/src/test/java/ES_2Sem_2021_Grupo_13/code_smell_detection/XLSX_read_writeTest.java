@@ -18,20 +18,20 @@ public class XLSX_read_writeTest {
 	
 	
 	
-	@Test
-	public void testXLSX_readFile() { 
-		
-		
-//		System.out.println(newPath);
-		
-		try {
-			XLSX_read_write.readFile2(PATH);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
+//	@Test
+//	public void testXLSX_readFile() { 
+//		
+//		
+////		System.out.println(newPath);
+//		
+//		try {
+//			XLSX_read_write.readFile2(PATH);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//	}
 	
 	
 	@Test
@@ -60,7 +60,7 @@ public class XLSX_read_writeTest {
 		data.add("");
 		data.add("rule_x");
 		
-		XLSX_read_write.writeFile(PATH2, data);
+		XLSX_read_write.writeFile(PATH2, data, null);
 	
 	}
 	
