@@ -66,6 +66,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import  org.graalvm.polyglot.PolyglotException;
 
 import org.apache.poi.xssf.usermodel.*;
 import org.graalvm.polyglot.PolyglotException;
@@ -219,6 +220,11 @@ public class GI {
 				"<p style=\"text-align: justify;text-justify: inter-word;\">Para definir as regras podem ser usadas as seguintes  variáveis de input:</p>"));
 		 
 		buff.append(String.format("<ul><li>LOC_class</li><li>WMC_class</li><li>LOC_method</li><li>CYCLO_method</li><li>NOM_class</li></ul>"));
+		
+		buff.append(String.format(
+				"<p style=\"text-align: justify;text-justify: inter-word;\"> variáveis de code smells de output:</p>"));
+		buff.append(String.format("<ul><li>god_class</li><li>long_method</li></ul>"));
+		
 		buff.append("</html>");
 		JLabel label = new JLabel(buff.toString());
 
@@ -561,8 +567,14 @@ public class GI {
 				String selectedRuleName = (String) JOptionPane.showInputDialog(frame, "Nome  da regra:\n",
 
 						"Regras de code smells", JOptionPane.PLAIN_MESSAGE, null, null,"");
-				if (selectedRuleName==null)
-					return;
+				if (selectedRuleName==null || selectedRuleName.equals("")) {
+					JOptionPane.showMessageDialog(frame,
+						    "Não pode ser criada regra com nome vazio",
+						    "erro na atribuição do nome",
+						    JOptionPane.ERROR_MESSAGE);
+						return;
+				}
+					
 				
 				try {
 					if(XMLParser.ckeckIfRuleNameExists(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml", selectedRuleName)) {
@@ -711,7 +723,11 @@ public class GI {
 							chooser=10;
 						}
 					} catch (NumberFormatException | PolyglotException | IOException | ScriptException e1) {
-						e1.printStackTrace();
+						JOptionPane.showMessageDialog(frame,
+							    "Algo correu mal com o processamento dos dados",
+							    "erro no processamento dos dados",
+							    JOptionPane.ERROR_MESSAGE);
+							return;
 					}
 						if(long_Method.isSelected()) confusionMatrixLongMethod.setVisible(true);
 						if(is_God_Class.isSelected()) confusionMatrixGodClass.setVisible(true);

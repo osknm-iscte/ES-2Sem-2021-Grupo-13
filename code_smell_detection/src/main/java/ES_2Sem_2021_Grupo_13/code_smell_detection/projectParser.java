@@ -91,7 +91,7 @@ public class projectParser {
 	 */
 	public void writeParsedFilesToExcel() {
 		
-		XLSX_read_write.writeFile(null, parsedFilesStatsList);
+		XLSX_read_write.writeFile(null, parsedFilesStatsList,path.getFileName().toString());
 
 	}
 

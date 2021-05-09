@@ -57,76 +57,6 @@ public class XLSX_read_write {
 
 	
 	
-	
-	public static LinkedList<String> readFile2(String path) throws IOException { //reads the .xlsx file and puts its content on a linkedList
-		
-		//if you want a String [][] use the dataFormater(returnOfThisMethod) 
-
-		LinkedList<String> data = new LinkedList<String>();
-
-
-//		String excelFilePath = WRITEPATH;
-		FileInputStream inputStream = new FileInputStream(new File(path));
-
-		Workbook workbook = new XSSFWorkbook(inputStream);
-		Sheet firstSheet = workbook.getSheetAt(0); //reads only the first sheet
-		Iterator<Row> iterator = firstSheet.iterator(); //creates an iterator to read the sheet
-
-		
-		while (iterator.hasNext()) {
-			Row nextRow = iterator.next(); //reads next row
-			Iterator<Cell> cellIterator = nextRow.cellIterator(); //will read the cells in each row
-
-			while (cellIterator.hasNext()) {
-				Cell cell = cellIterator.next(); //goes to the next cell
-//				if (cell.getCellType() != CellType.BLANK) { //if the cell is empty don't create a new position on the linkedList
-//					System.out.print(cell.getStringCellValue()); //test
-//					System.out.print(" - "); //test
-					
-					
-					if (nextRow.getRowNum() != 0) { //if its not the columns names then print
-						
-						if (cell.getCellType() == CellType.STRING) {
-//						System.out.println("Cell type - " + cell.getCellType());
-							data.add(cell.getStringCellValue()); // adds the value, if not empty, to the linkedList
-						}
-						if (cell.getCellType() == CellType.NUMERIC) {
-							int toAdd = (int) cell.getNumericCellValue();
-							data.add(String.valueOf(toAdd));
-							
-						}
-						if (cell.getCellType() == CellType.BOOLEAN) {
-							boolean toAdd = cell.getBooleanCellValue();
-							data.add(String.valueOf(toAdd));
-							
-						}
-						
-						if (cell.getCellType() == CellType.BLANK) {
-							data.add("0");
-							
-						}
-						
-					}
-				}
-
-			}
-			System.out.println();
-			
-//		}
-
-		
-		workbook.close();
-		inputStream.close(); //closes reading
-		
-//		testeToLinkedList(data);	//debug
-		
-
-		return data; //returns linkedList
-		
-		
-
-	}
-	
 /**
  * Lê os dados de um ficheiro excel
  * @param path Caminho que representa a localização do ficheiro de excel
@@ -195,19 +125,14 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 
 	}
 
-//	private static void testeToLinkedList(LinkedList<String> data) { //prints all the values of the linkedList data, for debug
-//		for(int i = 0; i < data.size(); i++)
-//			
-//			System.out.println("\n" + data.get(i));
-//			
-//		}
+
 
 	/**
 	 * Escreve os dados em LinkedList de Strings para um ficheiro excel.
 	 * @param path caminho onde deve estar guardado excel
 	 * @param dataset dados a armazenar no ficheiro de excel
 	 */
-	static void writeFile(String path, LinkedList<String> dataset) { // to use you can't have the file opened anywhere
+	static void writeFile(String path, LinkedList<String> dataset, String fileName) { // to use you can't have the file opened anywhere
 																		// else or else it will give errors on the
 																		// console
 
@@ -234,10 +159,21 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 		}
 
 		try {
+			if(fileName==null) {
 			FileOutputStream outputStream = new FileOutputStream(
+					
 					System.getProperty("user.dir") + "/" + "Code_Smells.xlsx");
 			workbook.write(outputStream);// writes file
 			workbook.close();// closes file
+			}
+			else {
+				System.out.println(fileName);
+				FileOutputStream outputStream = new FileOutputStream(
+						
+						System.getProperty("user.dir") + "/" + fileName+"_metrics.xlsx");
+				workbook.write(outputStream);// writes file
+				workbook.close();// closes file
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

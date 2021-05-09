@@ -23,4 +23,16 @@ if(LOC_class&gt;5)god_class=true;
 <name>testfinal</name>
 <definition/>
 </rule>
+<rule id="55591c01-0263-4476-948b-6f5e88c60742">
+<name>bobo</name>
+<definition/>
+</rule>
+<rule id="282b1415-0f04-4937-bb21-95eedce020fe">
+<name/>
+<definition/>
+</rule>
+<rule id="e08a322b-3c9c-4e11-97c5-dca2c896c96e">
+<name>teste20</name>
+<definition>gogo</definition>
+</rule>
 </codeSmellRulesDefinitions>
