@@ -138,4 +138,48 @@ class XMLParserTest {
 		}
 
 	}
+	
+	@Test
+	void checkIfRuleNameExistsTest() {
+		try {
+			XMLParser.createRule(System.getProperty("user.dir") + "/" + "code_smell_rule_definitionsTests.xml",
+					"TEST_ID", "DELETE_ME_AFTER_TEST", "if(x>10)something cool will happen;");
+			assertTrue(XMLParser.ckeckIfRuleNameExists(System.getProperty("user.dir") + "/" + "code_smell_rule_definitionsTests.xml","DELETE_ME_AFTER_TEST"));
+			
+
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			HashMap<String, String> ruleNamesAndDefinitions = new HashMap<String, String>();
+			dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db
+					.parse(new File(System.getProperty("user.dir") + "/" + "code_smell_rule_definitionsTests.xml"));
+			NodeList nList = (NodeList) doc.getElementsByTagName("rule");
+			for (int i = 0; i < ((org.w3c.dom.NodeList) nList).getLength(); i++) {
+				Node node = ((org.w3c.dom.NodeList) nList).item(i);
+				if (node.getNodeType() == Element.ELEMENT_NODE) {
+					Element eElement = (Element) node;
+					System.out.println(eElement.getAttribute("id"));
+					if (eElement.getAttribute("id").equals("TEST_ID")) {
+
+						node.getParentNode().removeChild(node);
+					}
+				}
+			}
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(
+					System.getProperty("user.dir") + "/" + "code_smell_rule_definitionsTests.xml");
+			transformer.transform(source, result);
+			
+			
+			
+		} catch (ParserConfigurationException | SAXException | IOException | TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 }

@@ -2,6 +2,8 @@ package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 import javax.script.ScriptException;
@@ -61,6 +63,61 @@ class codeSmellRuleInterpreterTest {
 				"ifLOC_method>50 && CYCLO_method>10)long_method=true; else" + " long_method=false;");
 		boolean testReturn=ruleTest.checkIfRuns("if(LOC_method>50 && CYCLO_method>10)long_method=true; else" + " long_method=false;");
 		assertEquals(true, testReturn);
+	}
+	
+	@Test
+	void testExcelToHash() {
+
+		try {
+			HashMap<String, Boolean>tesHashMap=new HashMap<String,Boolean>();
+			tesHashMap.put("default.MongoWorker.MongoWorker(String,String,MongoClient,String,String,MongoClient)",true);
+			tesHashMap.put("default.MongoWorker.setCloudClient(MongoClient)"
+					,true);
+			tesHashMap.put("",true);
+			tesHashMap.put("",true);
+			tesHashMap.put("",true);
+			tesHashMap.put("",true);
+			tesHashMap.put("",true);
+			tesHashMap.put("",true);
+			
+			String [][] testingData=XLSX_read_write.readyExcelForGUI(System.getProperty("user.dir") + "/rulesTesting/excelForTesting/Code_Smells_Excel_To_Hash.xlsx");
+			codeSmellRuleInterpreter.getProjectCodeSmells(testingData, codeSmellRuleInterpreter.getDefaultRule());
+			codeSmellRuleInterpreter.getMetricsInHashMap(testingData,10);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PolyglotException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ScriptException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	void confusionMatrixCalculation() {
+		
+		try {
+			
+			HashMap<String,Integer>testHashMap=new HashMap<String,Integer>();
+			testHashMap.put("truePositive", 3);
+			testHashMap.put("trueNegative", 5);
+			testHashMap.put("falsePositiveCounter", 0);
+			testHashMap.put("falseNegative", 0);
+			HashMap<String,Integer>results=codeSmellRuleInterpreter.testRuleAccuracy("if(LOC_method>5)long_method=true; else" + " long_method=false;",10);
+			assertEquals(testHashMap,results);
+			for(String s:results.keySet()){
+				
+				System.out.println(s+" "+results.get(s));
+			}
+		} catch (NumberFormatException | PolyglotException | IOException | ScriptException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

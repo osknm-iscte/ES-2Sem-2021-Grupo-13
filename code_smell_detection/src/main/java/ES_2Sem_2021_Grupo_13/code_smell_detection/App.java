@@ -63,9 +63,13 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
  * Hello world!
  *
  */
+/**
+ * @author grupo 13 iscte-iul
+ * @version 1.0
+ *
+ */
 public class App {
 
-	private static final String WRITEPATH = null;
 	private LinkedList<String> realTest = new LinkedList<String>();
 	private CompilationUnit compunit;
 	private List<MethodDeclaration> methods;
@@ -74,7 +78,6 @@ public class App {
 	private PackageDeclaration pack;
 	private projectParserMediator metaDataStats;
 
-	private int countMethod = 1;
 
 	private static class ConditionalStatementExplorer extends VoidVisitorAdapter<methodComplexityInfo> {
 
@@ -125,19 +128,11 @@ public class App {
 
 		}
 	}
-	/*
-	 * private static class methodCollector extends
-	 * VoidVisitorAdapter<List<MethodDeclaration>> {
-	 * 
-	 * @Override public void visit(MethodDeclaration visitedMethod,
-	 * List<MethodDeclaration> methodList) {
-	 * 
-	 * super.visit(visitedMethod, methodList); methodList.add(visitedMethod);
-	 * 
-	 * } }
-	 * 
-	 */
 
+	/**
+	 * @param compunit unidade de compilação
+	 * @param metaDataStats POJO que guarda info de uma inidade de compilação
+	 */
 	public App(CompilationUnit compunit, projectParserMediator metaDataStats) {
 
 		this.compunit = compunit;
@@ -152,12 +147,15 @@ public class App {
 			pack = null;
 		});
 
-		codeSmellRuleInterpreter ruleInterpreter = new codeSmellRuleInterpreter(
-				"if(LOC_method>50 && CYCLO_method>10)long_method=true; else long_method=false");
+		
 		this.metaDataStats = metaDataStats;
 
 	}
 
+	
+	/**
+	 * Ponto de entrada para começar a extrair métricas de um ficheiro java
+	 */
 	public void getMetrics() {
 
 		// LexicalPreservingPrinter.setup(compunit);
@@ -178,8 +176,15 @@ public class App {
 			writeOutClassMetrics(classFullName, classFinalLOC, classMethods.size(), classMethods);
 
 		}
+		
 	}
 
+	/**
+	 * Este método vai ver se a classe possui classes internas. Se tiver, vai somar LOC das classes internas para
+	 * que depois seja possível calcular  LOC da classe que é LOC da classe externa-LOC da soma das LOC das classes internas 
+	 * @param c Node que representa uma classe
+	 * @return inteiro que indica a soma das LOCS das classes internas, se estas existirem.
+	 */
 	private int getSumLOCnestedClasses(ClassOrInterfaceDeclaration c) {
 		List<ClassOrInterfaceDeclaration> innerClasses = new ArrayList<ClassOrInterfaceDeclaration>();
 		List<Node> classChildren = c.getChildNodes();
@@ -195,6 +200,13 @@ public class App {
 		return LOCcounter;
 	}
 
+	/**
+	 * Obtém nome completo da classe em causa. Se a classe for definida dentro de outra classe,
+	 * então o nome vai ter um sufixo com nome da classe externa, seguido de um ponto mais o nome da classe interna
+	 * Ex: OutterClass.InnerClass
+	 * @param c Node que representa a classe
+	 * @return Nome da classe completa
+	 */
 	private String getFullCLassName(ClassOrInterfaceDeclaration c) {
 
 		Optional<Node> node = c.getParentNode();
@@ -210,6 +222,13 @@ public class App {
 		return c.getNameAsString();
 	}
 
+	/**
+	 * Este metodo vai filtrar todos os metodos que pertencem diretamente a classe, i.e,
+	 * só são considerados os métodos que forem definidos dentro da classe. Se a classe tiver classes internas,
+	 * os métodos das classes internas não são adicionados a lista a devolver. 
+	 * @param c Node que representa a classe em questão
+	 * @return Lista com métodos filtrados
+	 */
 	private List<CallableDeclaration> filterClassMethods(ClassOrInterfaceDeclaration c) {
 
 		List<CallableDeclaration> methods = new ArrayList<CallableDeclaration>();
@@ -224,10 +243,23 @@ public class App {
 
 	}
 
+	/**
+	 * Retorna a estatistica das métricas da unidade de compilação analisada.
+	 * 
+	 * @return Retorna a estatistica das métricas da unidade de compilação analisada.
+	 */
 	public LinkedList<String> getParsedFileStats() {
 		return realTest;
+		
 	}
+	
 
+	/** Popula estrutura de dados que contém os dados de extração das métricas.
+	 * @param className nome da classe 
+	 * @param classLOC Linhas de código da classe
+	 * @param NOM_class Número de métodos da classe
+	 * @param constructorsAndMethods Estrutura de dados que contém os métodos e os consturtores da classe
+	 */
 	private void writeOutClassMetrics(String className, int classLOC, int NOM_class,
 			List<CallableDeclaration> constructorsAndMethods) {
 
@@ -245,23 +277,20 @@ public class App {
 				realTest.add(pack.getNameAsString());
 
 			realTest.add(className);
-			// String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false,
-			// true).split(" ");
-			// realTest.add(splitedMethodDeclaration[splitedMethodDeclaration.length-1]);
 			realTest.add(className + "()".replaceAll(" ", ""));
 			realTest.add("0");
 			realTest.add(String.valueOf(classLOC));
 			realTest.add("1");
 			realTest.add("");// isgodclass
 			realTest.add("0");
-			realTest.add("0");
+			realTest.add("1");
 			realTest.add("");// islongmethod
-			countMethod++;
+			
 			return;
 
 		}
 		for (CallableDeclaration m : constructorsAndMethods) {
-			// LexicalPreservingPrinter.setup(m);
+			
 			int method_LOC = 0;
 			if (m instanceof MethodDeclaration)
 				method_LOC = getLOC(((MethodDeclaration) m).toString());
@@ -284,9 +313,7 @@ public class App {
 			else
 				realTest.add(pack.getNameAsString());
 			realTest.add(className);
-			// String [] splitedMethodDeclaration=m.getDeclarationAsString(true, false,
-			// true).split(" ");
-			// realTest.add(splitedMethodDeclaration[splitedMethodDeclaration.length-1]);
+			
 			String fullMethodName = null;
 			if (m instanceof ConstructorDeclaration)
 				fullMethodName = "void " + m.getDeclarationAsString(false, false, false);
@@ -303,14 +330,14 @@ public class App {
 			realTest.add(String.valueOf(method_LOC));
 			realTest.add(Integer.toString(method_CYCLO));
 			realTest.add("");// islongmethod
-			countMethod++;
+			
 
 		}
 		for (int i : pos) {
 			if (methods.size() == 0)
 				realTest.set(i, String.valueOf(1));
 			else
-				realTest.set(i, String.valueOf(complexitySum / methods.size()));
+				realTest.set(i, String.valueOf(complexitySum));
 		}
 
 		// writeFile(WRITEPATH,this);
@@ -320,16 +347,31 @@ public class App {
 	}
 
 	// Extrai linhas de código das classes e dos métodos
+	/**
+	 * Obtém linhas de código das classes e dos métodos.
+	 * Recebe como um  argumento um Node que representa  um método ou uma classe na forma de
+	 * uma String. Ignora as linhas vazias no cálculo de LOC.
+	 * 
+	 * @param NodeString
+	 * @return Número de linhas de código
+	 */
 	private int getLOC(String NodeString) {
 
 		return NodeString.replaceAll("(?m)^[ \t]*\r?\n", "").split("\n").length;
 
 	}
 
-	/*
-	 * Inicializa a extração da complexidade ciclomática do método. É instanciado o
-	 * VoidVIsitor que vai percorrer todos os ifs,whiles,swtich statement cases,
-	 * TryCatch clauses, dentro do método e extrair a complexidade.
+	
+	  
+	/**
+	 *Inicializa a extração da complexidade ciclomática do método. É instanciado o
+	 VoidVIsitor que vai percorrer todos os ifs,whiles,swtich statement cases,
+	 TryCatch clauses, dentro do método e extrair a complexidade. Neste caso,
+	 no cálculo da  extração de complexidade são somadas as ocorrências
+	 dos statements referidos em cima +1.
+	 
+	 * @param m Node que representa o método cuja complexidade cilcomática pretende-se calcular
+	 * @return complexidade ciclomática
 	 */
 	private int getMethodCYCLO(CallableDeclaration m) {
 
@@ -343,6 +385,13 @@ public class App {
 
 	}
 
+	/**
+	 * Obtém os caminhos para todos os ficheiros java dentro de uma diretoria e dentro
+	 * das subdiretorias
+	 * @param path representa o caminho da diretoria  onde estão os ficheiros java 
+	 * @return Lista com os caminhos para os ficheiros
+	 * @throws IOException pode mandar IOException
+	 */
 	public static List<String> listFiles(Path path) throws IOException {
 
 		if (!Files.isDirectory(path)) {
@@ -358,55 +407,7 @@ public class App {
 		}
 
 		return result;
-	}
-
-	public static String getFileExtension(String fullName) {
-		String fileName = new File(fullName).getName();
-		int dotIndex = fileName.lastIndexOf('.');
-		return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
-	}
-
-	private static String getFileNameWithoutExtension(File file) {
-		String fileName = "";
-
-		try {
-			if (file != null && file.exists()) {
-				String name = file.getName();
-				fileName = name.replaceFirst("[.][^.]+$", "");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			fileName = "";
-		}
-
-		return fileName;
-
-	}
-
-	private static String getNewFileName(String filename) throws IOException {
-
-		File aFile = new File(filename);
-		int fileNo = 0;
-		String newFileName = "";
-		String extension = getFileExtension(filename);
-		String nameWithoutExtension = getFileNameWithoutExtension(aFile);
-
-		if (aFile.exists() && !aFile.isDirectory()) {
-
-			// newFileName = filename.replaceAll(getFileExtension(filename), "(" + fileNo +
-			// ")" + getFileExtension(filename));
-
-			while (aFile.exists()) {
-				fileNo++;
-				aFile = new File(nameWithoutExtension + "(" + fileNo + ")." + extension);
-				newFileName = nameWithoutExtension + "(" + fileNo + ")." + extension;
-			}
-
-		} else if (!aFile.exists()) {
-
-			newFileName = filename;
-		}
-		return newFileName;
+		
 	}
 
 }

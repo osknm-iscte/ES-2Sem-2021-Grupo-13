@@ -29,8 +29,16 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+
 /**
  * Hello world!
+ *
+ */
+/**
+ * @author iscte-iul grupo 13
+ * 
+ * Esta classe representa um conjunto de métodos estáticos usados para escrever/ler os ficheiros de excel.
+ * É usado sobretudo na GUI para importar os dados de excel na JTable e nos testes  da acurácia das regras de code smells definidos pelo utilizador.
  *
  */
 public class XLSX_read_write {
@@ -44,19 +52,87 @@ public class XLSX_read_write {
 	private static LinkedList<String> writedata = new LinkedList<String>(); // will be used in writeOutClassMetrics to
 	// store the data to write to the .xlsx file
 	private static final int NUMBERPARAMETERS = 11;
-	private CompilationUnit compunit;
-	private List<MethodDeclaration> methods;
-	private List<ClassOrInterfaceDeclaration> classes;
-
-	public XLSX_read_write(CompilationUnit compunit) { // ?
-
-		this.compunit = compunit;
-		methods = compunit.findAll(MethodDeclaration.class);
-		classes = compunit.findAll(ClassOrInterfaceDeclaration.class);
-
-	}
+	
+	
 
 	
+	
+	
+	public static LinkedList<String> readFile2(String path) throws IOException { //reads the .xlsx file and puts its content on a linkedList
+		
+		//if you want a String [][] use the dataFormater(returnOfThisMethod) 
+
+		LinkedList<String> data = new LinkedList<String>();
+
+
+//		String excelFilePath = WRITEPATH;
+		FileInputStream inputStream = new FileInputStream(new File(path));
+
+		Workbook workbook = new XSSFWorkbook(inputStream);
+		Sheet firstSheet = workbook.getSheetAt(0); //reads only the first sheet
+		Iterator<Row> iterator = firstSheet.iterator(); //creates an iterator to read the sheet
+
+		
+		while (iterator.hasNext()) {
+			Row nextRow = iterator.next(); //reads next row
+			Iterator<Cell> cellIterator = nextRow.cellIterator(); //will read the cells in each row
+
+			while (cellIterator.hasNext()) {
+				Cell cell = cellIterator.next(); //goes to the next cell
+//				if (cell.getCellType() != CellType.BLANK) { //if the cell is empty don't create a new position on the linkedList
+//					System.out.print(cell.getStringCellValue()); //test
+//					System.out.print(" - "); //test
+					
+					
+					if (nextRow.getRowNum() != 0) { //if its not the columns names then print
+						
+						if (cell.getCellType() == CellType.STRING) {
+//						System.out.println("Cell type - " + cell.getCellType());
+							data.add(cell.getStringCellValue()); // adds the value, if not empty, to the linkedList
+						}
+						if (cell.getCellType() == CellType.NUMERIC) {
+							int toAdd = (int) cell.getNumericCellValue();
+							data.add(String.valueOf(toAdd));
+							
+						}
+						if (cell.getCellType() == CellType.BOOLEAN) {
+							boolean toAdd = cell.getBooleanCellValue();
+							data.add(String.valueOf(toAdd));
+							
+						}
+						
+						if (cell.getCellType() == CellType.BLANK) {
+							data.add("0");
+							
+						}
+						
+					}
+				}
+
+			}
+			System.out.println();
+			
+//		}
+
+		
+		workbook.close();
+		inputStream.close(); //closes reading
+		
+//		testeToLinkedList(data);	//debug
+		
+
+		return data; //returns linkedList
+		
+		
+
+	}
+	
+/**
+ * Lê os dados de um ficheiro excel
+ * @param path Caminho que representa a localização do ficheiro de excel
+ * @return dados lidos de excel numa LinkedList de Strings
+ * @throws IOException pode mandar IOException
+ */
 private static LinkedList<String> readFile(String path) throws IOException { //reads the .xlsx file and puts its content on a linkedList
 		
 		//if you want a String [][] use the dataFormater(returnOfThisMethod) 
@@ -96,16 +172,18 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 						}
 						if (cell.getCellType() == CellType.BOOLEAN) {
 							boolean toAdd = cell.getBooleanCellValue();
-							data.add(String.valueOf(toAdd));
-							
+							data.add(String.valueOf(toAdd));	
 						}
-						
+						//if(cell.getCellType() == CellType.BLANK) {
+						//	data.add("");
+						//}
 
 					}
 				}
 
 			}
 			System.out.println();
+			
 		}
 
 		workbook.close();
@@ -124,6 +202,11 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 //			
 //		}
 
+	/**
+	 * Escreve os dados em LinkedList de Strings para um ficheiro excel.
+	 * @param path caminho onde deve estar guardado excel
+	 * @param dataset dados a armazenar no ficheiro de excel
+	 */
 	static void writeFile(String path, LinkedList<String> dataset) { // to use you can't have the file opened anywhere
 																		// else or else it will give errors on the
 																		// console
@@ -164,12 +247,23 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 		System.out.println("Done"); // debug
 	}
 
+	/**
+	 * Lê os dados de um ficheiro de excel e devolve a representação dos dados num double array
+	 * @param excelFile ficheiro excel a ser usado para extrair dados para poder  importar para gui.
+	 * @return dados num double Array para serem inseridos na JTable
+	 * @throws IOException
+	 */
 	public static String[][] readyExcelForGUI(String excelFile) throws IOException {
 
 		return dataFormater(readFile(excelFile));
 
 	}
 
+	/**
+	 * transforma os dados da  LinkedList de Strings num double array
+	 * @param data LinkedList de Strings a ser transformada num double array
+	 * @return representação de LinkedList na forma de array
+	 */
 	static String[][] dataFormater(LinkedList<String> data) { // formats the data so it can be put in a .xlsx,
 																// receives a LinkedList<String> and transforms into
 																// String [][]
@@ -204,60 +298,8 @@ private static LinkedList<String> readFile(String path) throws IOException { //r
 		return formatedData; // returns the data, now as String [][]
 	}
 
-	public static void confusionMatrixGC(LinkedList<String> data) {// TODO
+	
 
-		int falso_positivo = 0;
-		int falso_negativo = 0;
-		int verdadeiro_positivo = 0;
-		int verdadeiro_negativo = 0;
 
-		// compare is_god_class with ??
-
-	}
-
-	public static LinkedList<Integer> confusionMatrixLM(LinkedList<String> data) {
-
-		int falso_positivo = 0;
-		int falso_negativo = 0;
-		int verdadeiro_positivo = 0;
-		int verdadeiro_negativo = 0;
-
-		int numComparacoes = 0;
-		// compare is_long_method with LOC_method
-		int count = 2;
-		int verif_condition = 0;
-		for (int i = 0; i < data.size(); i++) {
-
-			if (i == 7 * count) { // posicao do loc_method (?)
-
-//				if(data.get(i) == verif_condition && data.get(i+2) == True ) { //True && True
-//					verdadeiro_positivo++;
-//				}
-//				
-//				if(data.get(i) == verif_condition && data.get(i+2) == True ) { //False && True
-//					falso_negativo++;
-//				}
-//				
-//				if(data.get(i) == verif_condition && data.get(i+2) == False ) { //True && False
-//					falso_positivo++;
-//				}
-//				
-//				if(data.get(i) == verif_condition && data.get(i+2) == False ) { //False && False
-//					verdadeiro_negativo++;
-//				}
-
-			}
-
-		}
-		LinkedList<Integer> resultados = new LinkedList<Integer>();
-		numComparacoes = verdadeiro_positivo + verdadeiro_negativo + falso_negativo + falso_positivo;
-		resultados.add(verdadeiro_positivo);
-		resultados.add(falso_negativo);
-		resultados.add(falso_positivo);
-		resultados.add(verdadeiro_negativo);
-		resultados.add(numComparacoes);
-		return resultados;
-
-	}
 
 }

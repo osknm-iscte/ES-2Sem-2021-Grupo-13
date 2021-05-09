@@ -29,8 +29,21 @@ import org.xml.sax.SAXException;
 
 
 
+/**
+ * @author iscte-iul grupo 13
+ * Esta classe serve para ler/escrever as regras de detecção de code smells definidas pelos
+ * utilizadores. As regras estão definidas num fichero XML. Os metodos desta classe permitem
+ * criar regras, modificar regras, escolher regras no cálculo de code smells durante execução
+ * do programa.
+ *
+ */
 public class XMLParser {
 	
+	/**
+	 * Devolve os nomes das regras e as suas definições a partir de um ficheiro xml.
+	 * @param path caminho onde estão as regras
+	 * @return HashMap com nome das regras existentes como chave e definição das regras como valor
+	 */
 	public static HashMap<String,String> getRulesName(String path) {
 	
 		   // Instantiate the Factory
@@ -72,6 +85,17 @@ public class XMLParser {
 
 	  }
 	
+	/**
+	 * Cria nova regra no ficheiro xml com os parâmetros recebidos.
+	 * @param path caminho que representa o ficheiro xml onde estão definidas as regras
+	 * @param elementID id da regra a ser criada
+	 * @param ruleName nome da regra a ser criada
+	 * @param ruleDefinition definição da regra
+	 * @throws ParserConfigurationException pode mandar ParserConfigurationException 
+	 * @throws SAXException pode mandar SAXException
+	 * @throws IOException pode mandar IOException
+	 * @throws TransformerException pode mandar TransformerException
+	 */
 	public static void createRule(String path,String elementID, String ruleName, String ruleDefinition) throws ParserConfigurationException, SAXException, IOException, TransformerException {
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -102,10 +126,18 @@ public class XMLParser {
         
       //  rule.appendChild(doc.createTextNode(ruleDefinition));
         
-        
-
 	}
 
+	/**
+	 * Faz edição da definição da regras
+	 * @param path caminho onde estão definidas as regras
+	 * @param ruleName nome da regra a editar 
+	 * @param ruleDef nova definição da regra
+	 * @throws ParserConfigurationException pode mandar ParserConfigurationException 
+	 * @throws SAXException pode mandar SAXException
+	 * @throws IOException pode mandar IOException
+	 * @throws TransformerException pode mandar TransformerException
+	 */
 	public static void editRule(String path, String ruleName, String ruleDef) throws TransformerException, ParserConfigurationException, SAXException, IOException {
 		
 		 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -113,11 +145,7 @@ public class XMLParser {
 	    	  HashMap<String, String>ruleNamesAndDefinitions=new HashMap<String,String>();
 	          dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 	          DocumentBuilder db = dbf.newDocumentBuilder();
-	          Document doc = db.parse(new File(path));
-	          
-
-	          // optional, but recommended
-	          // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+	          Document doc = db.parse(new File(path));	      
 	          doc.getDocumentElement().normalize();
 	          // get <staff>
 	          NodeList list = (NodeList) doc.getElementsByTagName("rule");
@@ -141,12 +169,57 @@ public class XMLParser {
 	         	          transformer.transform(source, result);
 	         	          return;
 	            	  }
-	            	  //System.out.println(ruleDefinition);
-	            	  //ruleNamesAndDefinitions.put(name, ruleDefinition);
+	            	  
 	            	    
 	              }
 	          }
 	          return;   	
+	}
+	
+	/**
+	 * verifica se o nome da  regra existe. É usado sobretudo na GUI 
+	 * na parte de criação das regras. Serve para prevenir situação de atribuir o
+	 * mesmo nome a mais do que uma regra
+	 * @param path caminho onde estão definidas as regras
+	 * @param ruleName nome da regra a verificar se existe
+	 * @return booleano que devolve true se oo nome da regra existe e false caso contrário
+	 * @throws ParserConfigurationException pode mandar ParserConfigurationException 
+	 * @throws SAXException pode mandar SAXException
+	 * @throws IOException pode mandar IOEXception
+	 */
+	public static boolean ckeckIfRuleNameExists(String path, String ruleName) throws ParserConfigurationException, SAXException, IOException {
+		
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		
+  	  HashMap<String, String>ruleNamesAndDefinitions=new HashMap<String,String>();
+        dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(new File(path));
+        
+
+        
+        doc.getDocumentElement().normalize();
+       
+        NodeList list = (NodeList) doc.getElementsByTagName("rule");
+
+        for (int temp = 0; temp < ((org.w3c.dom.NodeList) list).getLength(); temp++) {
+
+            Node node =((org.w3c.dom.NodeList) list).item(temp);
+
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+          	  Element element = (Element) node;
+          	  String name = element.getElementsByTagName("name").item(0).getTextContent();
+          	  name.replace("\n", "").replace("\r", "");
+          	  ruleName.replace("\n", "").replace("\r", "");
+          	 // String ruleDefinition = element.getElementsByTagName("definition").item(0).getTextContent();
+          	  if(name.equals(ruleName)) {
+          		   return true;
+          	  }
+          	    
+            }
+        }
+        
+        return false;   	
 	}
 }
 

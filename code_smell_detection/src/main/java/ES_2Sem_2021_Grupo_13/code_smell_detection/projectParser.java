@@ -1,6 +1,6 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
-//new
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,6 +17,18 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 
+/**
+ * Classe que representa o parsing do projeto java. Permite explorar todos os ficheiros java
+ * que existem dentro de uma diretoria e dentro das subdiretorias e faz o parsing de todos os projetos.
+ * Possui métodos que permites extrair estatisticas gerais do projeto.
+ * @author iscte-iul grupo 13
+ *
+ */
+/**
+ * @author iscte-iul grupo 13
+ *
+ */
+
 public class projectParser {
 
 	private Path path;
@@ -26,6 +38,10 @@ public class projectParser {
 	private int methodID = 0;
 	private projectParserMediator metaDataStats = new projectParserMediator();
 
+	/**
+	 * Construtor leva como argumento caminho em String da diretoria onde está o projeto java.
+	 * @param path representa a diretoria do projeto onde estão os ficheiros java
+	 */
 	public projectParser(Path path) {
 		super();
 		this.path = path;
@@ -34,6 +50,11 @@ public class projectParser {
 				"if(LOC_method>10)long_method=true; else" + " long_method=false;");
 	}
 
+	/**
+	 * Método que executa o parsing e cálculo de métricas de todos os ficheiros java que estão dentro de uma
+	 * diretoria. 
+	 * 
+	 */
 	public void parseJavaFiles() {
 
 		List<String> paths;
@@ -65,47 +86,30 @@ public class projectParser {
 
 	}
 
+	/**
+	 * Invoca o método da classe de XLSX_read_write para escrever os dados das métricas cácluladas para um ficheiro excel.
+	 */
 	public void writeParsedFilesToExcel() {
-		//int i = 0;
-		//for (App p : parsedFilesUnits) {
-		//	i++;
-		//	parsedFilesStatsList.addAll(p.getParsedFileStats());
-			
-
-		//}
-
+		
 		XLSX_read_write.writeFile(null, parsedFilesStatsList);
 
-//		App.writeFile(null, parsedFilesStatsList);
 	}
 
-	private LinkedList<String> getParsedFilesStatsList() {
-		return parsedFilesStatsList;
-	}
-
-	public String[][] getParsedFilesTabularData() {
-		return XLSX_read_write.dataFormater(getParsedFilesStatsList());
-	}
-	/*
-	 * public String[][] getProjectCodeSmells() throws NumberFormatException,
-	 * PolyglotException, ScriptException{ assert
-	 * !parsedFilesStatsList.isEmpty():"Não foi feito parsing do projeto";
-	 * String[][] tabularData=getParsedFilesTabularData();
-	 * System.out.println("tabularDataLength= "+tabularData.length); for(int
-	 * i=1;i<tabularData.length-1;i++) { if(tabularData[i][0]==null)return
-	 * tabularData; HashMap<String,Boolean>
-	 * singleRowFlags=rulesInterpreter.getCodeSmellFlags(Integer.parseInt(
-	 * tabularData[i][4]), Integer.parseInt(tabularData[i][5]),
-	 * Integer.parseInt(tabularData[i][6]), Integer.parseInt( tabularData[i][8]),
-	 * Integer.parseInt(tabularData[i][9]));
-	 * if(singleRowFlags.get("long_method"))tabularData[i][10]="VERDADEIRO"; else
-	 * tabularData[i][10]="FALSO";
-	 * if(singleRowFlags.get("god_class"))tabularData[i][7]="VERDADEIRO"; else
-	 * tabularData[i][7]="FALSO"; } return tabularData;
-	 * 
-	 * }
+	/**
+	 * Devolve a representação dos dados das métricas num double Array.
+	 * @return dados na forma de double array
 	 */
-
+	public String[][] getParsedFilesTabularData() {
+		return XLSX_read_write.dataFormater(parsedFilesStatsList);
+		
+	}
+	
+	
+	
+	/**
+	 * Devolve a estatistica geral do projeto num HashMap.
+	 * @return HashMap com dados estatisticos
+	 */
 	public HashMap<String, String> getProjectData() {
 		HashMap<String, String> projectStats = new HashMap<String, String>();
 		projectStats.put("packages", String.valueOf(metaDataStats.getNumberOfPackages()));
@@ -113,6 +117,7 @@ public class projectParser {
 		projectStats.put("totalLOC", String.valueOf(metaDataStats.getTotalLOC()));
 		projectStats.put("methodCountID", String.valueOf(metaDataStats.getMethodCountID()));
 		return projectStats;
+		
 	}
 
 }

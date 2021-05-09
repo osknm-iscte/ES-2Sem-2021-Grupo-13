@@ -210,9 +210,11 @@ public class GI {
 		c5.fill = GridBagConstraints.BOTH;
 		StringBuilder buff = new StringBuilder();
 		buff.append("<html>");
+		
 		buff.append(String.format(
 				"<p style=\"text-align: justify;text-justify: inter-word;\">Para definir as regras podem ser usadas as seguintes  variáveis de input:</p>"));
-		buff.append(String.format("<ul><li>tea</li><li>milk</li><li>cookie</li></ul>"));
+		 
+		buff.append(String.format("<ul><li>LOC_class</li><li>WMC_class</li><li>LOC_method</li><li>CYCLO_method</li><li>NOM_class</li></ul>"));
 		buff.append("</html>");
 		JLabel label = new JLabel(buff.toString());
 
@@ -572,17 +574,35 @@ public class GI {
 
 				String selectedRuleName = (String) JOptionPane.showInputDialog(frame, "Nome  da regra:\n",
 
-						"Regras de code smells", JOptionPane.PLAIN_MESSAGE, null, null, "ham");
-				if (selectedRuleName.isEmpty())
+						"Regras de code smells", JOptionPane.PLAIN_MESSAGE, null, null,"");
+				if (selectedRuleName==null)
 					return;
+				
+				try {
+					if(XMLParser.ckeckIfRuleNameExists(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml", selectedRuleName)) {
+						JOptionPane.showMessageDialog(frame,
+							    "A regra com este nome já existe");
+							return;
+					}
+				} catch (ParserConfigurationException | SAXException | IOException e1) {
+					JOptionPane.showMessageDialog(frame,
+						    "Algo correu mal no processamento do ficheiro das regras",
+						    "erro de processamento das regras",
+						    JOptionPane.ERROR_MESSAGE);
+						return;
+				}
 
 				System.out.println(selectedRuleName);
 				try {
 					XMLParser.createRule(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml",
 							UUID.randomUUID().toString(), selectedRuleName, null);
+					
 				} catch (ParserConfigurationException | SAXException | IOException | TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(frame,
+						    "Algo correu mal no processamento do ficheiro das regras",
+						    "erro de processamento das regras",
+						    JOptionPane.ERROR_MESSAGE);
+						return;
 				}
 				// regrasFrame.setVisible(true);
 
@@ -613,8 +633,7 @@ public class GI {
 
 						null, possibilities, "ham");
 
-				System.out.println(selectedRuleName);
-				// regrasFrame.setVisible(true);
+				if(selectedRuleName==null) return;
 
 				CardLayout cl = (CardLayout) (cards.getLayout());
 				cl.show(cards, RULE_CONFIG_INFO);
@@ -712,7 +731,7 @@ public class GI {
 
 						null, possibilities, "ham");
 
-				System.out.println(selectedRuleName);
+				if(selectedRuleName==null) return;
 
 				try {
 					detectCodeSmells();

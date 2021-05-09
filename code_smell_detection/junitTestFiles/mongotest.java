@@ -24,6 +24,32 @@ public class MongoWorker extends Thread {
 	}
 	public void setCloudClient(MongoClient cloudClient) {
 		this.cloudClient = cloudClient;
+
+		while(true){
+		System.out.println("hello");
+	}
+
+		for(int i=0;i<90;i++){
+			System.out.println("hello");
+		}
+		
+		int day = 4;
+switch (day) {
+  case 1:
+    System.out.println("Monday");
+    break;
+  case 2:
+    System.out.println("Tuesday");
+    break;
+}
+
+try{  
+      
+     int data=100/0;  
+   }
+catch(ArithmeticException e){System.out.println(e);}  
+
+
 	}
 	public void setLocalClient(MongoClient localClient) {
 		this.localClient = localClient;

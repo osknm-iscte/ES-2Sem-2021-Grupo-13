@@ -1,5 +1,16 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
+/**
+ * POJO class que armazena as estatisticas gerais do projeto. Este POJO é partilhado pelo projectParser 
+ * e pelos objetos da class App que representam os ficheiros de java sobre os quais foi feito parsing. Cada objeto da classe App,
+ * a medida que está efetuar cálculos de métricas, incrementa os valores do POJO. Após processamento de todos os 
+ * ficheiros por projectParser é possível obter estatisticas gerais do projeto.
+ *
+ * 
+ *  
+ * @author iscte-iul grupo 13
+ *
+ */
 public class projectParserMediator {
 
 	private int methodCountID = 0;
