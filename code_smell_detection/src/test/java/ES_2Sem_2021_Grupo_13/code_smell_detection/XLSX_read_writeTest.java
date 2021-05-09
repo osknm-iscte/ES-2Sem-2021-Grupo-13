@@ -6,19 +6,26 @@ import java.util.LinkedList;
 import org.junit.Test;
 
 public class XLSX_read_writeTest {
-	@Test
-	public void testXLSX_read_write() { //?????
-		
-		
-	}
+
+	
+//	static final String PATH = "C:\\Users\\maria\\Downloads\\Code_Smells (2).xlsx";
+	
+//	static final String PATH2 = "C:\\Users\\maria\\Documents\\Smells.xlsx";
+	
+	static final String PATH  = System.getProperty("user.dir") + "/" + "Code_Smells (2).xlsx";
+	static final String PATH2  = System.getProperty("user.dir") + "/" + "Smells.xlsx";
+
+	
+	
 	
 	@Test
 	public void testXLSX_readFile() { 
 		
-		String path = "C:\\Users\\maria\\Downloads\\Code_Smells (2).xlsx";
+		
+//		System.out.println(newPath);
 		
 		try {
-			XLSX_read_write.toTestreadFile(path);
+			XLSX_read_write.toTestreadFile(PATH);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -30,7 +37,7 @@ public class XLSX_read_writeTest {
 	@Test
 	public void testwriteFile() { 
 		
-		String path = "C:\\Users\\maria\\Documents\\Smells.xlsx";
+		
 		
 		LinkedList<String> data = new LinkedList<String>();
 		
@@ -53,17 +60,16 @@ public class XLSX_read_writeTest {
 		data.add("");
 		data.add("rule_x");
 		
-		XLSX_read_write.writeFile(path, data);
+		XLSX_read_write.writeFile(PATH2, data);
 	
 	}
 	
 	@Test
 	public void testreadyExcelForGUI() { 
 		
-		String path = "C:\\Users\\maria\\Documents\\Smells.xlsx";
 		
 		try {
-			XLSX_read_write.readyExcelForGUI(path);
+			XLSX_read_write.readyExcelForGUI(PATH2);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
