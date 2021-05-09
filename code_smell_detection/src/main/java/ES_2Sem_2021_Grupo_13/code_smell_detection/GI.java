@@ -320,6 +320,10 @@ public class GI {
 
 	}
 
+	/**
+	 * Cria e adiciona os paineis e componentes gerais da GUI,
+	 * incluindo os action listeners e action performed
+	 */
 	private void addFrameContent() {
 
 		final File defaultFile = new File(System.getProperty("user.home"));
@@ -442,7 +446,7 @@ public class GI {
 //							metrics_card.remove(scrollPane);
 //						}
 						getProjectStatsFromExcel(rowsForTable);
-
+						
 //						jt = new JTable(rowsForTable, column) {
 //							public boolean editCellAt(int row, int column, java.util.EventObject e) {
 //								return false;
@@ -471,17 +475,20 @@ public class GI {
 //						metrics_card.revalidate();
 //						metrics_card.repaint();
 						tableFabric();
+						CardLayout cl = (CardLayout) (cards.getLayout());
+						cl.show(cards, METRICS_INFO);
 						((JButton) JComponentMap.get("detectCodeSmells")).setVisible(true);
 						JOptionPane.
 						showMessageDialog(frame, "Foi importado o ficheiro " + fileChooser.getSelectedFile().getCanonicalPath());
 					} else {
 						JOptionPane.showMessageDialog(frame, "Não foi encontrado o ficheiro. Deve ter formato xlsx");
 					}
-				} catch (HeadlessException e) {
-					e.printStackTrace();
+				} catch (HeadlessException | NumberFormatException e) {
+					JOptionPane.showMessageDialog(frame, "Erro IO na importação do ficheiro!");
+					return;
 				} catch (IOException e) {
 					JOptionPane.showMessageDialog(frame, "Erro IO na importação do ficheiro!");
-					e.printStackTrace();
+					return;
 				}
 			}
 		});
@@ -692,13 +699,13 @@ public class GI {
 						for(int i=0; i<finalI; i++) {		
 						
 							
-							JLabel tPl = new JLabel(String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
+							JLabel tPl = new JLabel("  True Positive: " + String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
 									.get((possibilitiesBox.getSelectedItem())), chooser).get("truePositive")));
-							JLabel tNl = new JLabel(String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
+							JLabel tNl = new JLabel("  True Negative: " + String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
 									.get((possibilitiesBox.getSelectedItem())), chooser).get("trueNegative")));
-							JLabel fPl = new JLabel(String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
+							JLabel fPl = new JLabel("  False Positive: " + String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
 									.get((possibilitiesBox.getSelectedItem())), chooser).get("falsePositiveCounter")));
-							JLabel fNl = new JLabel(String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
+							JLabel fNl = new JLabel("  False Negative: " + String.valueOf(codeSmellRuleInterpreter.testRuleAccuracy(XMLParser.getRulesName(System.getProperty("user.dir") + "/" + "code_smell_rule_definitions.xml")
 									.get((possibilitiesBox.getSelectedItem())), chooser).get("falseNegative")));
 							
 							labelArray[0] = tPl;
@@ -734,12 +741,16 @@ public class GI {
 
 	}
 
+	/**
+	 * Criacao das matrizes, uma para Code Smell Long_Method e outra para is_God_Class,
+	 * que suportam a visualização das comparacoes realizadas no ponto 6
+	 */
 	private void fillMatrixes() {
 		
 		confusionMatrixGodClass.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		confusionMatrixLongMethod.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		
-		JPanel centerLongMethod, centerGodClass, left, top;
+		JPanel centerLongMethod, centerGodClass, leftMethod, leftClass, topClass, topMethod;
 
 		mainGodClass = new JPanel(new BorderLayout());
 		mainLongMethod = new JPanel(new BorderLayout());
@@ -772,31 +783,45 @@ public class GI {
 
 		}
 
-		left = new JPanel();
-		left.setLayout(new GridLayout(2, 1));
-		JLabel predictedPositive = new JLabel("Predicted: Positive");
-		JLabel predictedNegative = new JLabel("Predicted: Negative");
-		left.add(predictedPositive);
-		left.add(predictedNegative);
+		leftMethod = new JPanel();
+		leftMethod.setLayout(new GridLayout(2, 1));
+		leftClass = new JPanel();
+		leftClass.setLayout(new GridLayout(2, 1));
+		JLabel predictedPositiveM = new JLabel("Predicted: Positive");
+		JLabel predictedNegativeM = new JLabel("Predicted: Negative");
+		JLabel predictedPositiveC = new JLabel("Predicted: Positive");
+		JLabel predictedNegativeC = new JLabel("Predicted: Negative");
+		leftMethod.add(predictedPositiveM);
+		leftMethod.add(predictedNegativeM);
+		leftClass.add(predictedPositiveC);
+		leftClass.add(predictedNegativeC);
 
-		top = new JPanel();
-		top.setLayout(new GridLayout(1, 2));
-		JLabel actualPositive = new JLabel("Predicted: Positive");
-		JLabel actualNegative = new JLabel("Predicted: Negative");
-		JLabel matrixLabel = new JLabel("Confusion Matrix");
-		top.add(matrixLabel);
-		top.add(actualPositive);
-		top.add(actualNegative);
+		topMethod = new JPanel();
+		topMethod.setLayout(new GridLayout(1, 2));
+		topClass = new JPanel();
+		topClass.setLayout(new GridLayout(1, 2));
+		JLabel actualPositiveM = new JLabel("Actual: Positive");
+		JLabel actualNegativeM = new JLabel("Actual: Negative");
+		JLabel matrixLabelM = new JLabel("Confusion Matrix");
+		JLabel actualPositiveC = new JLabel("Actual: Positive");
+		JLabel actualNegativeC = new JLabel("Actual: Negative");
+		JLabel matrixLabelC = new JLabel("Confusion Matrix");
+		topMethod.add(matrixLabelM);
+		topMethod.add(actualPositiveM);
+		topMethod.add(actualNegativeM);
+		topClass.add(matrixLabelC);
+		topClass.add(actualPositiveC);
+		topClass.add(actualNegativeC);
 
 		mainLongMethod.add(centerLongMethod, BorderLayout.CENTER);
-		mainLongMethod.add(left, BorderLayout.WEST);
-		mainLongMethod.add(top, BorderLayout.NORTH);
+		mainLongMethod.add(leftMethod, BorderLayout.WEST);
+		mainLongMethod.add(topMethod, BorderLayout.NORTH);
 		confusionMatrixLongMethod.add(mainLongMethod);
 		confusionMatrixLongMethod.getContentPane();
 		
 		mainGodClass.add(centerGodClass, BorderLayout.CENTER);
-		mainGodClass.add(left, BorderLayout.WEST);
-		mainGodClass.add(top, BorderLayout.NORTH);
+		mainGodClass.add(leftClass, BorderLayout.WEST);
+		mainGodClass.add(topClass, BorderLayout.NORTH);
 		confusionMatrixGodClass.add(mainGodClass);
 		confusionMatrixGodClass.getContentPane();
 
@@ -809,6 +834,14 @@ public class GI {
 		confusionMatrixGodClass.setLocationRelativeTo(null);
 	}
 	
+	
+	
+	/**
+	 * Metodo para alterar os valores das matrizes quando se executa uma nova comparacao do ponto 6
+	 * 
+	 * @param labelArray Array de JLabels que contêm os novos valores na forma de String
+	 * @param chooser integer indicativo de qual a matriz (Code Smell Long_Method ou is_God_Class) que se pretende alterar
+	 */
 	private void changeBoxStats(JLabel[] labelArray, int chooser) {
 		for(int i=0; i<4; i++) {
 			
@@ -844,12 +877,22 @@ public class GI {
 //
 //	}
 
+	
+	/**
+	 * Identificacao de Code Smells, a partir da invocacao do método getProjectCodeSmells da classe CodeSmellRuleInterpreter,
+	 * e invocacao do metodo de criaçao da tabela para visualizacao. As excecoes sao tratadas a partir do metodo a invocar.
+	 * @throws NumberFormatException
+	 * @throws PolyglotException
+	 * @throws ScriptException
+	 */
 	private void detectCodeSmells() throws NumberFormatException, PolyglotException, ScriptException {
-		assert selectedProjectParser != null : "não foi feito parsing do projeto";
 
-		String[][] dataWithCodeSmellFlags = codeSmellRuleInterpreter.getProjectCodeSmells(rows, script);
-		
-		tableFabric();
+		if(jt.isVisible()) {	
+			String[][] dataWithCodeSmellFlags = codeSmellRuleInterpreter.getProjectCodeSmells(rows, script);
+			
+			tableFabric();
+		}
+		else JOptionPane.showMessageDialog(frame, "Não foi feito o parsing do projeto!");
 		
 //		String[] column = Arrays.copyOf(rows[0], rows[0].length - 1);
 //		String[][] rowsForTable = new String[rows.length][rows[0].length - 1];
@@ -875,6 +918,9 @@ public class GI {
 //		metrics_card.repaint();
 	}
 	
+	/**
+	 * Criacao das tabelas que ajudam a visualizaçao
+	 */
 	private void tableFabric() {
 		String[] column = Arrays.copyOf(rows[0], rows[0].length - 1);
 		String[][] rowsForTable = new String[rows.length][rows[0].length];
@@ -902,6 +948,12 @@ public class GI {
 		metrics_card.repaint();
 	}
 
+	/**
+	 * Metodo que recebe um caminho e devolve uma String apenas com a extensao final
+	 * 
+	 * @param fullName String com o caminho de um ficheiro de qualquer tipo.
+	 * @return String com a extensao do ficheiro
+	 */
 	private String getFileExtension(String fullName) {
 		String fileName = new File(fullName).getName();
 		int dotIndex = fileName.lastIndexOf('.');

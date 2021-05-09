@@ -2,25 +2,11 @@ package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
 import org.junit.Test;
 
+import com.github.javaparser.ast.body.CallableDeclaration;
+
 public class MethodComplexityInfoTest {
 	
-	@Test
-	public void testgetEdges() {
-		
-		methodComplexityInfo.getEdges();
-		
-	}
-	
-	@Test
-	public void testupdateEdges() {
-		
-		int edges = 2;
-		methodComplexityInfo.updateEdges(edges);
-		
-		testgetEdges();
-		
-		
-	}
+
 	
 	@Test
 	public void testgetNodes() {
@@ -39,14 +25,7 @@ public class MethodComplexityInfoTest {
 		
 	}
 	
-	@Test
-	public void testgetMethod() {
-		
-		methodComplexityInfo.getMethod();
-		
-		
-		
-	}
+
 	
 	
 	

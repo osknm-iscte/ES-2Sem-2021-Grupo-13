@@ -57,7 +57,6 @@ public class XLSX_read_write {
 
 	
 	
-	
 	public static LinkedList<String> readFile2(String path) throws IOException { //reads the .xlsx file and puts its content on a linkedList
 		
 		//if you want a String [][] use the dataFormater(returnOfThisMethod) 

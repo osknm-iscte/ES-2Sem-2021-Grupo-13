@@ -25,7 +25,7 @@ public class XLSX_read_writeTest {
 //		System.out.println(newPath);
 		
 		try {
-			XLSX_read_write.toTestreadFile(PATH);
+			XLSX_read_write.readFile2(PATH);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -12,10 +12,10 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 public class methodComplexityInfo {
 
 	
-	private int nodes = 0;
+	private static int nodes = 0;
 	private CallableDeclaration m;
 
-	public int getNodes() {
+	public static int getNodes() {
 		return nodes;
 	}
 
@@ -25,8 +25,8 @@ public class methodComplexityInfo {
 
 	}
 
-	public void updateNodes(int nodes) {
-		this.nodes = this.nodes + nodes;
+	public static void updateNodes(int newnodes) {
+		nodes = nodes + newnodes;
 	}
 
 }

@@ -23,4 +23,8 @@ if(LOC_class&gt;5)god_class=true;
 <name>testfinal</name>
 <definition/>
 </rule>
+<rule id="8a51828e-c866-44d3-966a-37d6b8a3fe45">
+<name>kant</name>
+<definition>mnkb</definition>
+</rule>
 </codeSmellRulesDefinitions>
