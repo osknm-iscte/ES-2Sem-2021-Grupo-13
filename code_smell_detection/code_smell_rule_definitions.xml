@@ -19,4 +19,8 @@ if(LOC_class&gt;5)god_class=true;
 <name>myruletestwrite</name>
 <definition>if(x&gt;10)something cool will happen;</definition>
 </rule>
+<rule id="cb388941-a583-45a7-a3d3-8ff296afec0e">
+<name>testfinal</name>
+<definition/>
+</rule>
 </codeSmellRulesDefinitions>

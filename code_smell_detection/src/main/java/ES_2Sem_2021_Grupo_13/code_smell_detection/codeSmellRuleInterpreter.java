@@ -1,10 +1,14 @@
 package ES_2Sem_2021_Grupo_13.code_smell_detection;
 
 import java.io.IOException;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import java.nio.file.Paths;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,6 +30,7 @@ public class codeSmellRuleInterpreter {
 	private String script = "if(LOC_method>10)long_method=true; else" + " long_method=false;";
 
 	public codeSmellRuleInterpreter(String script) {
+
 		if (script != null)
 			this.script = script;
 
@@ -45,14 +50,39 @@ public class codeSmellRuleInterpreter {
 	 * @throws PolyglotException pode gerar PolyglotException
 	 * @throws ScriptException pode gerar ScriptException
 	 */
-	public static HashMap<String, Boolean> getCodeSmellFlags(String script, int NOM_class, int LOC_class, int WMC_class,
-			int LOC_method, int CYCLO_method) throws PolyglotException, ScriptException {
-		ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-		ScriptEngine engine = scriptEngineManager.getEngineByName("graal.js");
-		Bindings bindings = engine.createBindings();
-		boolean long_method = false;
-		boolean god_class = false;
-		HashMap<String, Boolean> flags = new HashMap<String, Boolean>();
+	
+	
+	public static HashMap<String, Integer> testRuleAccuracy(String scriptToTest, int code_smell_id)
+			throws IOException, NumberFormatException, PolyglotException, ScriptException {
+
+		projectParser testingProject = new projectParser(
+				Paths.get(System.getProperty("user.dir") + "/rulesTesting/jasml/"));
+		testingProject.parseJavaFiles();
+		String[][] testingRuleCodeSmells = getProjectCodeSmells(testingProject.getParsedFilesTabularData(),
+				scriptToTest);
+		testingRuleCodeSmells = preprocessData(testingRuleCodeSmells);
+		String[][] testingData = XLSX_read_write
+				.readyExcelForGUI(System.getProperty("user.dir") + "/rulesTesting/excelForTesting/Code_Smells.xlsx");
+		testingData=preprocessData(testingData);
+		HashMap<String, Boolean> testingRulesCodeSmellFlags = getMetricsInHashMap(testingRuleCodeSmells, code_smell_id);
+		HashMap<String, Boolean> testAgainstModel = getMetricsInHashMap(testingData, code_smell_id);
+		return compareHashMapsAndGetResults(testingRulesCodeSmellFlags, testAgainstModel);
+	}
+
+	
+
+	
+
+
+	
+	public static HashMap<String,Boolean> getCodeSmellFlags(String script,int NOM_class,int LOC_class,int WMC_class,int LOC_method,int CYCLO_method) throws PolyglotException, ScriptException {
+		 ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+		 ScriptEngine engine = scriptEngineManager.getEngineByName("graal.js");
+		 Bindings bindings = engine.createBindings();
+		 boolean long_method=false;
+		 boolean god_class=false;
+		HashMap<String,Boolean>flags=new HashMap<String,Boolean>();
+
 		bindings.put("long_method", long_method);
 		bindings.put("god_class", god_class);
 		bindings.put("NOM_class", NOM_class);
@@ -143,35 +173,7 @@ public class codeSmellRuleInterpreter {
 		return SCRIPT;
 	}
 
-	/**
-	 * Testa a acurácia da regra usada pelo utilizador na detecção dos code smells.
-	 * Recebe como argumento script com regras na forma de string a testar e o id do
-	 * code smell que pretendemos analisar. É devolvido um HashMap com 4 valores que guarda
-	 * verdadeiros positivos, verdadeiros negativos, falsos positivos, falsos negativos.
-	 * 
-	 * @param scriptToTest script a testar
-	 * @param code_smell_id id do code smell que identifica code smell usado no teste.
-	 * @return HashMap que representa os valores da matriz de confusão.
-	 * @throws IOException pode gerar IOException
-	 * @throws NumberFormatException pode gerar NumberFormatException
-	 * @throws PolyglotException pode gerar PolyglotException
-	 * @throws ScriptException pode gerar ScriptException
-	 */
-	public static HashMap<String, Integer> testRuleAccuracy(String scriptToTest, int code_smell_id)
-			throws IOException, NumberFormatException, PolyglotException, ScriptException {
-
-		projectParser testingProject = new projectParser(
-				Paths.get(System.getProperty("user.dir") + "/rulesTesting/jasml/"));
-		testingProject.parseJavaFiles();
-		String[][] testingRuleCodeSmells = getProjectCodeSmells(testingProject.getParsedFilesTabularData(),
-				scriptToTest);
-		testingRuleCodeSmells = preprocessData(testingRuleCodeSmells);
-		String[][] testingData = XLSX_read_write.readyExcelForGUI(System.getProperty("user.dir") + "/rulesTesting/excelForTesting/Code_Smells.xlsx");
-		testingData=preprocessData(testingData);
-		HashMap<String, Boolean> testingRulesCodeSmellFlags = getMetricsInHashMap(testingRuleCodeSmells, code_smell_id);
-		HashMap<String, Boolean> testAgainstModel = getMetricsInHashMap(testingData, code_smell_id);
-		return compareHashMapsAndGetResults(testingRulesCodeSmellFlags, testAgainstModel);
-	}
+	
 
 	/**
 	 * Transforma os valores booleanos presentes no parametro de input na representação de String.
