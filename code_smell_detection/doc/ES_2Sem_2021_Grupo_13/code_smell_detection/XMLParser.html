@@ -86,9 +86,9 @@ extends java.lang.Object</pre>
 <dl class="notes">
 <dt>Author:</dt>
 <dd>iscte-iul grupo 13
- Esta classe serve para ler/escrever as regras de detecÃ§Ã£o de code smells definidas pelos
- utilizadores. As regras estÃ£o definidas num fichero XML. Os metodos desta classe permitem
- criar regras, modificar regras, escolher regras no cÃ¡lculo de code smells durante execuÃ§Ã£o
+ Esta classe serve para ler/escrever as regras de deteção de code smells definidas pelos
+ utilizadores. As regras estão definidas num fichero XML. Os metodos desta classe permitem
+ criar regras, modificar regras, escolher regras no cÃ¡lculo de code smells durante execução
  do programa.</dd>
 </dl>
 </section>
@@ -148,7 +148,7 @@ java.lang.String&nbsp;elementID,
 java.lang.String&nbsp;ruleName,
 java.lang.String&nbsp;ruleDefinition)</code></th>
 <td class="col-last">
-<div class="block">Cria nova regra no ficheiro xml com os parÃ¢metros recebidos.</div>
+<div class="block">Cria nova regra no ficheiro xml com os parâmetros recebidos.</div>
 </td>
 </tr>
 <tr class="alt-color" id="i2">
@@ -157,14 +157,14 @@ java.lang.String&nbsp;ruleDefinition)</code></th>
 java.lang.String&nbsp;ruleName,
 java.lang.String&nbsp;ruleDef)</code></th>
 <td class="col-last">
-<div class="block">Faz ediÃ§Ã£o da definiÃ§Ã£o da regras</div>
+<div class="block">Faz edição da definição da regras</div>
 </td>
 </tr>
 <tr class="row-color" id="i3">
 <td class="col-first"><code>static java.util.HashMap&lt;java.lang.String,&#8203;java.lang.String&gt;</code></td>
 <th class="col-second" scope="row"><code><span class="member-name-link"><a href="#getRulesName(java.lang.String)">getRulesName</a></span>&#8203;(java.lang.String&nbsp;path)</code></th>
 <td class="col-last">
-<div class="block">Devolve os nomes das regras e as suas definiÃ§Ãµes a partir de um ficheiro xml.</div>
+<div class="block">Devolve os nomes das regras e as suas definições a partir de um ficheiro xml.</div>
 </td>
 </tr>
 </tbody>
@@ -203,12 +203,12 @@ java.lang.String&nbsp;ruleDef)</code></th>
 <section class="detail" id="getRulesName(java.lang.String)">
 <h3>getRulesName</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">java.util.HashMap&lt;java.lang.String,&#8203;java.lang.String&gt;</span>&nbsp;<span class="member-name">getRulesName</span>&#8203;(<span class="parameters">java.lang.String&nbsp;path)</span></div>
-<div class="block">Devolve os nomes das regras e as suas definiÃ§Ãµes a partir de um ficheiro xml.</div>
+<div class="block">Devolve os nomes das regras e as suas definições a partir de um ficheiro xml.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>path</code> - caminho onde estÃ£o as regras</dd>
+<dd><code>path</code> - caminho onde estão as regras</dd>
 <dt>Returns:</dt>
-<dd>HashMap com nome das regras existentes como chave e definiÃ§Ã£o das regras como valor</dd>
+<dd>HashMap com nome das regras existentes como chave e definições das regras como valor</dd>
 </dl>
 </section>
 </li>
@@ -223,13 +223,13 @@ java.lang.String&nbsp;ruleDefinition)</span>
 org.xml.sax.SAXException,
 java.io.IOException,
 javax.xml.transform.TransformerException</span></div>
-<div class="block">Cria nova regra no ficheiro xml com os parÃ¢metros recebidos.</div>
+<div class="block">Cria nova regra no ficheiro xml com os parâmetros recebidos.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>path</code> - caminho que representa o ficheiro xml onde estÃ£o definidas as regras</dd>
+<dd><code>path</code> - caminho que representa o ficheiro xml onde estão definidas as regras</dd>
 <dd><code>elementID</code> - id da regra a ser criada</dd>
 <dd><code>ruleName</code> - nome da regra a ser criada</dd>
-<dd><code>ruleDefinition</code> - definiÃ§Ã£o da regra</dd>
+<dd><code>ruleDefinition</code> - definição da regra</dd>
 <dt>Throws:</dt>
 <dd><code>javax.xml.parsers.ParserConfigurationException</code></dd>
 <dd><code>org.xml.sax.SAXException</code></dd>
@@ -248,12 +248,12 @@ java.lang.String&nbsp;ruleDef)</span>
 javax.xml.parsers.ParserConfigurationException,
 org.xml.sax.SAXException,
 java.io.IOException</span></div>
-<div class="block">Faz ediÃ§Ã£o da definiÃ§Ã£o da regras</div>
+<div class="block">Faz edição das definições da regras</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>path</code> - caminho onde estÃ£o definidas as regras</dd>
+<dd><code>path</code> - caminho onde estão definidas as regras</dd>
 <dd><code>ruleName</code> - nome da regra a editar</dd>
-<dd><code>ruleDef</code> - nova definiÃ§Ã£o da regra</dd>
+<dd><code>ruleDef</code> - nova definição da regra</dd>
 <dt>Throws:</dt>
 <dd><code>javax.xml.transform.TransformerException</code></dd>
 <dd><code>javax.xml.parsers.ParserConfigurationException</code></dd>
@@ -270,12 +270,12 @@ java.lang.String&nbsp;ruleName)</span>
                                      throws <span class="exceptions">javax.xml.parsers.ParserConfigurationException,
 org.xml.sax.SAXException,
 java.io.IOException</span></div>
-<div class="block">verifica se o nome da  regra existe. Ã‰ usado sobretudo na GUI 
- na parte de criaÃ§Ã£o das regras. Serve para prevenir situaÃ§Ã£o de atribuir o
+<div class="block">verifica se o nome da  regra existe. É usado sobretudo na GUI 
+ na parte de criaÃ§Ã£o das regras. Serve para prevenir situação de atribuir o
  mesmo nome a mais do que uma regra</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>path</code> - caminho onde estÃ£o definidas as regras</dd>
+<dd><code>path</code> - caminho onde estão definidas as regras</dd>
 <dd><code>ruleName</code> - nome da regra a verificar se existe</dd>
 <dt>Returns:</dt>
 <dd>booleano que devolve true se oo nome da regra existe e false caso contrÃ¡rio</dd>
