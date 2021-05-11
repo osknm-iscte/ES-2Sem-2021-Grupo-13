@@ -234,15 +234,7 @@ public class codeSmellRuleInterpreter {
 				}
 			}
 		}
-		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-		for (String key : testingRulesCodeSmellFlags.keySet()) {
-
-			if (testAgainstModel.containsKey(key)) {
-				System.out.println(key);
-			}
-		}
-		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-
+		
 
 		results.put("truePositive", truePositiveCounter);
 		results.put("trueNegative", trueNegativeCounter);

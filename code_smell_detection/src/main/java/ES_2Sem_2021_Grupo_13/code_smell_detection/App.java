@@ -398,7 +398,8 @@ public class App {
 			throw new IllegalArgumentException("Path must be a directory!");
 		}
 
-		List<String> result;
+		List<String> result=new ArrayList<String>();
+		
 
 		try (Stream<Path> walk = Files.walk(path)) {
 			result = walk.filter(p -> !Files.isDirectory(p))
@@ -409,5 +410,8 @@ public class App {
 		return result;
 
 	}
+	
+	
+	}
 
-}
+
